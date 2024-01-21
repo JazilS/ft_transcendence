@@ -1,5 +1,6 @@
 import { Press_Start_2P } from 'next/font/google'
 import "../app/styles.css"
+import Link from 'next/link'
 
 export default function MyHeader(){
     return (
@@ -21,9 +22,11 @@ export default function MyHeader(){
 
 const PlayButton: React.FC = () => {
 	return (
-			  <button className={`text-white text-2xl ${press_Start_2P.className}`}>
+			<Link href="/lobby">
+			<button className={`text-white text-2xl ${press_Start_2P.className}`}>
 				play
 			  </button >
+			</Link>
 	  );
   };
   
@@ -54,9 +57,12 @@ const SettingsButton: React.FC = () => {
 
 const SearchBar: React.FC = () => {
 	return (
-		<form className="w-[440px] relative ml-32">
+		<form className="w-[350px] relative ml-32">
 			<div className={`${press_Start_2P.className}`}>
-				<input type="search" placeholder='Type here' className='w-full p-4 rounded-lg  bg-white placeholder-indigo-500 text-black'/>
+				<input 
+				type="search" 
+				placeholder='search' 
+				className='w-full h-[44px] p-4 rounded-lg  bg-white placeholder-indigo-500 text-black text-center text-xl'/>
 			</div>
 		</form>
 
@@ -68,3 +74,4 @@ const press_Start_2P = Press_Start_2P({
     weight: '400'
   })
 
+export { PlayButton, ProfileButton, ChatButton, SettingsButton, SearchBar, press_Start_2P};
