@@ -1,7 +1,8 @@
-import PrincipalPage from './PrincipalPage';
+import App from './App'
+import './globals.css'
 
 export default function Home() {
   return (
-    <PrincipalPage />
-  )
+    <App />
+  );
 }
