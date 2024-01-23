@@ -1,70 +1,81 @@
+// 'use client'
+
 import { Press_Start_2P } from 'next/font/google'
- 
-const press_Start_2P = Press_Start_2P({
-	subsets: ['latin'],
-	weight: '400'
-  })
+import "../app/styles.css"
+import Link from 'next/link'
 
-const myHeader: React.FC = () => {
-	return (
-	<div className="h-28 bg-gradient-to-b from-black to-transparent w-[100vw] flex flex-row items-center">
-		<div className={`flex flex-row w-[33%] justify-evenly text-white text-2xl ${press_Start_2P.className}`}>
-			<ButtonPlay></ButtonPlay>
-			<ButtonProfile></ButtonProfile>
-			<ButtonChat></ButtonChat>
+export default function MyHeader(){
+    return (
+		<div  className="bg-gradient-to-b from-black to-transparente h-[10vh] flex items-center">
+			<div className="w-[33%] pl-12 h-[10vh] flex gap-16 items-center">
+				<PlayButton />
+				<ProfileButton />
+				<ChatButton />
+			</div>
+			<div className='w-[33%]' >
+				<SearchBar />
+			</div>
+			<div className="w-[33%] flex justify-end pr-12">
+				<SettingsButton />
+			</div>
 		</div>
-		<div className={`flex items-center w-[33%] justify-center ${press_Start_2P.className}`}>
-			<SearchBar></SearchBar>
-		</div>
-		<div className={`flex items-center w-[33%] justify-end pr-7 text-white text-2xl ${press_Start_2P.className}`}>
-			<ButtonSettings></ButtonSettings>
-		</div>
-	</div>
 	);
 };
 
-const ButtonPlay: React.FC = () => {
-	return (	
-		<div className="inline-block">Play</div>
-	);
-};
-
-const ButtonProfile: React.FC = () => {
+const PlayButton: React.FC = () => {
 	return (
-		<div className="inline-block">Profile</div>
-		
+			<Link href="/lobby">
+			<button className={`text-white text-2xl ${press_Start_2P.className}`}>
+				play
+			  </button >
+			</Link>
+	  );
+  };
+  
+const ChatButton: React.FC = () => {
+	return (
+			  <button className={` text-white  text-2xl ${press_Start_2P.className}`}>
+				chat
+			  </button >
+	  );
+  };
+
+const ProfileButton: React.FC = () => {
+    return (
+		<Link href="/profile">
+			<button className={` text-white  text-2xl ${press_Start_2P.className}`}>
+				profile
+			</button>
+		</Link>
 	);
 };
 
-const ButtonSettings: React.FC = () => {
-	return (
-		<div className="inline-block">Settings</div>
-		
-	);
-};
 
-const ButtonChat: React.FC = () => {
-	return (
-		<div className="inline-block">Chat</div>
-		
-	);
+const SettingsButton: React.FC = () => {
+    return (
+            <button className={` text-white text-2xl ${press_Start_2P.className}`}>
+              settings
+            </button >
+    );
 };
 
 const SearchBar: React.FC = () => {
 	return (
-			<form className="">
-				<input type='search' className=' rounded-lg h-9 w-96'></input>
-			</form>
+		<form className="w-[400px] ml-32">
+			<div className={`${press_Start_2P.className}`}>
+				<input 
+				type="search" 
+				placeholder='search' 
+				className='w-full h-[44px] p-4 rounded-lg  bg-white placeholder-indigo-500 text-black text-center text-xl'/>
+			</div>
+		</form>
+
 	);
-};
+}
 
-// const myHeader: React.FC = () => {
-	// return (
-		// <div className="flex h-[7vh] items-center bg-black">
-			{/* <div className={` text-fuchsia-200 ml-36 text-2xl ${press_Start_2P.className}`}>TRANSCENDENCE</div > */}
-		{/* </div> */}
-	// );
-// };
-// 
+const press_Start_2P = Press_Start_2P({
+    subsets: ['latin'],
+    weight: '400'
+  })
 
-export default myHeader
+export { PlayButton, ProfileButton, ChatButton, SettingsButton, SearchBar, press_Start_2P};

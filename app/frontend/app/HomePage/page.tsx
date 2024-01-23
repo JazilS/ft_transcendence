@@ -1,9 +1,9 @@
-import LogPage from './LogPage'
+import HomePage from './HomePage'
 // import LobbyPage from './LobbyPage'
-import './styles.css'
+import '../styles.css'
 
 export default function Home() {
   return (
-    <LogPage />
+    <HomePage />
   );
 }
