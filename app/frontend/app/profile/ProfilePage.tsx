@@ -1,111 +1,46 @@
 'use client'
 
-import React, { useState, createRef } from 'react'
-import '../styles.css'
+import React, { useState, useEffect } from 'react'
 import MyHeader from '@/components/Header'
-import { CropperRef, Cropper } from 'react-advanced-cropper';
-import 'react-advanced-cropper/dist/style.css'
-
-import Image from 'next/image';
-import ReactCrop, {Crop} from 'react-image-crop'
-// import 'react-image-crop/dist/ReactCrop.css'
-// import Cropper from 'react-easy-crop'
-// import Cropper, { ReactCropperElement } from "react-cropper";
-import { blue } from '@mui/material/colors';
-
+import GameHistory from './GameHistory'
+import PlayerProfile from '@/components/PlayerProfile';
+import { UserProfile } from '@/models/ProfilePageModel'
+import '../styles.css'
 
 export default function ProfilePage() {
+	const [user, setUser] = useState<UserProfile>();
+
+	useEffect(() => {
+		
+		// get username and profile picture from back
+		setUser({
+			name: "Musashi",
+			imageSrc: "/Musashi.jpg",
+			games: [
+				{id: "game1", date: "01/01/0001"},
+				{id: "game2", date: "02/02/0002"},
+				{id: "game3", date: "03/03/0003"},
+				{id: "game4", date: "04/04/0004"},
+				{id: "game5", date: "05/05/0005"},
+			]});
+	}, []);
+
 	return (
 		<div className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 h-[100vh]">
 			<MyHeader />
-			<Profile/>
-		</div>
-  );
-}
-
-
-const Profile: React.FC = () => {
-	let username:string
-	username = "kgezgin"
-	return (
-		<div className='flex justify-center'>
-			{/* <div className="flex flex-row w-5/6 h-[789px] bg-white rounded-3xl">
-				<div className='h-[738px] w-[315px] ml-7 mt-7 flex flex-col justify-center items-center bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500'>
-					<div className="rounded-full mb-10 bg-white h-[162px] w-[162px]">
+			<div className='flex justify-center'>
+				<div className="flex flex-row w-5/6 h-[789px] bg-white rounded-3xl p-7 space-x-7">
+					<div className={`h-[738px] w-[315px] flex flex-col justify-center items-center bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500`}>
+						<PlayerProfile user={user!} />
 					</div>
-					{username}
-
-				</div>
-				<div className='h-[738px] w-[855px] ml-7 mt-7 mr-7 bg-gradient-to-br rounded-3xl from-fuchsia-500  to-indigo-500  '>
-
-				</div>
-				<div className='h-[738px] w-[315px] mt-7 bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500'>
-				
-				</div>
-			</div> */}
-								<CropDemo src= "/Pong.jpg"></CropDemo>
-
+					<div className='h-[738px] w-[855px] bg-gradient-to-br rounded-3xl from-fuchsia-500  to-indigo-500'>
+							<GameHistory user={user!} />
+					</div>
+					<div className='h-[738px] w-[315px] bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500'>
+					
+					</div>
+				</div>					{/* <CropDemo src= "/Pong.jpg"></CropDemo> */}
+			</div>						{/* <input onChange={(event) => setUser({ name: event.target.value, imageSrc: "/Musashi.jpg" })}/> */}
 		</div>
-	);
-};
-
-
-
-
-
-interface CropDemoProps {
-  src: string;
-}
-
-const CropDemo: React.FC<CropDemoProps> = ({ src }) => {
-
-  const [crop, setCrop] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(1)
-
-//   const onCropComplete = (croppedArea, croppedAreaPixels) => {
-//     console.log(croppedArea, croppedAreaPixels)
-//   }
-
-console.log()
-
-
-const defaultSrc =
-  "https://raw.githubusercontent.com/roadmanfong/react-cropper/master/example/img/child.jpg";
-  const [image] = useState(
-	'https://images.unsplash.com/photo-1599140849279-1014532882fe?fit=crop&w=1300&q=80',
-);
-
-const onChange = (cropper: CropperRef) => {
-	console.log(cropper.getCoordinates(), cropper.getImage());
-};
-
-  return (
-	<div>
-     <Cropper
-            src={src}
-            onChange={onChange}
-            className={'cropper'}
-        />;
-
-	</div>
   );
-};
-
-    {/* <Cropper
-         ref={cropperRef}
-		 style={{ height: '400', width: '100%' }}
-		zoomable={false}		 
-		 //  initialAspectRatio={1}
-		 preview=".img-preview"
-		 src={image}
-		 background={false}
-		 responsive={true}
-		 autoCropArea={1}
-		 guides={true}
-    /> */}
-
-// const HistoryGame: React.FC = () => {
-	// return (
-		// 
-	// );
-// };
+}
