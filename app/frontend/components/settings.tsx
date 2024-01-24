@@ -3,7 +3,6 @@
 import { Press_Start_2P } from 'next/font/google'
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import '../app/styles.css';
 
@@ -26,7 +25,7 @@ export default function SettingsModal() {
 
   return (
     <div>
-      <Button onClick={handleOpen} className={`${press_Start_2P.className} text-white `}>settings</Button>
+      <button onClick={handleOpen} className={`${press_Start_2P.className} text-white `}>settings</button>
       <Modal
         open={open}
         onClose={handleClose}
@@ -34,11 +33,9 @@ export default function SettingsModal() {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <div className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded-[50px] text-center" >
-            <button>
+            <button className=" w-[325px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded-[50px] text-center">  
               Enable double auth.
             </button>
-          </div>
         </Box>
       </Modal>
     </div>
