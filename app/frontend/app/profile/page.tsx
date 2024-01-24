@@ -36,10 +36,16 @@ export default function EditProfileButton() {
 		  aria-describedby="modal-modal-description"
 		>
 		  <Box sx={style}>
-			<div className='w-full h-full flex justify-center'>
-				<div className='flex flex-col'>
-					<	PlayerProfile user={{name: 'Player 1', imageSrc: '/Musashi.jpg', games: []}} width={310} height={310}/>
+			<div className='w-full h-full flex flex-col items-center space-y-10'>
+				<div>
+					<PlayerProfile user={{name: 'jsabound', imageSrc: '/Musashi.jpg', games: []}} width={310} height={310}/>
 				</div>
+					<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center">
+						Change avatar
+					</button>
+					<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center">
+						Change username
+					</button>
 			</div>
 		  </Box>
 		</Modal>
