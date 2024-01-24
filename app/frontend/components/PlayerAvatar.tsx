@@ -9,8 +9,13 @@ interface PlayerAvatarProps {
 
 const PlayerAvatar: React.FC<PlayerAvatarProps> =  ({src, width, height}) =>{
 	return(
-		<div className={`rounded-full mb-10 bg-white h-${height} w-${width} justify-center items-center overflow-hidden`}>
-			<Image src={src} alt="profile picture" width={width} height={height}></Image>
+		<div className={`rounded-full bg-white h-${height} w-${width} overflow-hidden`}>
+			<Image 
+				src={src} 
+				alt="profile picture" 
+				width={width} 
+				height={height}>
+			</Image>
 		</div>
 	);
 };
