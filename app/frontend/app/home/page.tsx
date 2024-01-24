@@ -1,5 +1,5 @@
 import React from 'react';
-import './styles.css';
+import '../styles.css';
 import MyHeader from '@/components/Header';
 import Image from 'next/image';
 
