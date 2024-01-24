@@ -12,7 +12,7 @@ export default function ProfilePage() {
 
 	useEffect(() => {
 
-		// get username and profile picture from back
+		// get username and profile picture from back 
 		setUser({
 			name: "Musashi",
 			imageSrc: "/Musashi.jpg",
