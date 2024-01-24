@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import MyHeader from '@/components/Header'
-import GameHistory from './GameHistory'
+import GameHistory from '../../components/GameHistory'
 import PlayerProfile from '@/components/PlayerProfile';
 import { UserProfile } from '@/models/ProfilePageModel'
 import '../styles.css'
@@ -11,7 +11,7 @@ export default function ProfilePage() {
 	const [user, setUser] = useState<UserProfile>();
 
 	useEffect(() => {
-		
+
 		// get username and profile picture from back
 		setUser({
 			name: "Musashi",
