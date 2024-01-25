@@ -7,6 +7,7 @@ import Modal from '@mui/material/Modal';
 import '../styles.css';
 import { press_Start_2P } from '../../models/FontModel';
 import PlayerProfile from '@/components/PlayerProfile';
+import Link from 'next/link';
 
 const style = {
 	position: 'absolute',
@@ -25,6 +26,7 @@ export default function EditProfileButton() {
 	const [open, setOpen] = React.useState(false);
 	const handleOpen = () => setOpen(true);
 	const handleClose = () => setOpen(false);
+	
 
 	return (
 	  <div>

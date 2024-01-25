@@ -7,6 +7,7 @@ import PlayerProfile from '@/components/PlayerProfile';
 import { UserProfile } from '@/models/ProfilePageModel'
 import '../styles.css'
 import EditProfileButton from './EditProfile';
+import CropDemo from '@/components/CropImage';
 
 export default function ProfilePage() {
     const [user, setUser] = useState<UserProfile>();
@@ -47,7 +48,7 @@ export default function ProfilePage() {
                     <div className='h-[738px] w-[315px] bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500'>
                     
                     </div>
-                </div>                    {/* <CropDemo src= "/Pong.jpg"></CropDemo> */}
+                </div>
             </div>                        {/* <input onChange={(event) => setUser({ name: event.target.value, imageSrc: "/Musashi.jpg" })}/> */}
         </div>
   );
