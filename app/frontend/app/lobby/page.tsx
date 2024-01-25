@@ -1,6 +1,7 @@
 import React from 'react'
 import '../styles.css'
 import MyHeader, {press_Start_2P} from '@/components/Header'
+import PlayerProfile from '@/components/PlayerProfile'
 
 export default function LobbyPage() {
 	return (
@@ -23,14 +24,11 @@ export default function LobbyPage() {
 
 const Player1: React.FC = () => {
 	return (
-		<div className="w-[547.51px] h-[650px] pt-10 bg-gradient-to-b from-white to-indigo-300 rounded-3xl shadow-2xl items-center flex flex-col">
-			<div className="w-[251px] h-[255px] bg-blue-600 flex justify-around flex-col items-center p-5 rounded-3xl">
-			 	<div className="w-32 h-32 bg-white rounded-full " />
-					<div className={`text-center text-black text-2xl ${press_Start_2P.className}`}>
-						Username
-					</div>	
+		<div className="w-[547.51px] h-[650px] pt-10 bg-gradient-to-b from-white to-indigo-300 rounded-3xl shadow-2xl items-center flex flex-col ">
+			<div className='w-[250px] h-[128px]'>
+				<PlayerProfile user={{name: 'jsabound', imageSrc: '/Musashi.jpg', games: [], isConnected: true}} width={128} height={128}/>
 			</div>
-			<div className="w-[350px] h-[45px] bg-blue-600 rounded-lg mt-40 flex justify-center">
+			<div className="w-[350px] h-[45px] bg-blue-600 mt-40 rounded-lg flex justify-center">
 				<div className={`text-white text-2xl mt-2 text-center ${press_Start_2P.className}`}>
 					READY
 				</div>
