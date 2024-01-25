@@ -1,6 +1,5 @@
 'use client'
 
-import { Press_Start_2P } from 'next/font/google'
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -26,6 +25,7 @@ export default function EditProfileButton() {
 	const handleOpen = () => setOpen(true);
 	const handleClose = () => setOpen(false);
 
+
 	return (
 	  <div>
 		<button onClick={handleOpen} className={`${press_Start_2P.className} text-white `}>edit</button>
@@ -40,10 +40,10 @@ export default function EditProfileButton() {
 				<div>
 					<PlayerProfile user={{name: 'jsabound', imageSrc: '/Musashi.jpg', games: [], isConnected: true}} width={310} height={310}/>
 				</div>
-					<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center">
+					<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center text-white font-['Quantico'] text-3xl">
 						Change avatar
 					</button>
-					<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center">
+					<button  className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center text-white font-['Quantico'] text-3xl">
 						Change username
 					</button>
 			</div>

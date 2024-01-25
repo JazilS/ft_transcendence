@@ -4,7 +4,6 @@ export interface UserProfile {
     isConnected: boolean;
     games: {
         id: string;
-        date: string;
         opponent: string;
         opponentImageSrc: string;
         scoreUser: number;

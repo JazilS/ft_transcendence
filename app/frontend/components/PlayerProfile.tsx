@@ -8,14 +8,12 @@ interface PlayerProfileProps {
 	height: number;
 }
 
-const PlayerProfile: React.FC<PlayerProfileProps> =  ({ user, width, height}) =>{
+export default function PlayerProfile({ user, width, height }: PlayerProfileProps) {
 	return(
 		<>
 			<PlayerAvatar src={user?.imageSrc} width={width} height={height}/>
-			<div className={`w-full truncate text-center p-5 text-xl mt-10 ${press_Start_2P.className}`}>{user?.name}</div>
+			<p className={`w-full truncate text-center p-5 text-xl mt-10 ${press_Start_2P.className}`}>{user?.name}</p>
 		</>
 	);
 };
 
-
-export default PlayerProfile

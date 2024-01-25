@@ -7,7 +7,7 @@ interface PlayerAvatarProps {
   }
   
 
-const PlayerAvatar: React.FC<PlayerAvatarProps> =  ({src, width, height}) =>{
+export default function PlayerAvatar({src, width, height} : PlayerAvatarProps){
 	return(
 		<div className={`rounded-full bg-white h-${height} w-${width} overflow-hidden`}>
 			<Image 
@@ -19,5 +19,3 @@ const PlayerAvatar: React.FC<PlayerAvatarProps> =  ({src, width, height}) =>{
 		</div>
 	);
 };
-
-export default PlayerAvatar

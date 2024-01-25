@@ -23,9 +23,9 @@ export default function GameHistory({ user }: { user: UserProfile }) {
                             <div className='flex'><PlayerAvatar src={user?.imageSrc} width={70} height={70}/></div>
                             <p className={`${press_Start_2P.className} w-[190px] justify-start pl-4 truncate`}> {user.name} </p>
                         
-                        <div className={`text-3xl ${press_Start_2P.className}`}>{game.scoreUser} VS {game.scoreOpponent}</div>
+                        <p className={`text-3xl ${press_Start_2P.className}`}>{game.scoreUser} VS {game.scoreOpponent}</p>
                         
-                            <div className={`${press_Start_2P.className} truncate text-right p-2 w-[190px]`}> {game.opponent?.toString()}</div>
+                            <p className={`${press_Start_2P.className} truncate text-right p-2 w-[190px]`}> {game.opponent?.toString()}</p>
                             <div className='flex'><PlayerAvatar src={game.opponentImageSrc} width={70} height={70}/></div>
                     </div>
                 </li>

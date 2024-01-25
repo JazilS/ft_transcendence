@@ -1,7 +1,7 @@
-import { Press_Start_2P } from 'next/font/google'
 import "../app/styles.css"
 import Link from 'next/link'
 import SettingsModal from './settings';
+import { press_Start_2P } from '@/models/FontModel';
 
 export default function MyHeader(){
     return (
@@ -22,7 +22,7 @@ export default function MyHeader(){
 	);
 };
 
-const HomeButton: React.FC = () => {
+function HomeButton(){
 	return (
 		<Link href="/home">
 			<button className={` text-white  ${press_Start_2P.className}`}>
@@ -32,17 +32,17 @@ const HomeButton: React.FC = () => {
 	);
 }
 
-const PlayButton: React.FC = () => {
+function PlayButton(){
 	return (
 		<Link href="/lobby">
 			<button className={`text-white ${press_Start_2P.className}`}>
 				play
-			  </button >
+			</button >
 		</Link>
 	  );
   };
   
-const ChatButton: React.FC = () => {
+function ChatButton(){
 	return (
 		<Link href="/chat">
 			<button className={` text-white  ${press_Start_2P.className}`}>
@@ -52,7 +52,7 @@ const ChatButton: React.FC = () => {
 	  );
   };
 
-const ProfileButton: React.FC = () => {
+function ProfileButton(){
     return (
 		<Link href="/profile">
 			<button className={` text-white  ${press_Start_2P.className}`}>
@@ -63,13 +63,13 @@ const ProfileButton: React.FC = () => {
 };
 
 
-const SettingsButton: React.FC = () => {
+function SettingsButton() {
     return (
 		<SettingsModal/>
     );
 };
 
-const SearchBar: React.FC = () => {
+function SearchBar() {
 	return (
 		<form className="w-[350px] relative ml-32">
 			<div className={`${press_Start_2P.className}`}>
@@ -83,9 +83,4 @@ const SearchBar: React.FC = () => {
 	);
 }
 
-const press_Start_2P = Press_Start_2P({
-    subsets: ['latin'],
-    weight: '400'
-  })
-
-export { PlayButton, ProfileButton, ChatButton, SettingsButton, SearchBar, press_Start_2P};
+export { PlayButton, ProfileButton, ChatButton, SettingsButton, SearchBar};

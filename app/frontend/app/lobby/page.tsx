@@ -1,7 +1,8 @@
 import React from 'react'
 import '../styles.css'
-import MyHeader, {press_Start_2P} from '@/components/Header'
+import MyHeader from '@/components/Header'
 import PlayerProfile from '@/components/PlayerProfile'
+import { press_Start_2P } from '@/models/FontModel'
 
 export default function LobbyPage() {
 	return (
@@ -22,7 +23,7 @@ export default function LobbyPage() {
 		)
 }
 
-const Player1: React.FC = () => {
+function Player1() {
 	return (
 		<div className="w-[547.51px] h-[650px] pt-10 bg-gradient-to-b from-white to-indigo-300 rounded-3xl shadow-2xl items-center flex flex-col ">
 			<div className='w-[250px] h-[128px]'>
@@ -37,7 +38,7 @@ const Player1: React.FC = () => {
 	);
 }
 
-const Player2: React.FC = () => {
+function Player2() {
 	return (
 		<div className="w-[547.51px] h-[650px] pt-10 bg-gradient-to-t from-fuchsia-300 to-white rounded-3xl shadow-2xl items-center flex flex-col">
 			<div className="w-[251px] h-[255px] bg-fuchsia-500 flex justify-around flex-col items-center p-5 rounded-3xl">

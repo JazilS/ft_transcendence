@@ -10,7 +10,9 @@ import EditProfileButton from './EditProfile';
 
 export default function ProfilePage() {
     const [user, setUser] = useState<UserProfile>();
-
+	const changeUsername = () => {
+		setUser({name: 'jsabound', imageSrc: '/Musashi.jpg', games: [], isConnected: true})
+	};
     useEffect(() => {
 
         // get username and profile picture from back 
@@ -19,13 +21,14 @@ export default function ProfilePage() {
             imageSrc: "/Musashi.jpg",
             isConnected: true,
             games: [
-                {id: "game1", date: "01/01/0001", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10},
-                {id: "game2", date: "02/02/0002", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 8, scoreOpponent: 11},
-                {id: "game3", date: "03/03/0003", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 2},
-                {id: "game4", date: "04/04/0004", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 0},
-                {id: "game5", date: "05/05/0005", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 7, scoreOpponent: 11},
+                {id: "game1", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10},
+                {id: "game2", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 8, scoreOpponent: 11},
+                {id: "game3", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 2},
+                {id: "game4", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 0},
+                {id: "game5", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 7, scoreOpponent: 11},
             ]});
     }, []);
+    
     let color: string
     if (user?.isConnected === true )
         color = "bg-green-500"
