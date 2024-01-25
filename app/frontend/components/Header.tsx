@@ -34,11 +34,13 @@ const PlayButton: React.FC = () => {
   
 const ChatButton: React.FC = () => {
 	return (
-			  <button className={` text-white  text-2xl ${press_Start_2P.className}`}>
+		<Link href="/Chat">
+			<button className={` text-white  text-2xl ${press_Start_2P.className}`}>
 				chat
-			  </button >
-	  );
-  };
+			</button >
+		</Link>
+		);
+	};
 
 const ProfileButton: React.FC = () => {
     return (

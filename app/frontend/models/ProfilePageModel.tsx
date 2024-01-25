@@ -7,6 +7,7 @@ export interface UserProfile {
 		date: string;
 		opponent: string;
 		opponentImageSrc: string;
-		score: string;
+		scoreUser: number;
+		scoreOpponent: number;
 	  }[];
 }
