@@ -17,13 +17,9 @@
     "npm": "^10.3.0",
     "react": "^18",
     "react-advanced-cropper": "^0.19.4",
-    "react-cropper": "^2.3.3",
     "react-dom": "^18",
-    "react-easy-crop": "^5.0.4",
     "react-icons": "^5.0.1",
-    "react-image-crop": "^11.0.5",
-    "react-router-dom": "^6.21.3",
-    "reactdom": "^2.0.0"
+    "react-router-dom": "^6.21.3"
   },
   "devDependencies": {
     "@types/node": "20.11.5",
