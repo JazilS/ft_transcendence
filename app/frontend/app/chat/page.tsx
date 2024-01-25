@@ -2,8 +2,7 @@
 
 import CropDemo from '@/components/CropImage';
 import MyHeader from '@/components/Header';
-import UploadExample from '@/components/CropImage';
-import App from '@/components/CropImage'
+import App from '@/components/UploadImage'
 
 export default function ChatPage() {
 	return (
@@ -11,9 +10,8 @@ export default function ChatPage() {
 			<MyHeader /> 
 			<div className="h-96 w-96 ">
 				<App></App>
-				{/* <UploadExample></UploadExample> */}
 				{/* <CropDemo src= "/Pong.jpg"></CropDemo > */}
 			</div>
 		</div>
-		)
+	)
 }
