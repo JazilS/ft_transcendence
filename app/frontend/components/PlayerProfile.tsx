@@ -12,7 +12,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> =  ({ user, width, height}) =>
 	return(
 		<>
 			<PlayerAvatar src={user?.imageSrc} width={width} height={height}/>
-			<div className={`w-[310px] truncate text-center p-5 text-xl mt-10 ${press_Start_2P.className}`}>{user?.name}</div>
+			<div className={`w-full truncate text-center p-5 text-xl mt-10 ${press_Start_2P.className}`}>{user?.name}</div>
 		</>
 	);
 };
