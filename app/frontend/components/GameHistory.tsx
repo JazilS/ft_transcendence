@@ -23,7 +23,7 @@ const GameHistory: React.FC<GameHistoryProps> = ({ user }) =>{
 							<div className='flex'><PlayerAvatar src={user?.imageSrc} width={70} height={70}/></div>
 							<div className={`${press_Start_2P.className} w-[190px] justify-start pl-4 truncate`}> {/* {user.name} */}sasdasdasddasdsaa </div>
 						
-						<div className={`text-3xl ${press_Start_2P.className}`}>{game.score.substr(0, 2)} VS {game.score.substr(0, 2)}</div>
+						<div className={`text-3xl ${press_Start_2P.className}`}>{game.scoreUser} VS {game.scoreOpponent}</div>
 						
 							<div className={`${press_Start_2P.className} truncate text-right pl-2 w-[190px]`}> {/* {game.opponent?.toString()} */} ajdasadasdskjaks</div>
 							<div className='flex'><PlayerAvatar src={game.opponentImageSrc} width={70} height={70}/></div>

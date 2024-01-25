@@ -19,12 +19,11 @@ export default function ProfilePage() {
 			imageSrc: "/Musashi.jpg",
 			isConnected: true,
 			games: [
-				{id: "game1", date: "01/01/0001", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", score: "42"},
-				{id: "game2", date: "02/02/0002", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", score: "42"},
-				{id: "game3", date: "03/03/0003", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", score: "42"},
-				{id: "game4", date: "04/04/0004", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", score: "42"},
-				{id: "game5", date: "05/05/0005", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", score: "42"},
-				{id: "game5", date: "05/05/0005", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", score: "42"},
+				{id: "game1", date: "01/01/0001", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10},
+				{id: "game2", date: "02/02/0002", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10},
+				{id: "game3", date: "03/03/0003", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10},
+				{id: "game4", date: "04/04/0004", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10},
+				{id: "game5", date: "05/05/0005", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10},
 			]});
 	}, []);
 
@@ -41,7 +40,7 @@ export default function ProfilePage() {
 					<div className={`h-[738px] w-[315px] flex flex-col justify-center items-center bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500`}>
 						<EditProfileButton />
 						<PlayerProfile user={user!} width={162} height={162}/>
-						<div className={`rounded-full h-2 w-2 ${color}`}></div>
+						<div className={`rounded-full h-3 w-3 ${color} blur-[2px]`}></div>
 					</div>
 					<div className='h-[738px] w-[855px] bg-gradient-to-br rounded-3xl from-fuchsia-500  to-indigo-500'>
 							<GameHistory user={user!} />
