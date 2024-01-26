@@ -9,10 +9,13 @@ import '../styles.css'
 import EditProfileButton from './EditProfile';
 
 export default function ProfilePage() {
-    const [user, setUser] = useState<UserProfile>();
-	const changeUsername = () => {
-		setUser({name: 'jsabound', imageSrc: '/Musashi.jpg', games: [], isConnected: true})
-	};
+    const [user, setUser] = useState<UserProfile>({
+        name: "",  // Assurez-vous de définir des valeurs par défaut appropriées ici
+        imageSrc: "",
+        isConnected: false,
+        games: [],
+    });
+
     useEffect(() => {
 
         // get username and profile picture from back 
@@ -40,18 +43,16 @@ export default function ProfilePage() {
             <div className='flex justify-center'>
                 <div className="flex flex-row w-5/6 h-[789px] bg-white rounded-3xl p-7 space-x-7">
                     <div className={`h-[738px] w-[315px] flex flex-col justify-center items-center bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500`}>
-                        <EditProfileButton />
+                        <EditProfileButton user={user} setUser={setUser} />
                         <PlayerProfile user={user!} width={162} height={162}/>
-                        <div className={`rounded-full h-3 w-3 ${color} blur-[2px]`}></div>
+                    <div className={`rounded-full h-3 w-3 ${color} blur-[2px]`} />
                     </div>
                     <div className='h-[738px] w-[855px] bg-gradient-to-br rounded-3xl from-fuchsia-500  to-indigo-500'>
-                            <GameHistory user={user!} />
+                        <GameHistory user={user!} />
                     </div>
-                    <div className='h-[738px] w-[315px] bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500'>
-                    
-                    </div>
-                </div>                    {/* <CropDemo src= "/Pong.jpg"></CropDemo> */}
-            </div>                        {/* <input onChange={(event) => setUser({ name: event.target.value, imageSrc: "/Musashi.jpg" })}/> */}
+                    <div className='h-[738px] w-[315px] bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500'/>
+                </div>
+            </div>
         </div>
   );
 }
