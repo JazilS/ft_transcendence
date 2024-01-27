@@ -10,7 +10,7 @@ import EditProfileButton from './EditProfile';
 
 export default function ProfilePage() {
     const [user, setUser] = useState<UserProfile>({
-        name: "",  // Assurez-vous de définir des valeurs par défaut appropriées ici
+        name: "",
         imageSrc: "",
         isConnected: false,
         games: [],
@@ -31,7 +31,7 @@ export default function ProfilePage() {
                 {id: "game5", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 7, scoreOpponent: 11},
             ]});
     }, []);
-    
+
     let color: string
     if (user?.isConnected === true )
         color = "bg-green-500"
@@ -46,7 +46,7 @@ export default function ProfilePage() {
                         <EditProfileButton user={user} setUser={setUser} />
                         <PlayerProfile user={user!} width={162} height={162}/>
                     <div className={`rounded-full h-3 w-3 ${color} blur-[2px]`} />
-                    </div>
+                </div>
                     <div className='h-[738px] w-[855px] bg-gradient-to-br rounded-3xl from-fuchsia-500  to-indigo-500'>
                         <GameHistory user={user!} />
                     </div>

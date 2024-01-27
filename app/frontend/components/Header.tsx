@@ -6,7 +6,7 @@ import { press_Start_2P } from '@/models/FontModel';
 export default function MyHeader(){
     return (
 		<div  className="bg-gradient-to-b from-black to-transparente h-[10vh] flex items-center">
-			<div className="w-[33%] pl-12 h-28 flex gap-16 items-center text-xl">
+			<div className="w-[34.5%] pl-12 h-28 flex gap-16 items-center text-xl">
 				<HomeButton />
 				<PlayButton />
 				<ProfileButton />
