@@ -17,11 +17,11 @@ const GameImage: React.FC = () => {
 	<div className=" flex flex-col justify-center items-center rounded-3xl h-[90vh] ">
 		<div>
 			<Image
-			src="/Pong.jpg" 
-			alt="Pong" 
-			layout="responsive"
+			src="/PongFig.png" 
+			alt="PongFig" 
+			// layout="responsive"
 			width={1200}
-			height={658}
+			height={1200}
 			className="rounded-3xl drop-shadow-2xl"/>
 		</div>
 	</div>
