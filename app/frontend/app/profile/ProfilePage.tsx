@@ -12,7 +12,7 @@ export default function ProfilePage() {
     const [user, setUser] = useState<UserProfile>({
         name: "",
         imageSrc: "",
-        isConnected: false,
+        isConnected: true,
         games: [],
     });
 
@@ -22,7 +22,7 @@ export default function ProfilePage() {
         setUser({
             name: "Musashi",
             imageSrc: "/Musashi.jpg",
-            isConnected: true,
+            isConnected: false,
             games: [
                 {id: "game1", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10},
                 {id: "game2", opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 8, scoreOpponent: 11},
