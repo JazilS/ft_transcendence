@@ -11,6 +11,7 @@ export default function CropDemo({ src }: CropDemoProps) {
   const [crop, setCrop] = useState();
   const [zoom, setZoom] = useState(1);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
+  const [runCrop, setRunCrop] = useState<boolean | null>(true);
 
   const onCropChange = (newCrop: any) => {
     setCroppedImage(newCrop.getCanvas()?.toDataURL())
@@ -19,32 +20,42 @@ export default function CropDemo({ src }: CropDemoProps) {
   const onZoomChange = (newZoom: number) => {
     setZoom(newZoom);
   };
+  
+  const handleConfirmCrop = () => {
+	// recuperer la nouvelle image et fermer
+    setRunCrop(false)
+  };
 
-  console.log(croppedImage);
+//   console.log(croppedImage);
   return (
-    <div className='testt'>
-      <Cropper
-        src={src}
-        crop={crop}
-        aspectRatio={1}
-        zoom={zoom}
-        onChange={onCropChange}
-        onZoomChange={onZoomChange}
-        cropShape="round"
-      />
-
-      {croppedImage && (
-        <div className='yoooooo'>
-          <h2>Image rognée</h2>
-          <Image
-          style={{borderRadius: '50%'}}
-            src={croppedImage}
-            alt="Cropped"
-            width={100}
-            height={100}
-          />
-        </div>
-      )}
-    </div>
-  );
+	<>
+		{runCrop && (
+			<div className=''>
+			<Cropper
+				src={src}
+				crop={crop}
+				aspectRatio={1}
+				zoom={zoom}
+				onInteractionEnd={onCropChange}
+				// onTransformImageEnd={handleConfirmCrop}
+				onZoomChange={onZoomChange}
+				cropShape="round"
+			/>
+			<button onClick={handleConfirmCrop}>Confirmer le rognage</button>
+			{croppedImage && (
+				<div>
+				<h2>Image rognée</h2>
+				<Image
+					style={{borderRadius: '50%'}}
+					src={croppedImage}
+					alt="Cropped"
+					width={100}
+					height={100}
+				/>
+				</div>
+			)}
+			</div>
+		)}
+	</>
+	);
 }

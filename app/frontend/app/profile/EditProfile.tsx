@@ -1,13 +1,13 @@
 'use client'
 
-import { Press_Start_2P } from 'next/font/google'
-import * as React from 'react';
+import { useEffect, useState } from 'react';
+import ImageUploading from 'react-images-uploading';
+import CropDemo from '@/components/CropImage';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import '../styles.css';
-import { press_Start_2P } from '../../models/FontModel';
+import { press_Start_2P, quantico } from '../../models/FontModel';
 import PlayerProfile from '@/components/PlayerProfile';
-import Link from 'next/link';
+import '../styles.css';
 
 const style = {
 	position: 'absolute',
@@ -23,10 +23,28 @@ const style = {
   };
 
 export default function EditProfileButton() {
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
+	const [canCrop, setCanCrop] = useState<boolean>(false);
+	const handleCanCrop = () => setCanCrop(true);
+	const handleCanNotCrop = () => setCanCrop(false);
 	const handleOpen = () => setOpen(true);
 	const handleClose = () => setOpen(false);
-	
+	const [images, setImages] = useState([]);
+	const [imageUrl, setImageUrl] = useState<string>("");
+  
+	const onChange = (imageList: any) => {
+		console.log(imageList);
+		setImages(imageList);
+		if (imageList.length > 0) {
+			setImageUrl(imageList[0].data_url);
+		}
+	};
+
+	const handleCropImage = (onImageUpload: () => void) => {
+		setCanCrop(true)
+	}
+
+
 
 	return (
 	  <div>
@@ -42,15 +60,32 @@ export default function EditProfileButton() {
 				<div>
 					<PlayerProfile user={{name: 'jsabound', imageSrc: '/Musashi.jpg', games: [], isConnected: true}} width={310} height={310}/>
 				</div>
-					<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center">
-						Change avatar
-					</button>
-					<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center">
-						Change username
-					</button>
+				<button className="w-[650px] h-[46px] text-center">
+					<ImageUploading
+						multiple
+						value={images}
+						onChange={onChange}
+						maxNumber={1}
+						dataURLKey="data_url"
+					>
+					{({onImageUpload}) => (
+						<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center" 
+							onClick={onImageUpload}> Import an image </button>
+					)}
+					</ImageUploading>
+					<CropDemo src={imageUrl}/>
+				</button>
+				{/* <button className={`w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center ${quantico}`}> */}
+						{/* <UploadImage/> */}
+				{/* </button> */}
+				<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center">Change username</button>
+				
 			</div>
 		  </Box>
 		</Modal>
 	  </div>
 	);
 }
+
+// gerer le update image
+// mettre le crop au bon endroit

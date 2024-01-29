@@ -1,54 +1,99 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ImageUploading from 'react-images-uploading';
 import Image from 'next/image';
+import { UploadImageProps } from '@/models/UploadImageModel';
 import CropDemo from '@/components/CropImage';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 
 export default function UploadImage() {
-	const [images, setImages] = React.useState([]);
-	const maxNumber = 69;
+	const [images, setImages] = useState([]);
+	const [imageUrl, setImageUrl] = useState<string>("");
   
-	const onChange = (imageList: any, addUpdateIndex: any) => {
-	  // data for submit
-	  console.log(imageList, addUpdateIndex);
-	  setImages(imageList);
+	const onChange = (imageList: any) => {
+		console.log(imageList);
+		setImages(imageList);
+		if (imageList.length > 0) {
+			setImageUrl(imageList[0].data_url);
+		}
 	};
-  
+
+	// const handleCropImage = () => {
+	// 	<CropDemo src={imageUrl} />
+	// }
+
 	return (
-	  <div className="App">
-		<ImageUploading
-		  multiple
-		  value={images}
-		  onChange={onChange}
-		  maxNumber={maxNumber}
-		  dataURLKey="data_url"
-		>
-		  {({
-			imageList,
-			onImageUpload,
-		  }) => (
-			// write your building UI
-			<div className="upload__image-wrapper">
-			  <button onClick={onImageUpload}> Click or Drop here </button>
-			  &nbsp;
-			  {imageList.map((image, index) => (
-				<div key={index} className="image-item h-24">
-				  <CropDemo src= {image['data_urk']}></CropDemo >
+		<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center">
+			<ImageUploading
+				multiple
+				value={images}
+				onChange={onChange}
+				maxNumber={1}
+				dataURLKey="data_url"
+			>
+				{({onImageUpload}) => (
+					<div>
+						<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center" 
+								onClick={onImageUpload}> Import an image </button>
+					</div>
+				)}
+				
+			</ImageUploading>
+		</button>
+		);
+	}
 
-				   {/* afficher le crop */}
-				   {/* faire un bouton valider qui va envoyer au back la nouvelle url de l'image*/}
+// export default function UploadImage({ open, handleAvatarClose }) {
+// 	const [images, setImages] = useState([]);
+// 	const [imageUrl, setImageUrl] = useState<string>("");
+// 	const [AvatarOpen, setAvatarOpen] = React.useState(false);
 
+// 	const handleAvatarClose = () => setAvatarOpen(false);
+// 	const handleAvatarOpen = () => setAvatarOpen(true);
+	
+// 	const maxNumber = 69;
 
+// 	const onChange = (imageList: any) => {
+// 	  // data for submit
+// 	  console.log(imageList);
+// 	  setImages(imageList);
+// 	  if (imageList.length > 0) {
+// 		setImageUrl(imageList[0].data_url);
+// 	};
+// }
 
-				  {/* <Image src={image['data_url']} alt="" width={100} height={100}/> */}
-				  {/* <div className="image-item__btn-wrapper"> */}
-					{/* <button onClick={() => onImageUpdate(index)}>Update</button> */}
-					{/* <button onClick={() => onImageRemove(index)}>Remove</button> */}
-				  {/* </div> */}
-				</div>
-			  ))}
-			</div>
-		  )}
-		</ImageUploading>
-	  </div>
-	);
-  }
+// 	return (
+// 		<Modal
+// 			open={open}
+// 			onClose={handleAvatarClose}
+// 			aria-labelledby="modal-modal-title"
+// 			aria-describedby="modal-modal-description"
+// 		>
+// 			<Box sx={style}>
+// 				<ImageUploading
+// 					multiple
+// 					value={images}
+// 					onChange={onChange}
+// 					maxNumber={maxNumber}
+// 					dataURLKey="data_url"
+// 					>
+// 					{({
+// 						imageList,
+// 						onImageUpload,
+// 					}) => (
+// 						<div className="upload__image-wrapper">
+// 						<button onClick={onImageUpload}> Click or Drop here </button>
+// 						&nbsp;
+// 						{imageList.map((image, index) => (
+// 							<div key={index} className="image-item h-24">
+// 							{/* <Image src={image['data_url']} alt="" width={100} height={100}/> */}
+// 							</div>
+// 						))}
+// 					</div>
+// 					)}
+// 				</ImageUploading>
+// 				<CropDemo src={imageUrl}></CropDemo >
+// 			</Box>
+// 		</Modal>
+// 	);
+//   }
