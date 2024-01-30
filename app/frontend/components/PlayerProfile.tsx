@@ -1,18 +1,47 @@
-import { press_Start_2P } from '@/models/FontModel'
+import { press_Start_2P, quantico } from '@/models/FontModel'
 import { UserProfile } from '@/models/ProfilePageModel'
 import PlayerAvatar from './PlayerAvatar';
+import { TextField } from "@mui/material";
 
 interface PlayerProfileProps {
 	user: UserProfile;
 	width: number;
 	height: number;
+	setUser: Function;
 }
 
-const PlayerProfile: React.FC<PlayerProfileProps> =  ({ user, width, height}) =>{
+
+
+const PlayerProfile: React.FC<PlayerProfileProps> =  ({ user, width, height, setUser}) =>{
+	
+
+	const handleUsernameChange = (value: string) => {
+		setUser({ ...user, name: value });
+	  };
+	
+
 	return(
 		<>
 			<PlayerAvatar src={user?.imageSrc} width={width} height={height}/>
-			<div className={`w-full truncate text-center p-5 text-xl mt-10 ${press_Start_2P.className}`}>{user?.name}</div>
+			<TextField
+				inputProps={{
+					style: {
+						textAlign: "center",
+						...quantico.style
+					}
+				}}
+				InputProps={{
+					style: {
+						borderRadius: "50px",
+						background: 'rgba(255, 255, 255, 0.5)',
+						border: 'none',
+					}
+				}}
+				// aria-setsize={}
+				size='small'
+				onChange={(event) => handleUsernameChange(event.target.value)}
+				value={user ? user.name : "User"}
+			/>
 		</>
 	);
 };

@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import Image from 'next/image'
 import { Cropper } from 'react-advanced-cropper';
+import { UserProfile } from "@/models/ProfilePageModel";
 import 'react-advanced-cropper/dist/style.css';
 
 interface CropDemoProps {
   src: string;
+	user: UserProfile;
+  setUser: React.Dispatch<React.SetStateAction<UserProfile>>;
+  onCLose: Function;
+
 }
 
-export default function CropDemo({ src }: CropDemoProps) {
-  const [crop, setCrop] = useState();
+export default function CropDemo({src, user, setUser, onCLose}: CropDemoProps){
+
   const [zoom, setZoom] = useState(1);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
-  const [runCrop, setRunCrop] = useState<boolean | null>(true);
 
   const onCropChange = (newCrop: any) => {
     setCroppedImage(newCrop.getCanvas()?.toDataURL())
@@ -21,41 +25,31 @@ export default function CropDemo({ src }: CropDemoProps) {
     setZoom(newZoom);
   };
   
-  const handleConfirmCrop = () => {
-	// recuperer la nouvelle image et fermer
-    setRunCrop(false)
+  const handleConfirmCrop = (event: any) => {
+		if (croppedImage) {
+  	  setUser({ ...user,imageSrc: croppedImage  });
+		onCLose();
+		}
   };
 
-//   console.log(croppedImage);
+  console.log(src);
   return (
 	<>
-		{runCrop && (
-			<div className=''>
-			<Cropper
-				src={src}
-				crop={crop}
-				aspectRatio={1}
-				zoom={zoom}
-				onInteractionEnd={onCropChange}
-				// onTransformImageEnd={handleConfirmCrop}
-				onZoomChange={onZoomChange}
-				cropShape="round"
-			/>
-			<button onClick={handleConfirmCrop}>Confirmer le rognage</button>
-			{croppedImage && (
-				<div>
-				<h2>Image rognée</h2>
-				<Image
-					style={{borderRadius: '50%'}}
-					src={croppedImage}
-					alt="Cropped"
-					width={10}
-					height={10}
+			<div className='w-[886px] h-[400px] flex flex-col space-x-10'>
+				<Cropper
+					src={src}
+					aspectRatio={1}
+					zoom={zoom}
+					onInteractionEnd={onCropChange}
+					// onTransformImageEnd={handleConfirmCrop}
+					onZoomChange={onZoomChange}
+					cropShape="round"
+					style={{
+						width: "auto",
+						height: "auto"
+					}}
 				/>
-				</div>
-			)}
+				<button onClick={handleConfirmCrop}>Confirmer le rognage</button>
 			</div>
-		)}
-	</>
-	);
+	</>)
 }
