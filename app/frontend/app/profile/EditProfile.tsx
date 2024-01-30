@@ -40,10 +40,10 @@ export default function EditProfileButton() {
 		}
 	};
 
-	const handleCropImage = (onImageUpload: () => void) => {
-		setCanCrop(true)
-	}
-
+	const handleCropImage = () => {
+		setCanCrop(true);
+		// setOpen(false); // Fermer la modal après avoir déclenché le recadrage
+	  };
 
 
 	return (
@@ -60,24 +60,28 @@ export default function EditProfileButton() {
 				<div>
 					<PlayerProfile user={{name: 'jsabound', imageSrc: '/Musashi.jpg', games: [], isConnected: true}} width={310} height={310}/>
 				</div>
+				{canCrop && <CropDemo src={imageUrl}/>}
 				<button className="w-[650px] h-[46px] text-center">
 					<ImageUploading
-						multiple
 						value={images}
-						onChange={onChange}
+						onChange={(imageList) => {
+							onChange(imageList);
+							handleCropImage(); // Appeler CropDemo lorsque l'image est choisie
+						  }}
 						maxNumber={1}
 						dataURLKey="data_url"
 					>
 					{({onImageUpload}) => (
 						<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center" 
-							onClick={onImageUpload}> Import an image </button>
+						onClick={() => {
+								onImageUpload();
+								handleCropImage(); // Appeler CropDemo lorsque l'image est choisie
+							  }}> 
+							Import an image
+						</button>
 					)}
 					</ImageUploading>
-					<CropDemo src={imageUrl}/>
 				</button>
-				{/* <button className={`w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center ${quantico}`}> */}
-						{/* <UploadImage/> */}
-				{/* </button> */}
 				<button className="w-[650px] h-[46px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-[50px] text-center">Change username</button>
 				
 			</div>

@@ -49,8 +49,8 @@ export default function CropDemo({ src }: CropDemoProps) {
 					style={{borderRadius: '50%'}}
 					src={croppedImage}
 					alt="Cropped"
-					width={100}
-					height={100}
+					width={10}
+					height={10}
 				/>
 				</div>
 			)}
