@@ -52,7 +52,7 @@ function Player1() {
 			</div>
 		</div>
 	);
-}
+}a
 
 function Player2() {
 	const user =({
