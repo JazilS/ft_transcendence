@@ -54,12 +54,12 @@ export default function ProfilePage() {
 			<MyHeader />
 			<div className={`flex justify-center ${blur ? 'blur-xl' : 'none'}`}>
 				<div className="flex flex-row w-5/6 h-[789px] bg-white rounded-3xl p-7 space-x-7">
-					<div className={`h-[738px] w-[315px] flex flex-col justify-center items-center space-y-5 bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500`}>
+					<div className={`h-[738px] w-[315px] flex flex-col justify-center items-center bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500`}>
 						<EditProfileButton user={user} setUser={setUser} setBlur={setBlur}/>
 						<PlayerProfile user={user!} width={162} height={162} displayName={false} />
-						<div className='truncate'>
+						<div className='w-[315px] truncate mt-5'>
 							{isEditing ?
-								<div className={`h-[28px] w-[310] flex flex-row justify-center items-center space-y-5`}>
+								<div className={`h-[28px] w-[310] flex flex-row justify-center items-center space-y-5 truncate`}>
 									<div className={`w-[310] truncate text-center text-xl ${press_Start_2P.className}`}>
 										{user?.name}
 									</div>
