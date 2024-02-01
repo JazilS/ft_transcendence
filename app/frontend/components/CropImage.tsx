@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Image from 'next/image'
 import { Cropper } from 'react-advanced-cropper';
 import { UserProfile } from "@/models/ProfilePageModel";
+import { press_Start_2P, quantico } from "@/models/FontModel";
 import 'react-advanced-cropper/dist/style.css';
 
 interface CropDemoProps {
@@ -34,8 +35,8 @@ export default function CropDemo({src, user, setUser, onCLose}: CropDemoProps){
 
   console.log(src);
   return (
-	<>
-			<div className='w-[886px] h-[400px] flex flex-col space-x-10'>
+	<div className='flex flex-col items-center space-y-5 mb-14'>
+			<div className=' w-fit max-w-[880px] h-[336px] flex flex-col'>
 				<Cropper
 					src={src}
 					aspectRatio={1}
@@ -46,10 +47,15 @@ export default function CropDemo({src, user, setUser, onCLose}: CropDemoProps){
 					cropShape="round"
 					style={{
 						width: "auto",
-						height: "auto"
+						height: "400px",
+						borderRadius: "25px"
 					}}
 				/>
-				<button onClick={handleConfirmCrop}>Confirmer le rognage</button>
 			</div>
-	</>)
+			<button
+				className={`bg-gradient-to-r from-indigo-800 to-fuchsia-800 text-white rounded-full p-2 px-28 ${quantico.className}`}
+				onClick={handleConfirmCrop}>
+				Confirmer le rognage
+				</button>
+	</div>)
 }

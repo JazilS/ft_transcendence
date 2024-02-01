@@ -26,7 +26,7 @@ const Player1: React.FC = () => {
 	return (
 		<div className="w-[547.51px] h-[650px] pt-10 bg-gradient-to-b from-white to-indigo-300 rounded-3xl shadow-2xl items-center flex flex-col ">
 			<div className='w-[250px] h-[128px]'>
-				<PlayerProfile user={{name: 'jsabound', imageSrc: '/Musashi.jpg', games: [], isConnected: true}} width={128} height={128}/>
+				<PlayerProfile user={{name: 'jsabound', imageSrc: '/Musashi.jpg', games: [], isConnected: true}} width={128} height={128} displayName={true}/>
 			</div>
 			<div className="w-[350px] h-[45px] bg-blue-600 mt-40 rounded-lg flex justify-center">
 				<div className={`text-white text-2xl mt-2 text-center ${press_Start_2P.className}`}>
