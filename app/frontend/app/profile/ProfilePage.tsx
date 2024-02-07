@@ -52,8 +52,8 @@ export default function ProfilePage() {
 	return (
 		<div className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 h-[100vh]">
 			<MyHeader />
-			<div className={`flex justify-center ${blur ? 'blur-xl' : 'none'}`}>
-				<div className="flex flex-row w-5/6 h-[789px] bg-white rounded-3xl p-7 space-x-7">
+			<div className={`flex justify-center h-[85%] ${blur ? 'blur-xl' : 'none'}`}>
+				<div className="flex flex-row w-5/6 h-full bg-white rounded-3xl p-7 space-x-7">
 					<div className={`h-[738px] w-[315px] flex flex-col justify-center items-center bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500`}>
 						<EditProfileButton user={user} setUser={setUser} setBlur={setBlur}/>
 						<PlayerProfile user={user!} width={162} height={162} displayName={false} />

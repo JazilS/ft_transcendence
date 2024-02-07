@@ -42,7 +42,7 @@ export default function EditProfileButton({
 	<div>
 		<button
 			onClick={handleOpen}
-			className={`${press_Start_2P.className} text-white `}
+			className={`${press_Start_2P.className} text-white hover:scale-110`}
 		>
 			edit
 		</button>

@@ -5,7 +5,7 @@ import SettingsModal from './settings';
 
 export default function MyHeader(){
     return (
-		<div  className="bg-gradient-to-b from-black to-transparente h-[10vh] flex items-center">
+		<div  className="bg-gradient-to-b from-black to-transparente h-[10%] flex items-center">
 			<div className="w-[33%] pl-12 flex gap-16 items-center text-xl">
 				<HomeButton />
 				<PlayButton />
@@ -25,7 +25,7 @@ export default function MyHeader(){
 const HomeButton: React.FC = () => {
 	return (
 		<Link href="/home">
-			<button className={` text-white  ${press_Start_2P.className}`}>
+			<button className={` text-white  ${press_Start_2P.className}  hover:scale-110`}>
 				home
 			</button>
 		</Link>
@@ -35,7 +35,7 @@ const HomeButton: React.FC = () => {
 const PlayButton: React.FC = () => {
 	return (
 		<Link href="/lobby">
-			<button className={`text-white ${press_Start_2P.className}`}>
+			<button className={`text-white ${press_Start_2P.className} hover:scale-110`}>
 				play
 			  </button >
 		</Link>
@@ -45,7 +45,7 @@ const PlayButton: React.FC = () => {
 const ChatButton: React.FC = () => {
 	return (
 		<Link href="/chat">
-			<button className={` text-white  ${press_Start_2P.className}`}>
+			<button className={` text-white  ${press_Start_2P.className} hover:scale-110`}>
 				chat
 			</button >
 		</Link>
@@ -55,7 +55,7 @@ const ChatButton: React.FC = () => {
 const ProfileButton: React.FC = () => {
     return (
 		<Link href="/profile">
-			<button className={` text-white  ${press_Start_2P.className}`}>
+			<button className={` text-white  ${press_Start_2P.className} hover:scale-110 `}>
 				profile
 			</button>
 		</Link>

@@ -25,7 +25,7 @@ export default function SettingsModal() {
 
   return (
     <div>
-      <button onClick={handleOpen} className={`${press_Start_2P.className} text-white `}>settings</button>
+      <button onClick={handleOpen} className={`${press_Start_2P.className} text-white hover:scale-110 active:hover:disabled`}>settings</button>
       <Modal
         open={open}
         onClose={handleClose}

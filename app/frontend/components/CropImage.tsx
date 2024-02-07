@@ -53,7 +53,7 @@ export default function CropDemo({src, user, setUser, onCLose}: CropDemoProps){
 				/>
 			</div>
 			<button
-				className={`bg-gradient-to-r from-indigo-800 to-fuchsia-800 text-white rounded-full p-2 px-28 ${quantico.className}`}
+				className={`bg-gradient-to-r from-indigo-800 to-fuchsia-800 text-white rounded-full p-2 px-28 ${quantico.className} active:scale-95 hover:shadow-lg `}
 				onClick={handleConfirmCrop}>
 				Confirmer le rognage
 				</button>
