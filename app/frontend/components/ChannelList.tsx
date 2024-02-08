@@ -3,7 +3,7 @@
 import {useState, useEffect} from "react";
 import Button from "./Button";
 import { quantico } from "@/models/FontModel";
-import '../style/ChannelList.css'
+// import '../style/ChannelList.css'
 
 export interface Channel {
 	 name: string,
@@ -35,7 +35,7 @@ export default function ChannelBar() {
 
 	return (
 		<div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>
-			<div className={`h-full w-full flex flex-col space-y-2 items-start ${quantico.className} rounded-3xl bg-[#9EB7F6]`}>
+			<div className={`h-full w-full flex flex-col space-y-2 items-start rounded-3xl bg-[#9EB7F6]`}>
 				<div className="flex flex-row items-center w-full justify-end space-x-2 p-2">
 					<Button className="active:scale-95" variant={'rounded'} size={'h_7_w_16'}>
 						New
@@ -48,8 +48,8 @@ export default function ChannelBar() {
 					<ul>
 						{channel.map(channel => (
 							<li key={channel.name}>
-								<Button className="hover:text-2xl" variant={'channel'} size={'channel'}>
-									<h1>{channel.name}</h1>
+								<Button className="hover:text-2xl hover:bg-[#6E82B6] active:bg-[#596a94]" variant={'channel'} size={'channel'}>
+									<h1 className="pl-8">{channel.name}</h1>
 								</Button>
 							</li>
 						))}

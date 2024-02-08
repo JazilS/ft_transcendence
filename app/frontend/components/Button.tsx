@@ -13,7 +13,7 @@ const buttonVariants = cva(
 		variants: {
 			variant: {
 				default: 'bg-green-900 text-white hover:bg-slate-800',
-				channel: 'bg-transparant hover:bg-[#6E82B6] active:bg-[#596a94] p-1.5 text-xl',
+				channel: 'bg-transparant p-1.5 text-xl rounded-full',
 				rounded: 'bg-[#6E82B6] justify-center items-center rounded-full hover:bg-[#53648f] hover:text-gray-300 ',
 				chatSwitch: 'justify-center rounded-t-2xl text-lg'
 			},

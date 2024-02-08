@@ -1,0 +1,22 @@
+.optionmembres li:hover {
+	background-color: #374c6e;
+	border-radius: 20px;
+}
+
+.optionmembres li:active {
+	scale: 0.95;
+}
+
+.optionmembres li {
+	color: white;
+
+}
+
+.optionmembres ul {
+	background-color: #1E293B;
+	/* border-radius: 15px; */
+}
+
+* {
+	/* border: solid 1px red; */
+}

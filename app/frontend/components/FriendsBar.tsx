@@ -3,7 +3,7 @@
 import {useState, useEffect} from "react";
 import Button from "./Button";
 import { quantico } from "@/models/FontModel";
-import '../style/FriendsBar.css'
+// import '../style/FriendsBar.css'
 
 export interface Friends {
 	 name: string,
@@ -35,7 +35,7 @@ export default function Friendsbar() {
 
 	return (
 		<div className={`h-[95%] w-full  rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>
-			<div className={`h-full w-full flex flex-col space-y-2 items-start ${quantico.className} rounded-3xl bg-[#6265A9]`}>
+			<div className={`h-full w-full flex flex-col space-y-2 items-start rounded-3xl bg-[#6265A9]`}>
 				<div className="flex flex-row items-center w-full justify-end space-x-2 p-2">
 					<Button className="active:scale-95 pb-1 bg-[#767ac9] text-white text-2xl hover:bg-violet-200 hover:text-black" variant={'rounded'} size={'square'}>
 						+
@@ -45,7 +45,7 @@ export default function Friendsbar() {
 					<ul>
 						{friends.map(friends => (
 							<li key={friends.name}>
-								<Button className="hover:text-2xl text-white hover:bg-[#767ac9] active:bg-[#858ae6]" variant={'channel'} size={'channel'}>
+								<Button className="hover:text-2xl text-white hover:bg-[#767ac9] active:bg-[#858ae6] " variant={'channel'} size={'channel'}>
 									<h1 className="pl-8">{friends.name}</h1>
 								</Button>
 							</li>
