@@ -1,7 +1,11 @@
-import React from 'react'
+'use client'
+
+import {useState, useEffect} from 'react'
 import '../styles.css'
-import MyHeader, {press_Start_2P} from '@/components/Header'
+import MyHeader from '@/components/Header'
 import PlayerProfile from '@/components/PlayerProfile'
+import { press_Start_2P } from '@/models/FontModel'
+import { UserProfile } from '@/models/ProfilePageModel';
 
 export default function LobbyPage() {
 	return (
@@ -22,34 +26,57 @@ export default function LobbyPage() {
 		)
 }
 
-const Player1: React.FC = () => {
+function Player1() {
+	const user =({
+        name: "jsabound",
+        imageSrc: "/Musashi.jpg",
+        isConnected: true,
+        games: [],
+    });
+	
+	let status : string;
+	
+	if (user?.isConnected === true)
+		status = 'READY';
+	else
+		status = 'Waiting a player...';
 	return (
 		<div className="w-[547.51px] h-[650px] pt-10 bg-gradient-to-b from-white to-indigo-300 rounded-3xl shadow-2xl items-center flex flex-col ">
-			<div className='w-[250px] h-[128px]'>
-				<PlayerProfile user={{name: 'jsabound', imageSrc: '/Musashi.jpg', games: [], isConnected: true}} width={128} height={128} displayName={true}/>
+			<div className='w-[250px] h-[228px]'>
+				<PlayerProfile user={user} width={310} height={310} displayName={true}/>
 			</div>
-			<div className="w-[350px] h-[45px] bg-blue-600 mt-40 rounded-lg flex justify-center">
-				<div className={`text-white text-2xl mt-2 text-center ${press_Start_2P.className}`}>
-					READY
-				</div>
+			<div className="w-[400px] h-[45px] bg-blue-600 mt-40 rounded-lg flex justify-center ">
+				<p className={`w-[350px] h-full text-white text-xl mt-2 text-center text-nowrap ${press_Start_2P.className}`}>
+					{status}
+				</p>
 			</div>
 		</div>
 	);
 }
 
-const Player2: React.FC = () => {
+function Player2() {
+	const user =({
+        name: "kgezgin",
+        imageSrc: "/Kojiro.jpg",
+        isConnected: true,
+        games: [],
+    });
+	
+	let status : string;
+
+	if (user?.isConnected === true)
+		status = 'READY';
+	else
+		status = 'Waiting a player...';
 	return (
 		<div className="w-[547.51px] h-[650px] pt-10 bg-gradient-to-t from-fuchsia-300 to-white rounded-3xl shadow-2xl items-center flex flex-col">
-			<div className="w-[251px] h-[255px] bg-fuchsia-500 flex justify-around flex-col items-center p-5 rounded-3xl">
-			 	<div className="w-32 h-32 bg-white rounded-full " />
-					<div className={`text-center text-black text-2xl ${press_Start_2P.className}`}>
-						Username
-					</div>	
+			<div className="w-[251px] h-[228px]">
+				<PlayerProfile user={user} width={310} height={310} displayName={true}/>
 			</div>
 			<div className="w-[350px] h-[45px] bg-fuchsia-500 rounded-lg mt-40 flex justify-center">
-				<div className={`text-white text-2xl mt-2 text-center ${press_Start_2P.className}`}>
-					READY
-				</div>
+				<p className={`text-white text-2xl mt-2 text-center ${press_Start_2P.className}`}>
+					{status}
+				</p>
 			</div>
 		</div>
 	);
