@@ -1,28 +1,23 @@
  
-import { Press_Start_2P } from 'next/font/google'
-import { Quantico } from 'next/font/google'
+import { press_Start_2P, quantico } from '@/models/FontModel'
 import Link from 'next/link'
- 
-const press_Start_2P = Press_Start_2P({
-    subsets: ['latin'],
-    weight: '400'
-})
-
-const quantico = Quantico({
-    subsets: ['latin'],
-    weight: '400'
-})
+import "../../style/page.css"
+import MyHeader from '@/components/organism/Header'
+import LogLayout from './layout'
 
 const LogPage: React.FC = () => {
     return (
-        <div className="flex flex-col items-center justify-evenly">
-            <div className={` text-black text-7xl ${press_Start_2P.className}`}>PONG</div>
-            <Link href="/home">
-                <button className={`text-white text-xl bg-gradient-to-r from-fuchsia-900 to-indigo-900  rounded-lg p-1 pl-14 pr-14  ${quantico.className}`}>
-                    Login with 42
-                </button >
-            </Link>
-        </div>
+        <LogLayout>
+            <div className="flex flex-col items-center justify-evenly">
+                <MyHeader display={false} />
+                <div className={` text-black text-7xl ${press_Start_2P.className}`}>PONG</div>
+                <Link href="/home">
+                    <button className={`text-white text-xl bg-gradient-to-r from-fuchsia-900 to-indigo-900  rounded-lg p-1 pl-14 pr-14  ${quantico.className}`}>
+                        Login with 42
+                    </button >
+                </Link>
+            </div>
+        </LogLayout>
     );
 }
 

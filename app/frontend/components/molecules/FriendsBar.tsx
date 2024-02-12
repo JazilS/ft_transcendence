@@ -1,8 +1,7 @@
 'use client'
 
 import {useState, useEffect} from "react";
-import Button from "./Button";
-import { quantico } from "@/models/FontModel";
+import Button from "../atom/Button";
 // import '../style/FriendsBar.css'
 
 export interface Friends {

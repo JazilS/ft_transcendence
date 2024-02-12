@@ -2,7 +2,7 @@ import React, { ButtonHTMLAttributes } from "react";
 import { VariantProps, cva } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils"
-import '../app/styles.css'
+import '../../app/styles.css'
 
 interface ButtonProps {}
 
@@ -13,6 +13,7 @@ const buttonVariants = cva(
 		variants: {
 			variant: {
 				default: 'bg-green-900 text-white hover:bg-slate-800',
+				header: 'text-white hover:scale-110',
 				channel: 'bg-transparant p-1.5 text-xl rounded-full',
 				rounded: 'bg-[#6E82B6] justify-center items-center rounded-full hover:bg-[#53648f] hover:text-gray-300 ',
 				chatSwitch: 'justify-center rounded-t-2xl text-lg'

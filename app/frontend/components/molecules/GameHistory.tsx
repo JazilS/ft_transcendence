@@ -1,13 +1,8 @@
 import React from 'react'
-import Image from 'next/image';
 import { UserProfile } from '@/models/ProfilePageModel'
 import { press_Start_2P } from '@/models/FontModel';
-import PlayerAvatar from './PlayerAvatar';
-import '../app/styles.css'
-
-interface GameHistoryProps {
-	user: UserProfile;
-}
+import PlayerAvatar from '../atom/PlayerAvatar';
+import '../../app/styles.css'
 
 export default function GameHistory({ user }: { user: UserProfile }) {
     const gameList = user?.games ?? [];

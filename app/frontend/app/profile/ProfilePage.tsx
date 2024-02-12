@@ -1,14 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import MyHeader from '@/components/Header'
-import GameHistory from '../../components/GameHistory'
-import PlayerProfile from '@/components/PlayerProfile';
+import { TextField } from "@mui/material";
 import { UserProfile } from '@/models/ProfilePageModel'
 import { press_Start_2P, quantico } from '@/models/FontModel'
-import { TextField } from "@mui/material";
-import '../styles.css'
+import PlayerProfile from '@/components/molecules/PlayerProfile';
+import GameHistory from '../../components/molecules/GameHistory'
 import EditProfileButton from './EditProfile';
+import '../styles.css'
 
 export default function ProfilePage() {
 	const [user, setUser] = useState<UserProfile>({
@@ -50,8 +49,7 @@ export default function ProfilePage() {
 	else
 		color = "bg-red-500"
 	return (
-		<div className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 h-[100vh]">
-			<MyHeader />
+		<div>
 			<div className={`flex justify-center h-[85%] ${blur ? 'blur-xl' : 'none'}`}>
 				<div className="flex flex-row w-5/6 h-full bg-white rounded-3xl p-7 space-x-7">
 					<div className={`h-[738px] w-[315px] flex flex-col justify-center items-center bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500`}>

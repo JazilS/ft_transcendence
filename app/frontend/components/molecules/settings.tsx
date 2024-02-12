@@ -4,7 +4,7 @@ import { Press_Start_2P } from 'next/font/google'
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import '../app/styles.css';
+import '../../app/styles.css';
 
 const style = {
   position: 'absolute',

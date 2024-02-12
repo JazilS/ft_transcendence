@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import Button from "./Button";
+import Button from "../Button";
 import { quantico } from "@/models/FontModel";
 
 export default function SwitchChat({

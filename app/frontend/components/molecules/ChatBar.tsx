@@ -1,4 +1,4 @@
-import SwitchChat from "./ChatSwitch";
+import SwitchChat from "../atom/chat/ChatSwitch";
 import ChannelBar from "./ChannelList";
 import Friendsbar from "./FriendsBar";
 

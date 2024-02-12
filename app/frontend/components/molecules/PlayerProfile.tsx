@@ -1,7 +1,6 @@
-import { press_Start_2P, quantico } from '@/models/FontModel'
+import { press_Start_2P} from '@/models/FontModel'
 import { UserProfile } from '@/models/ProfilePageModel'
-import PlayerAvatar from './PlayerAvatar';
-import { TextField } from "@mui/material";
+import PlayerAvatar from '../atom/PlayerAvatar';
 
 interface PlayerProfileProps {
 	user: UserProfile;
@@ -13,9 +12,6 @@ interface PlayerProfileProps {
 
 
 const PlayerProfile: React.FC<PlayerProfileProps> =  ({ user, width, height, displayName}) =>{
-	
-
-	
 
 	return(
 		<>

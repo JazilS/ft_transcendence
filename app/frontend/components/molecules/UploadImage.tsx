@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
 import ImageUploading from 'react-images-uploading';
-import Image from 'next/image';
-import { UploadImageProps } from '@/models/UploadImageModel';
-import CropDemo from '@/components/CropImage';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
 
 export default function UploadImage() {
 	const [images, setImages] = useState([]);

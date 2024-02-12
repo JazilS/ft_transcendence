@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import "../styles.css";
 import { press_Start_2P, quantico} from "../../models/FontModel";
 import { UserProfile } from "@/models/ProfilePageModel";
-import CropDemo from "@/components/CropImage";
-import { Backdrop, Button, colors } from "@mui/material";
+import { Button } from "@mui/material";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import CropDemo from "@/components/atom/CropImage";
+import "../styles.css";
 
 
 

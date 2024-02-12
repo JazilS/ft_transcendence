@@ -1,6 +1,4 @@
-import Button from "./Button";
-import FadeMenu from "./FadeMenu";
-import { Channel } from "./ChannelList";
+import FadeMenu from "../../molecules/FadeMenu";
 
 export default function ChatMembers({members}: {members: string[]}) {
 	
