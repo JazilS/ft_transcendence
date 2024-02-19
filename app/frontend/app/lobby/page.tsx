@@ -1,15 +1,13 @@
 'use client'
 
-import {useState, useEffect} from 'react'
-import '../styles.css'
-import MyHeader from '@/components/Header'
-import PlayerProfile from '@/components/PlayerProfile'
+import PlayerProfile from '@/components/molecules/PlayerProfile'
 import { press_Start_2P } from '@/models/FontModel'
-import { UserProfile } from '@/models/ProfilePageModel';
+import '../styles.css'
+import MyHeader from '@/components/organism/Header'
 
 export default function LobbyPage() {
 	return (
-	<div className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 h-[100vh]">
+	<div >
 		<MyHeader />
 		<div className="flex flex-col items-center">
 			<div className="flex justify-center space-x-20">
@@ -41,11 +39,9 @@ function Player1() {
 	else
 		status = 'Waiting a player...';
 	return (
-		<div className="w-[547.51px] h-[650px] pt-10 bg-gradient-to-b from-white to-indigo-300 rounded-3xl shadow-2xl items-center flex flex-col ">
-			<div className='w-[250px] h-[228px]'>
-				<PlayerProfile user={user} width={310} height={310}/>
-			</div>
-			<div className="w-[400px] h-[45px] bg-blue-600 mt-40 rounded-lg flex justify-center ">
+		<div className="w-[40%] h-[60%] p-10 mt-12 bg-white bg-opacity-5 rounded-3xl shadow-2xl items-center flex flex-col ">
+			<PlayerProfile user={user} width={220} height={220} displayName={true}/>
+			<div className="w-[300px] bg-blue-600 mt-10 mb-22 rounded-lg flex justify-center ">
 				<p className={`w-[350px] h-full text-white text-xl mt-2 text-center text-nowrap ${press_Start_2P.className}`}>
 					{status}
 				</p>
@@ -69,12 +65,10 @@ function Player2() {
 	else
 		status = 'Waiting a player...';
 	return (
-		<div className="w-[547.51px] h-[650px] pt-10 bg-gradient-to-t from-fuchsia-300 to-white rounded-3xl shadow-2xl items-center flex flex-col">
-			<div className="w-[251px] h-[228px]">
-				<PlayerProfile user={user} width={310} height={310}/>
-			</div>
-			<div className="w-[350px] h-[45px] bg-fuchsia-500 rounded-lg mt-40 flex justify-center">
-				<p className={`text-white text-2xl mt-2 text-center ${press_Start_2P.className}`}>
+		<div className="w-[40%] h-[60%] p-10 mt-12 bg-white bg-opacity-5 rounded-3xl shadow-2xl items-center flex flex-col ">
+			<PlayerProfile user={user} width={220} height={220} displayName={true}/>
+			<div className="w-[300px] bg-fuchsia-600 mt-10 mb-22 rounded-lg flex justify-center ">
+				<p className={`w-[350px] h-full text-white text-xl mt-2 text-center text-nowrap ${press_Start_2P.className}`}>
 					{status}
 				</p>
 			</div>

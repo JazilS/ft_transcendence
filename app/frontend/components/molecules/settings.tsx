@@ -4,7 +4,7 @@ import { Press_Start_2P } from 'next/font/google'
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import '../app/styles.css';
+import '../../app/styles.css';
 
 const style = {
   position: 'absolute',
@@ -25,7 +25,7 @@ export default function SettingsModal() {
 
   return (
     <div>
-      <button onClick={handleOpen} className={`${press_Start_2P.className} text-white `}>settings</button>
+      <button onClick={handleOpen} className={`${press_Start_2P.className} text-white hover:scale-110 active:hover:disabled`}>settings</button>
       <Modal
         open={open}
         onClose={handleClose}

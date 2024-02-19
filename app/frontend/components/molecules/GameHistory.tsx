@@ -1,13 +1,8 @@
 import React from 'react'
-import Image from 'next/image';
 import { UserProfile } from '@/models/ProfilePageModel'
 import { press_Start_2P } from '@/models/FontModel';
-import PlayerAvatar from './PlayerAvatar';
-import '../app/styles.css'
-
-interface GameHistoryProps {
-	user: UserProfile;
-}
+import PlayerAvatar from '../atom/PlayerAvatar';
+import '../../app/styles.css'
 
 export default function GameHistory({ user }: { user: UserProfile }) {
     const gameList = user?.games ?? [];
@@ -23,9 +18,9 @@ export default function GameHistory({ user }: { user: UserProfile }) {
                             <div className='flex'><PlayerAvatar src={user?.imageSrc} width={70} height={70}/></div>
                             <p className={`${press_Start_2P.className} w-[190px] justify-start pl-4 truncate`}> {user.name} </p>
                         
-                        <p className={`text-3xl ${press_Start_2P.className}`}>{game.scoreUser} VS {game.scoreOpponent}</p>
+                        <div className={`text-3xl ${press_Start_2P.className}`}>{game.scoreUser} VS {game.scoreOpponent}</div>
                         
-                            <p className={`${press_Start_2P.className} truncate text-right p-2 w-[190px]`}> {game.opponent?.toString()}</p>
+                            <div className={`${press_Start_2P.className} truncate text-right p-2 w-[190px]`}> {game.opponent?.toString()}</div>
                             <div className='flex'><PlayerAvatar src={game.opponentImageSrc} width={70} height={70}/></div>
                     </div>
                 </li>

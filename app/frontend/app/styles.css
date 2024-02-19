@@ -7,3 +7,6 @@
 @import '@fontsource/roboto/500.css';
 @import '@fontsource/roboto/700.css';
 
+.custom-color {
+	color: #6E82B6; /* Votre couleur personnalisée */
+  }

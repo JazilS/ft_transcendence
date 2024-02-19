@@ -1,26 +1,28 @@
 import React from 'react';
-import '../styles.css';
-import MyHeader from '@/components/Header';
 import Image from 'next/image';
+import '../styles.css';import "../../style/FadeMenu.css"
+import MyHeader from '@/components/organism/Header';
+
 
 export default function HomePage() {
 	return (
-		<div className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 h-[100vh]">
-			<MyHeader /> 
+		<div>
+			<MyHeader />
 			<GameImage />
 		</div>
-  );
+	);
 }
 
-const GameImage: React.FC = () => {
+function GameImage() {
 	return (
-	<div className=" flex flex-col justify-center items-center rounded-3xl h-[90vh] ">
+		<div className=" flex flex-col justify-center items-center rounded-3xl h-[90vh] ">
 		<div>
 			<Image
-			src="/PongFig.png" 
-			alt="PongFig" 
+			src="/Pong.jpg" 
+			alt="Pong" 
+			layout="responsive"
 			width={1200}
-			height={1200}
+			height={658}
 			className="rounded-3xl drop-shadow-2xl"/>
 		</div>
 	</div>
