@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 interface PlayerAvatarProps {
-	src: string;
+	src: string | undefined;
 	width: number;
 	height: number;
   }

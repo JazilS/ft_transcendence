@@ -1,9 +1,10 @@
 import { press_Start_2P} from '@/models/FontModel'
 import { UserProfile } from '@/models/ProfilePageModel'
 import PlayerAvatar from '../atom/PlayerAvatar';
+import { User } from '@/app/store/store';
 
 interface PlayerProfileProps {
-	user: UserProfile;
+	user: User | undefined;
 	width: number;
 	height: number;
 	displayName: boolean;

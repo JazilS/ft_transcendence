@@ -2,26 +2,25 @@
 
 import { useState } from "react";
 import { press_Start_2P, quantico} from "../../models/FontModel";
-import { UserProfile } from "@/models/ProfilePageModel";
 import { Button } from "@mui/material";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
-import CropDemo from "@/components/atom/CropImage";
+import CropImage from "@/components/atom/CropImage";
 import "../styles.css";
+import { User, useAppDispatch } from "../store/store";
 
 
 
-export default function EditProfileButton({
+export default function EditAvatar({
   user,
-  setUser,
   setBlur,
 }: {
-  user: UserProfile;
-  setUser: React.Dispatch<React.SetStateAction<UserProfile>>;
+  user: User;
   setBlur: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [open, setOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState();
+  const dispatch = useAppDispatch();
 
   const handleOpen = () => {
 	setOpen(true);
@@ -55,11 +54,10 @@ export default function EditProfileButton({
 			<Box sx={style}>
 				<div className=" w-full h-full flex flex-col items-center space-y-10">
 					<div className="flex">
-						<CropDemo 
-							onCLose={handleClose}
-							src={imageUrl ? URL.createObjectURL(imageUrl) : user.imageSrc} 
+						<CropImage 
+							src={imageUrl ? URL.createObjectURL(imageUrl) : user?.imageSrc}
 							user={user} 
-							setUser={setUser}
+							onCLose={handleClose}
 						/>
 					</div>
 					<Button

@@ -18,21 +18,24 @@ import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 
 const ADD_USER = 'ADD_USER';
 const EDIT_USER_NAME = 'EDIT_USER_NAME';
+const EDIT_USER_AVATAR = 'EDIT_USER_AVATAR';
 const SET_CURRENT_USER = 'SET_CURRENT_USER';
 
 interface GameHistory {
+  id: number;
 	opponent: string;
 	opponentImageSrc: string;
 	scoreUser: number;
 	scoreOpponent: number;
 }
 
-interface User {
+export interface User {
   id: number;
   name: string;
   imageSrc: string;
   isConnected: boolean;
   games: GameHistory[];
+  isReadyLobby: boolean;
   // Ajoutez d'autres propriétés ici si nécessaire
 }
 
@@ -56,6 +59,16 @@ export const editUserName = (id: number, name: string): EditUserNameAction => ({
   payload: { id, name }
 });
 
+interface EditUserAvatarAction {
+  type: typeof EDIT_USER_AVATAR;
+  payload: { id: number; imageSrc: string };
+}
+
+export const editUserAvatar = (id: number, imageSrc: string): EditUserAvatarAction => ({
+  type: EDIT_USER_AVATAR,
+  payload: { id, imageSrc }
+});
+
 interface SetCurrentUserAction {
   type: typeof SET_CURRENT_USER;
   payload: number;
@@ -69,14 +82,16 @@ export const setCurrentUser = (id: number): SetCurrentUserAction => ({
 interface UsersState {
   users: User[];
   currentUserId: number | null;
+  opponentUserId: number | null;
 }
 
 const initialState: UsersState = {
   users: [],
-  currentUserId: null
+  currentUserId: null,
+  opponentUserId: 2,
 };
 
-type UsersAction = AddUserAction | EditUserNameAction | SetCurrentUserAction;
+type UsersAction = AddUserAction | EditUserNameAction | SetCurrentUserAction | EditUserAvatarAction;
 
 export const usersReducer = (state = initialState, action: UsersAction): UsersState => {
   switch (action.type) {
@@ -89,8 +104,15 @@ export const usersReducer = (state = initialState, action: UsersAction): UsersSt
           user.id === action.payload.id ? { ...user, name: action.payload.name } : user
         )
       };
-    case SET_CURRENT_USER:
-      return { ...state, currentUserId: action.payload };
+      case EDIT_USER_AVATAR:
+        return {
+          ...state,
+          users: state.users.map((user, index) =>
+            index === state.currentUserId ? { ...user, imageSrc: action.payload.imageSrc } : user
+          )
+      };
+      case SET_CURRENT_USER:
+        return { ...state, currentUserId: action.payload };
     default:
       return state;
   }

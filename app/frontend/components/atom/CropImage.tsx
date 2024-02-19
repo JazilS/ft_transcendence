@@ -3,19 +3,19 @@ import { Cropper } from 'react-advanced-cropper';
 import { UserProfile } from "@/models/ProfilePageModel";
 import { quantico } from "@/models/FontModel";
 import 'react-advanced-cropper/dist/style.css';
+import { User, editUserAvatar, useAppDispatch } from '@/app/store/store';
 
 interface CropDemoProps {
   src: string;
-	user: UserProfile;
-  setUser: React.Dispatch<React.SetStateAction<UserProfile>>;
+	user: User;
   onCLose: Function;
 }
 
-export default function CropDemo({src, user, setUser, onCLose}: CropDemoProps){
+export default function CropImage({src, user, onCLose}: CropDemoProps){
 
   const [zoom, setZoom] = useState(1);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
-
+  const dispatch = useAppDispatch();
   const onCropChange = (newCrop: any) => {
     setCroppedImage(newCrop.getCanvas()?.toDataURL())
   };
@@ -23,10 +23,10 @@ export default function CropDemo({src, user, setUser, onCLose}: CropDemoProps){
   const onZoomChange = (newZoom: number) => {
     setZoom(newZoom);
   };
-  
+
   const handleConfirmCrop = (event: any) => {
 		if (croppedImage) {
-  	  setUser({ ...user,imageSrc: croppedImage  });
+		dispatch(editUserAvatar(user.id, croppedImage));
 		onCLose();
 		}
   };

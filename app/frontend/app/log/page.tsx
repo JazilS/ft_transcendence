@@ -4,15 +4,15 @@ import { press_Start_2P, quantico } from '@/models/FontModel'
 import Link from 'next/link'
 import "../../style/page.css"
 import MyHeader from '@/components/organism/Header'
-import { setCurrentUser, addUser, useAppDispatch, useAppSelector, store } from '../store/store'
+import { setCurrentUser, addUser, useAppDispatch, useAppSelector, store, User } from '../store/store'
 import { Provider } from 'react-redux';
 import { COMPILER_INDEXES } from 'next/dist/shared/lib/constants'
 import { useEffect } from 'react'
 
 function LogPage() {
     const dispatch = useAppDispatch();
-    const users = useAppSelector(state => state.users);
-    const newUserId = users.length + 1;
+    const users : User[] = useAppSelector(state => state.users);
+    const newUserId : number = users.length + 1;
 
     const handleNewUser = () => {
 
@@ -20,18 +20,30 @@ function LogPage() {
             name: 'Musashi',
             imageSrc: '/Musashi.jpg',
             isConnected: true,
+            isReadyLobby: true,
             games: [
-                {opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10},
-                {opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 8, scoreOpponent: 11},
-                {opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 2},
-                {opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 0},
-                {opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 7, scoreOpponent: 11},
+                {id: 0, opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 10,},
+                {id: 1, opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 8, scoreOpponent: 11,},
+                {id: 2, opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 2,},
+                {id: 3, opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 0,},
+                {id: 4, opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 7, scoreOpponent: 11,},
             ]
         }))
-        // dispatch(addUser({
-            
-        // }))
-        // dispatch(setCurrentUser(newUserId));
+        dispatch(addUser({
+            id: newUserId + 1,
+            name: 'Kojiro',
+            imageSrc: '/Kojiro.jpg',
+            isConnected: true,
+            isReadyLobby: false,
+            games: [
+                {id: 0, opponent: "Musashi", opponentImageSrc: "/Musashi.jpg", scoreUser: 10, scoreOpponent: 11,},
+                {id: 1, opponent: "Musashi", opponentImageSrc: "/Musashi.jpg", scoreUser: 11, scoreOpponent: 8,},
+                {id: 2, opponent: "Musashi", opponentImageSrc: "/Musashi.jpg", scoreUser: 2, scoreOpponent: 11,},
+                {id: 3, opponent: "Musashi", opponentImageSrc: "/Musashi.jpg", scoreUser: 0, scoreOpponent: 11,},
+                {id: 4, opponent: "Musashi", opponentImageSrc: "/Musashi.jpg", scoreUser: 11, scoreOpponent: 7,},
+            ]
+        }))
+        dispatch(setCurrentUser(newUserId));
     }
 
     

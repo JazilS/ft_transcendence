@@ -3,8 +3,10 @@ import { UserProfile } from '@/models/ProfilePageModel'
 import { press_Start_2P } from '@/models/FontModel';
 import PlayerAvatar from '../atom/PlayerAvatar';
 import '../../app/styles.css'
+import {User} from '../../app/store/store'
 
-export default function GameHistory({ user }: { user: UserProfile }) {
+
+export default function GameHistory({ user }: { user: User }) {
     const gameList = user?.games ?? [];
     return (
         <div className='h-[700px] w-[800px] rounded-3xl m-7'>
