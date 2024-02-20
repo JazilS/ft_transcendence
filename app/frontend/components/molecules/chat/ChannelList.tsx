@@ -1,7 +1,9 @@
 'use client'
 
 import {useState, useEffect} from "react";
-import Button from "../atom/Button";
+import Button from "../../atom/Button";
+import { User, useAppDispatch, useAppSelector } from "@/app/store/store";
+import NewChanModal from "./NewChan";
 // import '../style/ChannelList.css'
 
 export interface Channel {
@@ -11,6 +13,9 @@ export interface Channel {
   
 export default function ChannelBar() {
 	const [channel, setChannels] = useState<Channel[]>([]);
+
+	const dispatch = useAppDispatch();
+	const user : User | undefined = useAppSelector(state => state.users.find(user => user.id === state.currentUserId));
 
 	useEffect(() => {
 		// Simulation de la récupération des données des canaux depuis le backend
@@ -36,9 +41,7 @@ export default function ChannelBar() {
 		<div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>
 			<div className={`h-full w-full flex flex-col space-y-2 items-start rounded-3xl bg-[#9EB7F6]`}>
 				<div className="flex flex-row items-center w-full justify-end space-x-2 p-2">
-					<Button className="active:scale-95" variant={'rounded'} size={'h_7_w_16'}>
-						New
-					</Button>
+					<NewChanModal/>
 					<Button className="active:scale-95" variant={'rounded'} size={'h_7_w_16'}>
 						Join
 					</Button>

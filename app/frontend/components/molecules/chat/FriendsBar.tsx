@@ -1,7 +1,7 @@
 'use client'
 
 import {useState, useEffect} from "react";
-import Button from "../atom/Button";
+import Button from "../../atom/Button";
 // import '../style/FriendsBar.css'
 
 export interface Friends {

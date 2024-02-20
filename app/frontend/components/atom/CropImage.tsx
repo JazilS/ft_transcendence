@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cropper } from 'react-advanced-cropper';
+import { AspectRatio, Cropper } from 'react-advanced-cropper';
 import { UserProfile } from "@/models/ProfilePageModel";
 import { quantico } from "@/models/FontModel";
 import 'react-advanced-cropper/dist/style.css';
@@ -20,14 +20,14 @@ export default function CropImage({src, user, onCLose}: CropDemoProps){
     setCroppedImage(newCrop.getCanvas()?.toDataURL())
   };
 
-  const onZoomChange = (newZoom: number) => {
-    setZoom(newZoom);
-  };
+//   const onZoomChange = (newZoom: number) => {
+//     setZoom(newZoom);
+//   };
 
   const handleConfirmCrop = (event: any) => {
 		if (croppedImage) {
-		dispatch(editUserAvatar(user.id, croppedImage));
-		onCLose();
+			dispatch(editUserAvatar(user.id, croppedImage));
+			onCLose();
 		}
   };
 
@@ -37,12 +37,8 @@ export default function CropImage({src, user, onCLose}: CropDemoProps){
 			<div className=' w-fit max-w-[880px] h-[336px] flex flex-col'>
 				<Cropper
 					src={src}
-					aspectRatio={1}
-					zoom={zoom}
+					aspectRatio={1 as unknown as AspectRatio}
 					onInteractionEnd={onCropChange}
-					// onTransformImageEnd={handleConfirmCrop}
-					onZoomChange={onZoomChange}
-					cropShape="round"
 					style={{
 						width: "auto",
 						height: "400px",

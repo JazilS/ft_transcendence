@@ -15,11 +15,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 
-
 const ADD_USER = 'ADD_USER';
 const EDIT_USER_NAME = 'EDIT_USER_NAME';
 const EDIT_USER_AVATAR = 'EDIT_USER_AVATAR';
 const SET_CURRENT_USER = 'SET_CURRENT_USER';
+const ADD_ROOM = 'ADD_CHANNEL';
 
 interface GameHistory {
   id: number;
@@ -36,7 +36,17 @@ export interface User {
   isConnected: boolean;
   games: GameHistory[];
   isReadyLobby: boolean;
+  Channels: ChatRoom[];
+  blockedList: number[];
   // Ajoutez d'autres propriétés ici si nécessaire
+}
+
+export interface ChatRoom {
+  id: number;
+  name: string;
+  users: User[];
+  messages: string[];
+  roomType: string;
 }
 
 interface AddUserAction {
@@ -79,19 +89,33 @@ export const setCurrentUser = (id: number): SetCurrentUserAction => ({
   payload: id
 });
 
+
+interface AddRoomAction {
+  type: typeof ADD_ROOM;
+  payload: ChatRoom;
+}
+
+export const AddRoom = (room: ChatRoom): AddRoomAction => ({
+  type: ADD_ROOM,
+  payload: room
+});
+
+
 interface UsersState {
   users: User[];
+  rooms: ChatRoom[];
   currentUserId: number | null;
   opponentUserId: number | null;
 }
 
 const initialState: UsersState = {
   users: [],
+  rooms: [],
   currentUserId: null,
   opponentUserId: 2,
 };
 
-type UsersAction = AddUserAction | EditUserNameAction | SetCurrentUserAction | EditUserAvatarAction;
+type UsersAction = AddUserAction | EditUserNameAction | SetCurrentUserAction | EditUserAvatarAction | AddRoomAction;
 
 export const usersReducer = (state = initialState, action: UsersAction): UsersState => {
   switch (action.type) {
@@ -107,12 +131,14 @@ export const usersReducer = (state = initialState, action: UsersAction): UsersSt
       case EDIT_USER_AVATAR:
         return {
           ...state,
-          users: state.users.map((user, index) =>
-            index === state.currentUserId ? { ...user, imageSrc: action.payload.imageSrc } : user
+          users: state.users.map((user) =>
+            user.id === action.payload.id ? { ...user, imageSrc: action.payload.imageSrc } : user
           )
       };
       case SET_CURRENT_USER:
         return { ...state, currentUserId: action.payload };
+      case ADD_ROOM:
+        return { ...state, rooms: [...state.rooms, action.payload]}
     default:
       return state;
   }
