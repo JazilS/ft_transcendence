@@ -16,9 +16,8 @@ const GameImage: React.FC = () => {
 			<Image
 			src="/Pong.jpg" 
 			alt="Pong" 
-			layout="responsive"
-			width={1200}
-			height={658}
+			width={565}
+			height={353}
 			className="rounded-3xl drop-shadow-2xl"/>
 		</div>
 	</div>

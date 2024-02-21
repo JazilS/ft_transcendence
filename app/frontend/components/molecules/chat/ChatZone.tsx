@@ -38,7 +38,7 @@ export default function ChatZone() {
 				type="text"
 				value={value}
 				placeholder="chat"
-				className="w-[85%] h-10 p-2 rounded-3xl text-lg bg-white bg-opacity-80 placeholder:text-gray-700 placeholder:text-lg indent-2"
+				className="w-[85%] h-10 mt-7 p-2 rounded-3xl text-lg bg-white bg-opacity-80 placeholder:text-gray-700 placeholder:text-lg indent-2"
 				onChange={(e) => setValue((e.target as HTMLInputElement).value)}
 				onKeyDown={(e) => {
 					if (e.key === "Enter") {

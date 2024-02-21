@@ -4,19 +4,22 @@ import { press_Start_2P, quantico } from '@/models/FontModel'
 import Link from 'next/link'
 import "../../style/page.css"
 import MyHeader from '@/components/organism/Header'
-import { setCurrentUser, addUser, useAppDispatch, useAppSelector, store, User } from '../store/store'
+import { setCurrentUser, addUser, useAppDispatch, useAppSelector, store, User, setOpponentUser } from '../store/store'
 import { Provider } from 'react-redux';
-import { COMPILER_INDEXES } from 'next/dist/shared/lib/constants'
 import { useEffect } from 'react'
+import { v4 as uuidv4 } from "uuid";
 
 function LogPage() {
     const dispatch = useAppDispatch();
     const users : User[] = useAppSelector(state => state.users);
-    const newUserId : number = users.length + 1;
+    const newUserId = uuidv4();
+    const newUserId2 = uuidv4();
+    const OpponentUserId = uuidv4();
 
     const handleNewUser = () => {
 
-        dispatch(addUser({id: newUserId,
+        dispatch(addUser({
+            id: newUserId,
             name: 'Musashi',
             imageSrc: '/Musashi.jpg',
             isConnected: true,
@@ -27,10 +30,12 @@ function LogPage() {
                 {id: 2, opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 2,},
                 {id: 3, opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 11, scoreOpponent: 0,},
                 {id: 4, opponent: "Kojiro", opponentImageSrc: "/Kojiro.jpg", scoreUser: 7, scoreOpponent: 11,},
-            ]
+            ],
+            channels: [],
+            blockedList: []
         }))
         dispatch(addUser({
-            id: newUserId + 1,
+            id: newUserId2,
             name: 'Kojiro',
             imageSrc: '/Kojiro.jpg',
             isConnected: true,
@@ -41,9 +46,12 @@ function LogPage() {
                 {id: 2, opponent: "Musashi", opponentImageSrc: "/Musashi.jpg", scoreUser: 2, scoreOpponent: 11,},
                 {id: 3, opponent: "Musashi", opponentImageSrc: "/Musashi.jpg", scoreUser: 0, scoreOpponent: 11,},
                 {id: 4, opponent: "Musashi", opponentImageSrc: "/Musashi.jpg", scoreUser: 11, scoreOpponent: 7,},
-            ]
+            ],
+            channels: [],
+            blockedList: []
         }))
         dispatch(setCurrentUser(newUserId));
+        dispatch(setOpponentUser(OpponentUserId));
     }
 
     

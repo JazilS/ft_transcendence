@@ -34,7 +34,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "components/atom/chat/NewChan"  ],
   "exclude": [
     "node_modules"
   ]
