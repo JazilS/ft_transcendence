@@ -54,7 +54,6 @@ function LogPage() {
         dispatch(setOpponentUser(OpponentUserId));
     }
 
-    
     useEffect(() => {
         users.forEach(user => console.log(`ID: ${user.id}, Name: ${user.name}`));
       }, [users]);

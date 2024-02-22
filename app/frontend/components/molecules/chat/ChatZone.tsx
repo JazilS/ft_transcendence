@@ -1,3 +1,4 @@
+import { useAppSelector } from '@/app/store/store';
 import MessagesDisplay from '@/components/atom/chat/MessagesDisplay';
 import { send } from 'process';
 import react, {useEffect, useState} from 'react';
@@ -8,6 +9,7 @@ export default function ChatZone() {
 	const [socket, setSocket] = useState<Socket>()
 	const [messages, setMessages] = useState<string[]>([])
 	const [value, setValue] = useState<string>('')
+	// const channelName = useAppSelector(state => state.channel)
 
 	const sendMessage = (message: string) => {
 		socket?.emit('message', message)
