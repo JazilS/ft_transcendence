@@ -23,7 +23,7 @@ export class GatewayGateway
     console.log('client disconnected');
   }
 
-  @SubscribeMessage('KICK')
+  @SubscribeMessage('MESSAGE')
   handleEvent(
     client: SocketWithAuth,
     payload: { id: string; message: string },
@@ -34,7 +34,7 @@ export class GatewayGateway
         this.server.to(socket).emit('events', payload.message);
       }
     }
-    return 'Hello world!';
+    return 'Message sent to all users in room';
   }
 
   createTokenMiddleware =
