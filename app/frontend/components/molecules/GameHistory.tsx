@@ -1,12 +1,11 @@
 import React from "react";
-import { UserProfile } from "@/models/ProfilePageModel";
-import { press_Start_2P } from "@/models/FontModel";
+import { press_Start_2P } from "@/models/Font/FontModel";
 import PlayerAvatar from "../atom/PlayerAvatar";
 import "../../app/styles.css";
-import { User } from "../../app/store/store";
+import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 
-export default function GameHistory({ user }: { user: User }) {
-  const gameList = user?.games ?? [];
+export default function GameHistory({ user }: { user: PlayerProfile }) {
+  const gameList = user?.gameHistory ?? [];
   return (
     <div className="h-[100%] w-[100%] rounded-3xl p-7 flex items-center">
       <ul className="flex flex-col w-[100%] space-y-5 justify-evenly">

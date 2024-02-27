@@ -1,20 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { TextField } from "@mui/material";
-import { UserProfile } from "@/models/ProfilePageModel";
-import { press_Start_2P, quantico } from "@/models/FontModel";
-import PlayerProfile from "@/components/molecules/PlayerProfile";
-import GameHistory from "../../components/molecules/GameHistory";
+import { press_Start_2P, quantico } from "@/models/Font/FontModel";
 import { RootState } from "@/app/store/store";
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
-import { Provider } from "react-redux";
 import { setNewNickname } from "@/app/store/features/User/UserSlice";
 
 export default function EditUsername() {
   const [isEditing, setIsEditing] = useState(false);
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state: RootState) => state.user.user);
+  const user = useAppSelector((state: RootState) => state.user.user.playerProfile);
 
   const handleNameDisplay = (value: boolean) => {
     setIsEditing(value);

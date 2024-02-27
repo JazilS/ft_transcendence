@@ -1,9 +1,10 @@
-import { quantico } from "@/models/FontModel";
+import { quantico } from "@/models/Font/FontModel";
 import Button from "../../Button";
-import { ChatRoom, useAppDispatch, useAppSelector } from "@/app/store/store";
 import { v4 as uuidv4 } from "uuid";
-import { channel } from "diagnostics_channel";
-import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
+import { addRoom } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import { joinChannel } from "@/app/store/features/User/UserSlice";
 
 export default function SubmitNewChan({
   access,
@@ -14,24 +15,21 @@ export default function SubmitNewChan({
   channelName: string;
   handleClose: () => void;
 }) {
-
-  let newRoomId: string = uuidv4();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.users.find((user) => user.id === state.currentUserId));
+  const user = useAppSelector((state) => state.user.user);
 
   const handleSubmitNewChan = () => {
     const channelObject: ChatRoom = {
-      id: newRoomId,
+      id: uuidv4(),
       name: channelName,
       roomType: access,
-      users: [user!.id],
+      users: [user.playerProfile.id],
       messages: [],
     };
-
-    dispatch({ type: "ADD_ROOM", payload: channelObject });
-    dispatch({ type: "ADD_ROOM_TO_USER", payload: channelObject });
+    dispatch(addRoom(channelObject));
+    dispatch(joinChannel(channelObject));
     handleClose();
-};
+  };
 
   return (
     <div className="w-full flex flex-row justify-center space-x-32 mt-10">

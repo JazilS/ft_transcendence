@@ -1,7 +1,5 @@
-import { useAppSelector } from '@/app/store/store';
 import MessagesDisplay from '@/components/atom/chat/MessagesDisplay';
-import { send } from 'process';
-import react, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import io, { Socket } from 'socket.io-client';
 
 
@@ -11,26 +9,26 @@ export default function ChatZone() {
 	const [value, setValue] = useState<string>('')
 	// const channelName = useAppSelector(state => state.channel)
 
-	const sendMessage = (message: string) => {
-		socket?.emit('message', message)
-		console.log(`message sent : ${message}`)
-	}
+	// const sendMessage = (message: string) => {
+	// 	socket?.emit('message', message)
+	// 	console.log(`message sent : ${message}`)
+	// }
 
-	useEffect(() => {
-		const newSocket = io('http://localhost:8001')
-		setSocket(newSocket)
-	}, [setSocket])
+	// useEffect(() => {
+	// 	const newSocket = io('http://localhost:8001')
+	// 	setSocket(newSocket)
+	// }, [setSocket])
 
 	
-	useEffect(() => {
-		const messageListener = (message: string) => {
-			setMessages([...messages, message])
-		}
-		socket?.on('message', messageListener)
-		return () => {
-			socket?.off('message', messageListener)
-		}
-	}, [messages, socket])
+	// useEffect(() => {
+	// 	const messageListener = (message: string) => {
+	// 		setMessages([...messages, message])
+	// 	}
+	// 	socket?.on('message', messageListener)
+	// 	return () => {
+	// 		socket?.off('message', messageListener)
+	// 	}
+	// }, [messages, socket])
 
 	return (
 		<div className="h-full w-[60%] p-2 flex flex-col items-center">
@@ -44,7 +42,7 @@ export default function ChatZone() {
 				onChange={(e) => setValue((e.target as HTMLInputElement).value)}
 				onKeyDown={(e) => {
 					if (e.key === "Enter") {
-						sendMessage((e.target as HTMLInputElement).value);
+						// sendMessage((e.target as HTMLInputElement).value);
 						setValue('');
 					}
 				}}

@@ -169,26 +169,37 @@
 // export const useAppDispatch:()=>typeof store.dispatch=useDispatch;
 // export const useAppSelector: TypedUseSelectorHook<UsersState> = useSelector;
 
-import { UnknownAction, combineReducers, configureStore } from "@reduxjs/toolkit";
-import { UserSlice } from "./features/User/UserSlice";
+import {
+  UnknownAction,
+  combineReducers,
+  configureStore,
+  compose,
+} from "@reduxjs/toolkit";
+import { persistStore as persisStore } from "redux-persist";
 import persistReducer from "redux-persist/es/persistReducer";
 import storage from "redux-persist/es/storage";
-import { persistStore as persisStore } from "redux-persist";
+import { UserSlice } from "./features/User/UserSlice";
+import { GameSlice } from "./features/Game/GameSlice";
+import { ChatRoomSlice } from "./features/ChatRoom/ChatRoomSlice";
 
-const persistConfig = {
-  keyPrefix: "redux-",
-  key: "root",
-  storage,
-};
+// const persistConfig = {
+//   keyPrefix: "redux-",
+//   key: "root",
+//   storage,
+// };
+// const composeEnhancers =
+//   (typeof window !== "undefined" &&
+//     (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
+//   compose;
 
 const reducers = combineReducers({
+  user: UserSlice.reducer,
+  chatRooms: ChatRoomSlice.reducer,
+  game: GameSlice.reducer,
   // app: AppSlice.reducer,
   // sidebar: SidebarSlice.reducer,
-  user: UserSlice.reducer,
-  // chat: ChatSlice.reducer,
   // friends: FriendsSlice.reducer,
   // groups: GroupSlice.reducer,
-  // pong: PongSlice.reducer,
   // [apiSlice.reducerPath]: apiSlice.reducer,
 });
 
@@ -204,15 +215,16 @@ const rootReducer = (
   return reducers(state, action);
 };
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+// const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
+
   // middleware: (getDefaultMiddleware) =>
-    // getDefaultMiddleware({
-      // serializableCheck: false,
-      // immutableCheck: false,
-    // }).concat([apiSlice.middleware, crashMiddleware]),
+  // getDefaultMiddleware({
+  // serializableCheck: false,
+  // immutableCheck: false,
+  // }).concat([apiSlice.middleware, crashMiddleware]),
 });
 
 export type AppDispatch = typeof store.dispatch;
