@@ -3,7 +3,8 @@ import { VariantProps, cva } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils"
 import '../../app/styles.css'
-import { press_Start_2P } from "@/models/FontModel";
+
+interface ButtonProps {}
 
 const buttonVariants = cva(
 	// cette ligne c'est pour les elements de style qui seront toujours presents peu importe le variante e bouton choisie
@@ -12,8 +13,8 @@ const buttonVariants = cva(
 		variants: {
 			variant: {
 				default: 'bg-green-900 text-white hover:bg-slate-800',
-				header: `text-white hover:scale-110 ${press_Start_2P.className}`,
-				channel: 'bg-transparant p-1.5 text-xl rounded-full',
+				header: 'text-white hover:scale-110',
+				channel: 'bg-transparant p-1.5 text-xl rounded-full overflow-hidden',
 				rounded: 'bg-[#6E82B6] justify-center items-center rounded-full hover:bg-[#53648f] hover:text-gray-300 ',
 				chatSwitch: 'justify-center rounded-t-2xl text-lg'
 			},

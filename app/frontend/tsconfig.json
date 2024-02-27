@@ -34,7 +34,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "components/atom/chat/NewChan", "models/GameHistory", "models/ChatRoom"  ],
   "exclude": [
     "node_modules"
   ]

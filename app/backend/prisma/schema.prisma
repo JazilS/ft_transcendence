@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String   @id @default(uuid())
+  email    String   @unique
+  avatar   String? 
+  name     String?
+  games    Game[]
+  chatrooms Chatroom[]
+}
+
+model Message {
+  id      String @id @default(uuid())
+  content String
+  chat    Chatroom @relation(fields: [chatId], references: [id])
+  chatId  String
+}
+
+model Chatroom {
+  id       String   @id @default(uuid())
+  name     String
+  messages Message[]
+  users    User[]
+  chatroomType     TYPE
+}
+
+model Game {
+  id       String @id @default(uuid())
+  players  User[]
+  winner   String
+  board    String
+}
+
+enum TYPE {
+  DM
+  PUBLIC
+  PROTECTED
+  PRIVATE
+}
+

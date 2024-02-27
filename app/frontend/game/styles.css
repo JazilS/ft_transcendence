@@ -1,0 +1,50 @@
+
+	*{
+		margin : 0;
+		padding: 0;
+	}
+
+
+#userpaddle{
+	width: 1%;
+	height: 16%;
+	background-color: white;
+	border-radius: 10%;
+}
+
+.dashedlinevertical{
+	background-color: white;
+	width: 1%;
+	height: 95%;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.dashedlinehorizontal{
+	background-color: white;
+	width: 100%;
+	height: 2%;
+	transform: translateY(-100%);
+}
+
+.gamearea{
+	width: 60%;
+	height: 70.5%;
+	background-color: black;
+	padding: 2%;
+	border-radius: 2.5%;
+	position : flex;
+	flex-direction: column;
+}
+
+/* @media only screen and (max-width: 1152px) {
+	.gamearea{
+		width: 100%;
+	}
+  }
+
+  @media only screen and (max-height: 468px) {
+	.gamearea{
+		height: 100%;
+	}
+  } */
