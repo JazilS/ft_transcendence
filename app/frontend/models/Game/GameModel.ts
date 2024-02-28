@@ -9,8 +9,9 @@ export interface Lobby {
 }
 
 export interface Game {
-	id: string | undefined;
-	user: User | undefined;
-	opponent: User | undefined;
+	id : string 
+	players : PlayerProfile[]
+	winner  : string
+	board   : string
 	// a modifier
 }

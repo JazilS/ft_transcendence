@@ -1,13 +1,17 @@
-import MyHeader from "@/components/organism/Header";
-import "../styles.css";
-import "./styles.css";
-import Button from "@/components/atom/Button";
-import Link from "next/link";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../store/hooks";
+import usePageSize from "@/app/game/utils/usePageSize";
+import { GAME_MARGIN, ASPECT_RATIO } from "./utils/constant";
+import { PongEvent } from "@/app/game/utils/socketEvent";
+
+import { Socket, io } from "socket.io-client";
+let socket : Socket = io("http://localhost:3000");
+
 export default function GamePage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dispatch = useAppDispatch();
+
   const [score, setScore] = useState<{ player1: number; player2: number }>({
     player1: 0,
     player2: 0,
@@ -104,14 +108,14 @@ export default function GamePage() {
   return (
     <div className="h-[100vh] flex items-center justify-center">
       <canvas
-        style={{
-          width: gameWidth,
-          height: gameHeight,
-          border: "1px solid white",
-        }}
-        ref={canvasRef}
-        width={gameWidth}
-        height={gameHeight}
+      // style={{
+      //   width: gameWidth,
+      //   height: gameHeight,
+      //   border: "1px solid white",
+      // }}
+      // ref={canvasRef}
+      // width={gameWidth}
+      // height={gameHeight}
       />
     </div>
   );

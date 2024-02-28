@@ -13,9 +13,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 h-[100vh]">
-        {pathName === '/log' ? 
+        {pathName === '/log' || pathName === '/' || pathName === '/game' ? 
           null
-          : <MyHeader display={true}/> 
+          : <MyHeader display={true}/>
         }
         {children}
       </body>
