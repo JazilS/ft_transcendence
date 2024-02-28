@@ -8,11 +8,11 @@ import {
 import { RootState } from "../store";
 
 const baseQuery = fetchBaseQuery({
-	baseUrl: '/url',
+	baseUrl: 'http://localhost:4000/api',
 	credentials: "include",
 	prepareHeaders: (headers, { getState }) => {
-	//   const token = (getState() as RootState).user.access_token;
-	//   if (token) headers.set("authorization", `Bearer ${token}`);
+		const token = (getState() as RootState).user.user.access_token;
+		if (token) headers.set("authorization", `Bearer ${token}`);
 	  return headers;
 	},
   });
@@ -21,5 +21,4 @@ const baseQuery = fetchBaseQuery({
 	baseQuery: baseQuery,
 	reducerPath: "api",
 	endpoints: () => ({}),
-	// tagTypes: ["ReceivedFriendRequest", "SentFriendRequest"],
   });

@@ -22,50 +22,51 @@ function LogPage() {
     dispatch(
       setAllData({
         playerProfile: {
-            id:newUserId,
-            name: "Musashi",
-            imageSrc: "/Musashi.jpg",
-            gameHistory: [
-                {
-                  id: OpponentUserId,
-                  opponent: "Kojiro",
-                  opponentImageSrc: "/Kojiro.jpg",
-                  scoreUser: 11,
-                  scoreOpponent: 10,
-                },
-                {
-                  id: OpponentUserId,
-                  opponent: "Kojiro",
-                  opponentImageSrc: "/Kojiro.jpg",
-                  scoreUser: 8,
-                  scoreOpponent: 11,
-                },
-                {
-                  id: OpponentUserId,
-                  opponent: "Kojiro",
-                  opponentImageSrc: "/Kojiro.jpg",
-                  scoreUser: 11,
-                  scoreOpponent: 2,
-                },
-                {
-                  id: OpponentUserId,
-                  opponent: "Kojiro",
-                  opponentImageSrc: "/Kojiro.jpg",
-                  scoreUser: 11,
-                  scoreOpponent: 0,
-                },
-                {
-                  id: OpponentUserId,
-                  opponent: "Kojiro",
-                  opponentImageSrc: "/Kojiro.jpg",
-                  scoreUser: 7,
-                  scoreOpponent: 11,
-                },
-              ],
+          id: newUserId,
+          name: "Musashi",
+          imageSrc: "/Musashi.jpg",
+          gameHistory: [
+            {
+              id: OpponentUserId,
+              opponent: "Kojiro",
+              opponentImageSrc: "/Kojiro.jpg",
+              scoreUser: 11,
+              scoreOpponent: 10,
+            },
+            {
+              id: OpponentUserId,
+              opponent: "Kojiro",
+              opponentImageSrc: "/Kojiro.jpg",
+              scoreUser: 8,
+              scoreOpponent: 11,
+            },
+            {
+              id: OpponentUserId,
+              opponent: "Kojiro",
+              opponentImageSrc: "/Kojiro.jpg",
+              scoreUser: 11,
+              scoreOpponent: 2,
+            },
+            {
+              id: OpponentUserId,
+              opponent: "Kojiro",
+              opponentImageSrc: "/Kojiro.jpg",
+              scoreUser: 11,
+              scoreOpponent: 0,
+            },
+            {
+              id: OpponentUserId,
+              opponent: "Kojiro",
+              opponentImageSrc: "/Kojiro.jpg",
+              scoreUser: 7,
+              scoreOpponent: 11,
+            },
+          ],
         },
         channelsIn: [],
         isConnected: true,
         isReadyLobby: true,
+        access_token: "",
       })
     );
     // dispatch(setCurrentUser(newUserId));

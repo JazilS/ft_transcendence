@@ -5,29 +5,36 @@ import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { addRoom } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import { joinChannel } from "@/app/store/features/User/UserSlice";
+import { useCreateChatRoomMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import createChatRoomForm from "@/models/ChatRoom/CreateChatRoomForm";
 
 export default function SubmitNewChan({
   access,
+  password,
   channelName,
   handleClose,
 }: {
   access: string;
+  password: string;
   channelName: string;
   handleClose: () => void;
 }) {
   const dispatch = useAppDispatch();
+  const [createChatRoom] = useCreateChatRoomMutation();
   const user = useAppSelector((state) => state.user.user);
 
-  const handleSubmitNewChan = () => {
-    const channelObject: ChatRoom = {
-      id: uuidv4(),
+  const handleSubmitNewChan = async () => {
+    console.log(password);
+    const channelObject: createChatRoomForm = {
       name: channelName,
-      roomType: access,
-      users: [user.playerProfile.id],
-      messages: [],
+      type: access,
+      password: password,
+      creator: user.playerProfile.id,
     };
-    dispatch(addRoom(channelObject));
-    dispatch(joinChannel(channelObject));
+    // dispatch(addRoom(channelObject));
+    // dispatch(joinChannel(channelObject));
+    const data = await createChatRoom(channelObject);
+    console.log(data);
     handleClose();
   };
 

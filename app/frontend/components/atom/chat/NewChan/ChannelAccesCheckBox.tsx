@@ -9,8 +9,8 @@ export default function ChannelAccesCheckBox({
   setAccess: (value: string) => void;
 }) {
   return (
-    <>
-      <h1 className={`text-sm text-left mb-5 ${press_Start_2P.className}`}>
+    <div className="mt-5">
+      <h1 className={`text-xl text-left mb-3 ${quantico.className}`}>
         Chose channel accessibility :
       </h1>
       <div
@@ -50,6 +50,6 @@ export default function ChannelAccesCheckBox({
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

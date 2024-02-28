@@ -13,9 +13,10 @@ async function bootstrap() {
       `http://localhost:${clientPort}`,
       new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
     ],
+    credentials: true,
   });
   app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
-
+  app.setGlobalPrefix('api');
   await app.listen(4000);
   // logger.log(`Server is running on: ${port}`);
 }

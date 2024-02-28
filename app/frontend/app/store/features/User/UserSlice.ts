@@ -9,7 +9,7 @@ export interface Userslice {
 const initialState: Userslice = {
   user: {
     playerProfile: {
-      id: '',
+      id: "",
       name: undefined,
       imageSrc: undefined,
       gameHistory: undefined,
@@ -17,9 +17,9 @@ const initialState: Userslice = {
     channelsIn: [],
     isConnected: false,
     isReadyLobby: false,
+    access_token: "",
   },
 };
-
 export const UserSlice = createSlice({
   name: "user",
   initialState,
@@ -31,7 +31,11 @@ export const UserSlice = createSlice({
       if (state.user) state.user.playerProfile.name = action.payload;
     },
     joinChannel: (state, action: PayloadAction<ChatRoom>) => {
-      if (state.user) state.user.channelsIn = [...state.user.channelsIn, action.payload];
+      if (state.user)
+        state.user.channelsIn = [...state.user.channelsIn, action.payload];
+    },
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      if (state.user) state.user.access_token = action.payload;
     },
     setAllData: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
@@ -39,6 +43,11 @@ export const UserSlice = createSlice({
   },
 });
 
-export const { setNewAvatarSrc, setNewNickname, setAllData, joinChannel } =
-  UserSlice.actions;
+export const {
+  setNewAvatarSrc,
+  setNewNickname,
+  setAllData,
+  joinChannel,
+  setAccessToken,
+} = UserSlice.actions;
 export default UserSlice.reducer;

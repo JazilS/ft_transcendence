@@ -37,24 +37,24 @@ export class GatewayGateway
     return 'Message sent to all users in room';
   }
 
-  createTokenMiddleware =
-    (jwtService: JwtTokenService, logger: Logger) =>
-    async (socket: SocketWithAuth, next) => {
-      const token: string =
-        socket.handshake.auth.token || socket.handshake.headers['token'];
+  // createTokenMiddleware =
+  //   (jwtService: JwtTokenService, logger: Logger) =>
+  //   async (socket: SocketWithAuth, next) => {
+  //     const token: string =
+  //       socket.handshake.auth.token || socket.handshake.headers['token'];
 
-      logger.debug(`Validating auth token before connection: ${token}`);
+  //     logger.debug(`Validating auth token before connection: ${token}`);
 
-      try {
-        const payload: JwtPayload = await jwtService.checkToken(
-          token,
-          process.env.ACCESS_TOKEN_SECRET,
-        );
-        socket.userId = payload.userId;
+  //     try {
+  //       const payload: JwtPayload = await jwtService.checkToken(
+  //         token,
+  //         process.env.ACCESS_TOKEN_SECRET,
+  //       );
+  //       socket.userId = payload.userId;
 
-        next();
-      } catch (error) {
-        next(new WsException('TOKEN_INVALID'));
-      }
-    };
+  //       next();
+  //     } catch (error) {
+  //       next(new WsException('TOKEN_INVALID'));
+  //     }
+  //   };
 }

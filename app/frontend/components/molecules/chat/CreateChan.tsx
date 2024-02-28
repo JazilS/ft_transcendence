@@ -6,7 +6,7 @@ import Modal from "@mui/material/Modal";
 import "@/app/styles.css";
 import Button from "@/components/atom/Button";
 import ChannelAccesCheckBox from "@/components/atom/chat/NewChan/ChannelAccesCheckBox";
-import NewChanName from "@/components/atom/chat/NewChan/NewchannelName";
+import TextInput from "@/components/atom/chat/NewChan/TextInput";
 import SubmitNewChan from "@/components/atom/chat/NewChan/SubmitNewChan";
 
 export const style = {
@@ -25,6 +25,7 @@ export default function CreateChanModal() {
   const [open, setOpen] = React.useState(false);
   const [channelName, setChannelName] = React.useState<string>("Channel");
   const [access, setAccess] = React.useState<string>("public");
+  const [password, setPassword] = React.useState<string>("");
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -46,13 +47,16 @@ export default function CreateChanModal() {
       >
         <Box sx={style}>
           <div className="flex flex-col">
-            <NewChanName
-              channelName={channelName}
-              setChannelName={setChannelName}
-            />
+            <TextInput setText={setChannelName} nameOrPass={"Channel name"} />
             <ChannelAccesCheckBox access={access} setAccess={setAccess} />
+            {access === "protected" && (
+              <div className="mt-10">
+                <TextInput setText={setPassword} nameOrPass={"Password"} />
+              </div>
+            )}
             <SubmitNewChan
               channelName={channelName}
+              password={password}
               access={access}
               handleClose={handleClose}
             />
