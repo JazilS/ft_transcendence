@@ -10,6 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // url      = "postgresql://jsabound:jsabound@localhost:5432/transcendance"
   url      = env("DATABASE_URL")
 }
 
@@ -61,10 +62,11 @@ model ChatroomRestrictedUsers {
 }
 
 model GameHistory {
-  id       String @id @default(uuid())
-  players  User[]
-  winner   String
-  board    String
+  id            String @id @default(uuid())
+  users         User[]
+  usersId       String[]
+  scoreUser_1   String
+  scoreUser_2   String
 }
 
 enum TYPE {

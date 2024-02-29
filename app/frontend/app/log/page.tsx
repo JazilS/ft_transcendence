@@ -11,66 +11,26 @@ import { setAllData } from "../store/features/User/UserSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { v4 as uuidv4 } from "uuid";
 import { store } from "../store/store";
+import { useRegisterMutation } from "../store/features/User/user.api.slice";
+import User from "@/models/User/UserModel";
 // import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 function LogPage() {
   const dispatch = useAppDispatch();
   const newUserId = uuidv4();
   const OpponentUserId = uuidv4();
+  const [register] = useRegisterMutation();
 
-  const handleNewUser = () => {
-    dispatch(
-      setAllData({
-        playerProfile: {
-          id: newUserId,
-          name: "Musashi",
-          imageSrc: "/Musashi.jpg",
-          gameHistory: [
-            {
-              id: OpponentUserId,
-              opponent: "Kojiro",
-              opponentImageSrc: "/Kojiro.jpg",
-              scoreUser: 11,
-              scoreOpponent: 10,
-            },
-            {
-              id: OpponentUserId,
-              opponent: "Kojiro",
-              opponentImageSrc: "/Kojiro.jpg",
-              scoreUser: 8,
-              scoreOpponent: 11,
-            },
-            {
-              id: OpponentUserId,
-              opponent: "Kojiro",
-              opponentImageSrc: "/Kojiro.jpg",
-              scoreUser: 11,
-              scoreOpponent: 2,
-            },
-            {
-              id: OpponentUserId,
-              opponent: "Kojiro",
-              opponentImageSrc: "/Kojiro.jpg",
-              scoreUser: 11,
-              scoreOpponent: 0,
-            },
-            {
-              id: OpponentUserId,
-              opponent: "Kojiro",
-              opponentImageSrc: "/Kojiro.jpg",
-              scoreUser: 7,
-              scoreOpponent: 11,
-            },
-          ],
-        },
-        channelsIn: [],
-        isConnected: true,
-        isReadyLobby: true,
-        access_token: "",
-      })
-    );
-    // dispatch(setCurrentUser(newUserId));
-    // dispatch(setOpponentUser(OpponentUserId));
+  const handleNewUser = async () => {
+    const response = await register();
+
+    if ('error' in response) {
+      // Handle error here
+      console.error(response.error);
+    } else {
+      dispatch(setAllData(response.data));
+      console.log(response.data);
+    }
   };
 
   return (

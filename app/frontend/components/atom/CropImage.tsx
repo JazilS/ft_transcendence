@@ -5,6 +5,7 @@ import "react-advanced-cropper/dist/style.css";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import { useAppDispatch } from "@/app/store/hooks";
 import { setNewAvatarSrc } from "@/app/store/features/User/UserSlice";
+import { useUpdateAvatarMutation } from "@/app/store/features/User/user.api.slice";
 
 interface CropDemoProps {
   src: string;
@@ -19,9 +20,11 @@ export default function CropImage({ src, user, onCLose }: CropDemoProps) {
   const onCropChange = (newCrop: any) => {
     setCroppedImage(newCrop.getCanvas()?.toDataURL());
   };
+  const [updateAvatar] = useUpdateAvatarMutation();
 
   const handleConfirmCrop = (event: any) => {
     if (croppedImage) {
+      const response = updateAvatar({userId: user.id, newAvatar: croppedImage});
       dispatch(setNewAvatarSrc(croppedImage));
       onCLose();
     }

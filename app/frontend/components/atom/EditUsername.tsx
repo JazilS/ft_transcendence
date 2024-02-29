@@ -6,19 +6,22 @@ import { press_Start_2P, quantico } from "@/models/Font/FontModel";
 import { RootState } from "@/app/store/store";
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
 import { setNewNickname } from "@/app/store/features/User/UserSlice";
+import { useUpdateUsernameMutation } from "@/app/store/features/User/user.api.slice";
 
 export default function EditUsername() {
   const [isEditing, setIsEditing] = useState(false);
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user.user.playerProfile);
+  const [updateUsername] = useUpdateUsernameMutation();
 
   const handleNameDisplay = (value: boolean) => {
     setIsEditing(value);
   };
-
-  const handleUsernameChange = (value: string) => {
+  
+  const handleUsernameChange = async (value: string) => {
+    const response = await updateUsername({ userId: user.id, newName: value });
+    console.log(response);
     dispatch(setNewNickname(value));
-    // dispatch(editUserName(user?.id ?? 0, value));
   };
 
   return (
