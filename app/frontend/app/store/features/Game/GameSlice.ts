@@ -1,25 +1,28 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Lobby, Game } from "@/models/Game/GameModel";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
+import { StartGameInfo } from "@/app/game/utils/types";
 
 export interface GameSlice {
-  lobby: Lobby;
-  game: Game | undefined;
+  gameData : StartGameInfo | undefined;
+  inQueue: boolean;
+  waitingQueue: boolean;
 }
 
 const initialState: GameSlice = {
-  lobby: {
-    id: undefined,
-    user: undefined,
-    opponent: {
-      id: "Temp_Kojiro",
-      name: "Kojiro",
-      imageSrc: "/Kojiro.jpg",
-      gameHistory: undefined,
+    gameData: {
+      room: "Game 1",
+      creator: {
+        nickname: "Joueur 1",
+        avatar: "",
+      },
+      opponent: {
+        nickname: "Joueur 2",
+        avatar: "",
+      },
     },
-    status: true,
-  },
-  game: undefined,
+    inQueue: false,
+    waitingQueue: false,
 };
 
 export const GameSlice = createSlice({

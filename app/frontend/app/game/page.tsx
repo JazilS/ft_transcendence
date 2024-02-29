@@ -1,22 +1,28 @@
+"use client";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import usePageSize from "@/app/game/utils/usePageSize";
 import { GAME_MARGIN, ASPECT_RATIO } from "./utils/constant";
 import { PongEvent } from "@/app/game/utils/socketEvent";
+import { RootState } from "../store/store";
 
 import { Socket, io } from "socket.io-client";
-let socket : Socket = io("http://localhost:3000");
+import { StartGameInfo } from "./utils/types";
+let socket: Socket = io("http://localhost:3000");
 
-export default function GamePage() {
+const Pong = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dispatch = useAppDispatch();
-
   const [score, setScore] = useState<{ player1: number; player2: number }>({
     player1: 0,
     player2: 0,
   });
   const { width, height } = usePageSize();
+  const { room, creator, opponent } = useAppSelector(
+    (state: RootState) => state.game
+  ) as StartGameInfo;
 
   const navigate = useNavigate();
   const gameWidth = Math.min(

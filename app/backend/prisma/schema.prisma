@@ -18,7 +18,7 @@ model User {
   email    String   @unique
   avatar   String? 
   name     String?
-  games    Game[]
+  // games    Game[]
   chatrooms Chatroom[]
 }
 
@@ -37,12 +37,16 @@ model Chatroom {
   chatroomType     TYPE
 }
 
-model Game {
+model GameHistory {
   id       String @id @default(uuid())
-  players  User[]
   winner   String
-  board    String
+  winnerId String
+  looser   String
+  looserId String
 }
+// model pong {
+  
+// }
 
 enum TYPE {
   DM
