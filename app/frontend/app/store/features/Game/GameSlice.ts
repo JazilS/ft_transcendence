@@ -29,14 +29,11 @@ export const GameSlice = createSlice({
   name: "game",
   initialState: initialState,
   reducers: {
-    setGame: (state, action: PayloadAction<Game>) => {
-      if (state.game) state.game = action.payload;
-    },
-    setUser: (state, action: PayloadAction<PlayerProfile>) => {
-      if (state.lobby) state.lobby.user = action.payload;
+    setGameData: (state, action: PayloadAction<StartGameInfo>) => {
+      if (state.gameData) state.gameData = action.payload;
     },
   },
 });
 
-export const { setGame, setUser } = GameSlice.actions;
+export const { setGameData } = GameSlice.actions;
 export default GameSlice.reducer;

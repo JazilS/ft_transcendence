@@ -1,5 +1,6 @@
 import {
   ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -8,11 +9,15 @@ import {
 } from '@nestjs/websockets';
 import { SocketWithAuth } from './types/socket.types';
 import { Server } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { updatePlayerPosition } from 'src/game/dto/dto';
+import { PrismaService } from '../prisma/prisma.service';
+
 @WebSocketGateway()
-export class GatewayGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+export class GatewayGateway {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly userService: UserService,
+  ) {}
   server: Server;
   async handleConnection(@ConnectedSocket() client: SocketWithAuth) {
     client.join(client.userId);
@@ -37,24 +42,12 @@ export class GatewayGateway
     return 'Message sent to all users in room';
   }
 
-  // createTokenMiddleware =
-  //   (jwtService: JwtTokenService, logger: Logger) =>
-  //   async (socket: SocketWithAuth, next) => {
-  //     const token: string =
-  //       socket.handshake.auth.token || socket.handshake.headers['token'];
-
-  //     logger.debug(`Validating auth token before connection: ${token}`);
-
-  //     try {
-  //       const payload: JwtPayload = await jwtService.checkToken(
-  //         token,
-  //         process.env.ACCESS_TOKEN_SECRET,
-  //       );
-  //       socket.userId = payload.userId;
-
-  //       next();
-  //     } catch (error) {
-  //       next(new WsException('TOKEN_INVALID'));
-  //     }
-  //   };
+  @SubscribeMessage('UPDATE_PLAYER_POSITION')
+  updatePositionPlayer(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody() { gameId, keyPressed }: updatePlayerPosition,
+  ) {
+    const { userId } = client;
+    const { game, index } = this.pongService.getGamebyIdAndReturnIndex(gameId);
+  }
 }

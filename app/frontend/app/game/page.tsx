@@ -4,12 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import usePageSize from "@/app/game/utils/usePageSize";
-import { GAME_MARGIN, ASPECT_RATIO } from "./utils/constant";
-import { PongEvent } from "@/app/game/utils/socketEvent";
+import { GAME_MARGIN, ASPECT_RATIO } from "../../../shared/constant";
+import { PongEvent } from "../../../shared/socketEvent";
 import { RootState } from "../store/store";
-
 import { Socket, io } from "socket.io-client";
-import { StartGameInfo } from "./utils/types";
+import { StartGameInfo } from "../../../shared/types";
 let socket: Socket = io("http://localhost:3000");
 
 const Pong = () => {
@@ -21,7 +20,7 @@ const Pong = () => {
   });
   const { width, height } = usePageSize();
   const { room, creator, opponent } = useAppSelector(
-    (state: RootState) => state.game
+    (state: RootState) => state.game.gameData
   ) as StartGameInfo;
 
   const navigate = useNavigate();
@@ -114,15 +113,15 @@ const Pong = () => {
   return (
     <div className="h-[100vh] flex items-center justify-center">
       <canvas
-      // style={{
-      //   width: gameWidth,
-      //   height: gameHeight,
-      //   border: "1px solid white",
-      // }}
-      // ref={canvasRef}
-      // width={gameWidth}
-      // height={gameHeight}
+        style={{
+          width: gameWidth,
+          height: gameHeight,
+          border: "1px solid white",
+        }}
+        ref={canvasRef}
+        width={gameWidth}
+        height={gameHeight}
       />
     </div>
   );
-}
+};
