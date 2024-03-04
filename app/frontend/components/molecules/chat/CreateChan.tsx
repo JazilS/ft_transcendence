@@ -23,8 +23,8 @@ export const style = {
 
 export default function CreateChanModal() {
   const [open, setOpen] = React.useState(false);
-  const [channelName, setChannelName] = React.useState<string>("Channel");
-  const [access, setAccess] = React.useState<string>("public");
+  const [channelName, setChannelName] = React.useState<string>('');
+  const [access, setAccess] = React.useState<string>("PUBLIC");
   const [password, setPassword] = React.useState<string>("");
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -49,7 +49,7 @@ export default function CreateChanModal() {
           <div className="flex flex-col">
             <TextInput setText={setChannelName} nameOrPass={"Channel name"} />
             <ChannelAccesCheckBox access={access} setAccess={setAccess} />
-            {access === "protected" && (
+            {access === "PROTECTED" && (
               <div className="mt-10">
                 <TextInput setText={setPassword} nameOrPass={"Password"} />
               </div>

@@ -19,33 +19,33 @@ export default function ChannelAccesCheckBox({
         <div className="space-x-3">
           <span>Public :</span>
           <input
-            checked={access === "public"}
+            checked={access === "PUBLIC"}
             type="radio"
-            id="public"
+            id="PUBLIC"
             name="access"
-            value="public"
+            value="PUBLIC"
             onChange={(event) => setAccess(event.target.value)}
           />
         </div>
         <div className="space-x-3">
           <span>Private :</span>
           <input
-            checked={access === "private"}
+            checked={access === "PRIVATE"}
             type="radio"
-            id="private"
+            id="PRIVATE"
             name="access"
-            value="private"
+            value="PRIVATE"
             onChange={(event) => setAccess(event.target.value)}
           />
         </div>
         <div className="space-x-3">
           <span>Protected :</span>
           <input
-            checked={access === "protected"}
+            checked={access === "PROTECTED"}
             type="radio"
-            id="protected"
+            id="PROTECTED"
             name="access"
-            value="protected"
+            value="PROTECTED"
             onChange={(event) => setAccess(event.target.value)}
           />
         </div>

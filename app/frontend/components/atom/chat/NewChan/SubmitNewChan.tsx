@@ -31,10 +31,17 @@ export default function SubmitNewChan({
       password: password,
       creator: user.playerProfile.id,
     };
-    // dispatch(addRoom(channelObject));
     // dispatch(joinChannel(channelObject));
-    const data = await createChatRoom(channelObject);
-    console.log(data);
+    try {
+      const response = await createChatRoom(channelObject);
+      console.log(response);
+      if ('data' in response) {
+        console.log('>REUSSSSSIIITTTEE');
+        // dispatch(addRoom(response.data));
+        }
+    } catch (error) {
+      console.error('Error during API call:', error);
+    }
     handleClose();
   };
 

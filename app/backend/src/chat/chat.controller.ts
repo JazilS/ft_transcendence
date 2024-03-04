@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
 @Controller('chat')
@@ -15,5 +15,9 @@ export class ChatController {
     },
   ) {
     return this.chatService.createChatRoom(body);
+  }
+  @Get('/getPublicChatRooms')
+  async getPublicChatRooms() {
+    return this.chatService.getPublicChatRooms();
   }
 }

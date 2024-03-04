@@ -4,14 +4,21 @@ import createChatRoomForm from "@/models/ChatRoom/CreateChatRoomForm";
 
 export const ChatRoomApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    createChatRoom: builder.mutation<string, createChatRoomForm>({
+    createChatRoom: builder.mutation<ChatRoom, createChatRoomForm>({
       query: (data) => ({
         url: "/chat/createChatRoom",
         method: "POST",
         body: data,
       }),
     }),
+    getPublicChatRooms: builder.query<ChatRoom[], void>({
+      query: (data) => ({
+        url: "/chat/getPublicChatRooms",
+        method: "GET",
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useCreateChatRoomMutation } = ChatRoomApiSlice;
+export const { useCreateChatRoomMutation, useGetPublicChatRoomsQuery } = ChatRoomApiSlice;

@@ -1,17 +1,14 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import "@/app/styles.css";
 import Button from "@/components/atom/Button";
-import ChannelAccesCheckBox from "@/components/atom/chat/NewChan/ChannelAccesCheckBox";
-import NewChanName from "@/components/atom/chat/NewChan/NewchannelName";
-import SubmitNewChan from "@/components/atom/chat/NewChan/SubmitNewChan";
 import { useAppSelector } from "@/app/store/hooks";
-import { Height } from "@mui/icons-material";
-import { Weight } from "lucide-react";
 import { press_Start_2P, quantico } from "@/models/Font/FontModel";
+import { useGetPublicChatRoomsQuery } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 
 export const style = {
   position: "absolute",
@@ -26,15 +23,30 @@ export const style = {
 };
 
 export default function CreateChanModal() {
-  const [open, setOpen] = React.useState(false);
-  const [channelName, setChannelName] = React.useState<string>("Channel");
-  const [access, setAccess] = React.useState<string>("public");
+  const [open, setOpen] = useState(false);
+  const [channelName, setChannelName] = useState<string>("Channel");
+  const [access, setAccess] = useState<string>("PUBLIC");
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const channels = useAppSelector((state) =>
-    state.chatRooms.chatRooms.filter((room) => room.roomType === "public")
-  );
+  // a optimiser la ligne dessous
+  
+//   const channels = useAppSelector((state) =>
+//     state.chatRooms.chatRooms
+//   );
+  // console.log(channels);
+//   const channels = useAppSelector((state) =>
+//   state.chatRooms.chatRooms.filter((room) => room.roomType === "PUBLIC" || room.roomType === "PROTECTED")
+// );
+//   useEffect(() => {
+//     console.log('TESTT', channels);
+//   }, [channels]);
+const { data: channels, error } = useGetPublicChatRoomsQuery();
 
+if (error) {
+  console.error('Error during API call:', error);
+}
+
+// Utilisez `channels` dans votre code...
   return (
     <div>
       <Button
@@ -58,7 +70,7 @@ export default function CreateChanModal() {
             </h1>
             <div className="bg-gray-300 rounded-3xl h-96">
               <ul>
-                {channels!.map((channel) => (
+                {channels?.map((channel: ChatRoom) => (
                   <li key={channel.id}>
                     <Button
                       className={`hover:text-2xl hover:bg-gray-400 active:bg-gray-500 ${quantico.className}`}
