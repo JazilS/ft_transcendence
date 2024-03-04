@@ -15,12 +15,32 @@ datasource db {
 
 model User {
   id                String    @id @default(uuid())
-  email             String    @unique
   avatar            String?
   status            STATUS    @default(OFFLINE)
   nickname          String?   @unique @db.VarChar(16)
-  // games    Game[]
+  pong              Pong?     @relation("pong")
   chatrooms Chatroom[]
+}
+
+model Pong {
+  user       User          @relation("pong", fields: [userId], references: [id], onDelete: Cascade)
+  userId     String        @unique @default(uuid())
+  victory    Int           @default(0)
+  losses     Int           @default(0)
+  rating     Int           @default(0)
+  winnedGame GameHistory[] @relation("winnedGame")
+  loosedGame GameHistory[] @relation("loosedGame")
+}
+
+model GameHistory {
+  id        String   @id @default(uuid())
+  winner    Pong     @relation("winnedGame", fields: [winnerId], references: [userId])
+  winnerId  String
+  looser    Pong     @relation("loosedGame", fields: [looserId], references: [userId])
+  looserId  String
+  matchDate DateTime @default(now())
+
+  @@unique([winnerId, looserId, matchDate])
 }
 
 model Message {
@@ -37,17 +57,6 @@ model Chatroom {
   users    User[]
   chatroomType     TYPE
 }
-
-model GameHistory {
-  id       String @id @default(uuid())
-  winner   String
-  winnerId String
-  looser   String
-  looserId String
-}
-// model pong {
-  
-// }
 
 enum TYPE {
   DM

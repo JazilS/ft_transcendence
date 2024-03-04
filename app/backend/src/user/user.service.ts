@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserData, UserInfo } from '../types/userInfo';
 
 @Injectable()
 export class UserService {
@@ -7,7 +8,7 @@ export class UserService {
 
   async getUserInfo(userId: string, id: string) {
     const [me, user] = await Promise.all([
-      this.finUserById(userId),
+      this.finUserById(userId, UserData),
       this.prismaService.user.findFirst({
         where: {
           id,
@@ -19,8 +20,8 @@ export class UserService {
           pong: {
             select: {
               victory: true,
-              defeat: true,
-              classment: true,
+              losses: true,
+              rating: true,
             },
           },
         },
@@ -33,23 +34,19 @@ export class UserService {
     return user;
   }
 
-  public async finUserById(id: string) {
-    return this.prismaService.user.findFirst({
-      where: {
-        id,
-      },
-      select: {
-        id: true,
-        status: true,
-        nickname: true,
-        pong: {
-          select: {
-            victory: true,
-            defeat: true,
-            classment: true,
-          },
-        },
-      },
+  async createUser(nickname: string, profile: Profile, select: UserInfo) {}
+
+  public async finUserById(id: string, select: UserInfo) {
+    return this.prismaService.user.findUnique({
+      where: { id },
+      select,
+    });
+  }
+
+  public async findUserByNickname(nickname: string, select: UserInfo) {
+    return this.prismaService.user.findUnique({
+      where: { nickname },
+      select,
     });
   }
 }
