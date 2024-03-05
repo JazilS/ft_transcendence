@@ -19,7 +19,17 @@ model User {
   status            STATUS    @default(OFFLINE)
   nickname          String?   @unique @db.VarChar(16)
   pong              Pong?     @relation("pong")
+  profile                Profile?        @relation("userProfile")
   chatrooms Chatroom[]
+}
+
+model Profile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation("userProfile", fields: [userId], references: [id], onDelete: Cascade)
+  avatar    String?
+  firstname String? @db.VarChar(25)
+  lastname  String? @db.VarChar(25)
 }
 
 model Pong {

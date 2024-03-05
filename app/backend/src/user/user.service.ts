@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserData, UserInfo } from '../types/userInfo';
+import { Profile } from './types/userTypes';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -34,19 +36,59 @@ export class UserService {
     return user;
   }
 
-  async createUser(nickname: string, profile: Profile, select: UserInfo) {}
+  async createUser(nickname: string, profile: Profile, select: UserInfo) {
+    return await this.prismaService.user.create({
+      data: {
+        nickname,
+        profile: {
+          create: profile,
+        },
+        pong: {
+          create: {},
+        },
+      },
+      select,
+    });
+  }
 
-  public async finUserById(id: string, select: UserInfo) {
+  async finUserById(id: string, select: UserInfo) {
     return this.prismaService.user.findUnique({
       where: { id },
       select,
     });
   }
 
-  public async findUserByNickname(nickname: string, select: UserInfo) {
+  async findUserByNickname(nickname: string, select: UserInfo) {
     return this.prismaService.user.findUnique({
       where: { nickname },
       select,
+    });
+  }
+
+  async findManyUsers(ids: string[], select: UserInfo) {
+    return this.prismaService.user.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      select,
+    });
+  }
+
+  async UpdateUserById(id: string, data: Partial<User>) {
+    return this.prismaService.user.update({
+      where: { id },
+      data,
+      include: {
+        profile: {
+          select: {
+            lastname: true,
+            firstname: true,
+            avatar: true,
+          },
+        },
+      },
     });
   }
 }
