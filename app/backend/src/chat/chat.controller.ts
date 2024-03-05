@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
 @Controller('chat')
@@ -16,8 +16,20 @@ export class ChatController {
   ) {
     return this.chatService.createChatRoom(body);
   }
-  @Get('/getPublicChatRooms')
+  @Post('/getPublicChatRooms')
   async getPublicChatRooms() {
     return this.chatService.getPublicChatRooms();
+  }
+  @Post('/getChatRoomsIn')
+  async getChatRoomsIn(
+    @Body()
+    body: {
+      userId: string;
+    },
+  ) {
+    if (!body.userId) {
+      throw new BadRequestException('userId is required');
+    }
+    return this.chatService.getChatRoomsIn(body.userId);
   }
 }

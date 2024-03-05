@@ -40,6 +40,9 @@ export const UserSlice = createSlice({
     setAllData: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
     },
+    getChatRoomsInLocal: (state, action: PayloadAction<ChatRoom[]>) => {
+      if (state.user) state.user.channelsIn = action.payload;
+    },
   },
 });
 
@@ -49,5 +52,6 @@ export const {
   setAllData,
   joinChannel,
   setAccessToken,
+  getChatRoomsInLocal,
 } = UserSlice.actions;
 export default UserSlice.reducer;

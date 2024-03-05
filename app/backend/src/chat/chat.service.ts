@@ -27,24 +27,27 @@ export class ChatService {
           chatroomType: body.type.toUpperCase() as TYPE,
           users: {
             create: {
-            userId: user.id,
-            role: 'CREATOR' as ROLE,
+              userId: user.id,
+              role: 'CREATOR' as ROLE,
+            },
           },
         },
-      },
-      include: {
-        users: true,
-      },
-    });
-    return {
-      id: chatroom.id,
-      name: chatroom.name,
-      roomType: chatroom.chatroomType,
-      users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
-      messages: null};
-    }
-    catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        include: {
+          users: true,
+        },
+      });
+      return {
+        id: chatroom.id,
+        name: chatroom.name,
+        roomType: chatroom.chatroomType,
+        users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
+        messages: null,
+      };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         return { error: 'Chat room name already exists' };
       }
       return { error: 'test' };
@@ -67,5 +70,37 @@ export class ChatService {
       users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
       messages: null,
     }));
+  }
+  async getChatRoomsIn(userId: string) {
+    try {
+      const userWithChatrooms = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        include: {
+          chatRoomsIn: {
+            include: {
+              chatroom: {
+                include: {
+                  users: true, // Include users in each chatroom
+                  messages: true, // Include messages in each chatroom
+                },
+              },
+            },
+          },
+        },
+      });
+      const chatrooms = userWithChatrooms.chatRoomsIn.map(
+        (chatroomUser) => chatroomUser.chatroom,
+      );
+      return chatrooms.map((chatroom) => ({
+        id: chatroom.id,
+        name: chatroom.name,
+        roomType: chatroom.chatroomType,
+        users: chatroom.users.map((user) => user.id), // Map to user IDs
+        messages: chatroom.messages, // Include messages
+      }));
+    } catch (error) {
+      console.error('Error getting chatrooms for user:', error);
+      return { error: 'Error getting chatrooms for user' };
+    }
   }
 }

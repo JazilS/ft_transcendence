@@ -7,7 +7,7 @@ import "@/app/styles.css";
 import Button from "@/components/atom/Button";
 import { useAppSelector } from "@/app/store/hooks";
 import { press_Start_2P, quantico } from "@/models/Font/FontModel";
-import { useGetPublicChatRoomsQuery } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import { useGetPublicChatRoomsMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 
 export const style = {
@@ -25,28 +25,27 @@ export const style = {
 export default function CreateChanModal() {
   const [open, setOpen] = useState(false);
   const [channelName, setChannelName] = useState<string>("Channel");
-  const [access, setAccess] = useState<string>("PUBLIC");
-  const handleOpen = () => setOpen(true);
+  const [channels, setChannels] = useState<ChatRoom[]>([]);
   const handleClose = () => setOpen(false);
-  // a optimiser la ligne dessous
-  
-//   const channels = useAppSelector((state) =>
-//     state.chatRooms.chatRooms
-//   );
-  // console.log(channels);
-//   const channels = useAppSelector((state) =>
-//   state.chatRooms.chatRooms.filter((room) => room.roomType === "PUBLIC" || room.roomType === "PROTECTED")
-// );
-//   useEffect(() => {
-//     console.log('TESTT', channels);
-//   }, [channels]);
-const { data: channels, error } = useGetPublicChatRoomsQuery();
 
-if (error) {
-  console.error('Error during API call:', error);
-}
+  const [getPublicChatRooms] = useGetPublicChatRoomsMutation();
 
-// Utilisez `channels` dans votre code...
+  const handleOpen = async () => {
+    try {
+      const response = await getPublicChatRooms();
+      console.log("channels = ", response);
+      if ('data' in response) {
+        setChannels(response.data);
+      } else {
+        console.error("Error during API call for public channels:", response.error);
+      }
+      setOpen(true);
+    } catch (error) {
+      console.error("Error during API call for public channels:", error);
+    }
+  };
+
+  // Utilisez `channels` dans votre code...
   return (
     <div>
       <Button

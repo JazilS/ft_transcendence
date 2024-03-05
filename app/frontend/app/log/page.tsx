@@ -3,22 +3,14 @@
 import { press_Start_2P, quantico } from "@/models/Font/FontModel";
 import Link from "next/link";
 import "../../style/page.css";
-import MyHeader from "@/components/organism/Header";
-// import { setCurrentUser, addUser, useAppDispatch, useAppSelector, store, User, setOpponentUser } from '../store/store'
 import { Provider } from "react-redux";
-import { useEffect } from "react";
 import { setAllData } from "../store/features/User/UserSlice";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { v4 as uuidv4 } from "uuid";
+import { useAppDispatch } from "../store/hooks";
 import { store } from "../store/store";
 import { useRegisterMutation } from "../store/features/User/user.api.slice";
-import User from "@/models/User/UserModel";
-// import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 function LogPage() {
   const dispatch = useAppDispatch();
-  const newUserId = uuidv4();
-  const OpponentUserId = uuidv4();
   const [register] = useRegisterMutation();
 
   const handleNewUser = async () => {

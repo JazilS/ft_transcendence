@@ -1,13 +1,34 @@
+import { useGetChatRoomsInMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import Button from "../Button";
 import { quantico } from "@/models/Font/FontModel";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { getChatRoomsInLocal } from "@/app/store/features/User/UserSlice";
 
 export default function SwitchChat({
   setIsChan,
 }: {
   setIsChan: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const handleSetIsChan = (value: boolean) => {
-    setIsChan(value);
+  const userId: string = useAppSelector(
+    (state) => state.user.user.playerProfile.id
+  );
+  const [getChatRoomsInFromAPI] = useGetChatRoomsInMutation();
+  const dispatch = useAppDispatch();
+  
+  const handleSetIsChan = async (value: boolean) => {
+    if (value) {
+    const response = await getChatRoomsInFromAPI({userId: userId});
+    if ("data" in response) {
+      dispatch(getChatRoomsInLocal(response.data));
+      console.log("ChatRoomsIn = ", response);
+      setIsChan(value);
+    }
+    else {
+      console.error("Error during API call for chat rooms:", response.error);
+    }
+  }
+    else
+      setIsChan(value);
   };
 
   return (

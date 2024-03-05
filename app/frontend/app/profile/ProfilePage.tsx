@@ -1,4 +1,6 @@
-"use client";
+"use client";const { data: channels, error } = useGetPublicChatRoomsQuery();
+console.log('TESTT', channels);
+
 
 import React, { useState } from "react";
 import PlayerProfile from "@/components/molecules/PlayerProfileDisplay";

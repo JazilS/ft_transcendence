@@ -11,14 +11,25 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getPublicChatRooms: builder.query<ChatRoom[], void>({
+    getPublicChatRooms: builder.mutation<ChatRoom[], void>({
       query: (data) => ({
         url: "/chat/getPublicChatRooms",
-        method: "GET",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    getChatRoomsIn: builder.mutation<ChatRoom[], { userId: string }>({
+      query: (data) => ({
+        url: "/chat/getChatRoomsIn",
+        method: "POST",
         body: data,
       }),
     }),
   }),
 });
 
-export const { useCreateChatRoomMutation, useGetPublicChatRoomsQuery } = ChatRoomApiSlice;
+export const {
+  useCreateChatRoomMutation,
+  useGetPublicChatRoomsMutation,
+  useGetChatRoomsInMutation,
+} = ChatRoomApiSlice;

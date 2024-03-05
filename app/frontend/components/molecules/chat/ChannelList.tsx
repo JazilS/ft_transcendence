@@ -1,22 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../atom/Button";
 import { useAppSelector } from "@/app/store/hooks";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import JoinChanModal from "./JoinChan";
 import CreateChanModal from "./CreateChan";
+import { useGetChatRoomsInMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 // import '../style/ChannelList.css'
 
 export default function ChannelBar() {
-  const channels: ChatRoom[] = useAppSelector(
-    (state) => state.chatRooms.chatRooms
-    // (state) => state.user.user.channelsIn
-  );
-
-  useEffect(() => {
-    console.log("channels changed:", channels);
-  }, [channels]);
+  const channels = useAppSelector((state) => state.user.user.channelsIn);
+  
 
   return (
     <div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>
