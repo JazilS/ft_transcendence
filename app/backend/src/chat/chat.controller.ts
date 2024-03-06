@@ -32,4 +32,18 @@ export class ChatController {
     }
     return this.chatService.getChatRoomsIn(body.userId);
   }
+  @Post('/joinChatRoom')
+  async joinChatRoom(
+    @Body()
+    body: {
+      channelId: string;
+      userId: string;
+      password?: string;
+    },
+  ) {
+    if (!body.channelId || !body.userId) {
+      throw new BadRequestException('channelId and userId are required');
+    }
+    return this.chatService.joinChatRoom(body);
+  }
 }

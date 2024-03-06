@@ -5,6 +5,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class ChatService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  // CREATECHATROOM
   async createChatRoom(body: {
     name: string;
     type: string;
@@ -17,7 +19,10 @@ export class ChatService {
       });
       if (body.name === null || body.name === '')
         throw new Error('Chat room name cannot be empty');
-      else if (body.type === 'PROTECTED' && body.password === null)
+      else if (
+        body.type === 'PROTECTED' &&
+        (body.password === null || body.password === '')
+      )
         throw new Error('Password cannot be empty for protected chat room');
 
       const chatroom = await this.prismaService.chatroom.create({
@@ -50,14 +55,17 @@ export class ChatService {
       ) {
         return { error: 'Chat room name already exists' };
       }
-      return { error: 'test' };
+      return { error: 'error creating chatroom' };
     }
   }
 
+  // GETPUBLICCHATROOMS
   async getPublicChatRooms() {
     const chatrooms = await this.prismaService.chatroom.findMany({
       where: {
-        chatroomType: 'PUBLIC',
+        chatroomType: {
+          in: ['PUBLIC', 'PROTECTED'],
+        },
       },
       include: {
         users: true,
@@ -71,6 +79,8 @@ export class ChatService {
       messages: null,
     }));
   }
+
+  // GETCHATROOMSIN
   async getChatRoomsIn(userId: string) {
     try {
       const userWithChatrooms = await this.prismaService.user.findUnique({
@@ -101,6 +111,63 @@ export class ChatService {
     } catch (error) {
       console.error('Error getting chatrooms for user:', error);
       return { error: 'Error getting chatrooms for user' };
+    }
+  }
+
+  // JOINCHATROOM
+  async joinChatRoom(body: {
+    channelId: string;
+    userId: string;
+    password?: string;
+  }) {
+    try {
+      const chatroom = await this.prismaService.chatroom.findUnique({
+        where: { id: body.channelId },
+        include: {
+          users: true,
+        },
+      });
+      if (!chatroom) {
+        throw new Error('Chatroom not found');
+      }
+      if (chatroom.chatroomType === 'PROTECTED' && body.password !== null) {
+        if (chatroom.password !== body.password)
+          throw new Error('Invalid password');
+        // check password for protected chatroom
+      }
+
+      // Check if user is already in chatroom
+      const userInChatroom = chatroom.users.find(
+        (chatroomUser) => chatroomUser.userId === body.userId,
+      );
+      if (userInChatroom) throw new Error('User is already in the chatroom');
+
+      // Add user to chatroom
+      await this.prismaService.chatroomUser.create({
+        data: {
+          role: 'MEMBER',
+          chatroom: {
+            connect: {
+              id: body.channelId,
+            },
+          },
+          user: {
+            connect: {
+              id: body.userId,
+            },
+          },
+        },
+      });
+      return {
+        id: chatroom.id,
+        name: chatroom.name,
+        roomType: chatroom.chatroomType,
+        users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
+        messages: null,
+      };
+    } catch (error) {
+      console.error('Error joining chatroom:', error);
+      return { error: error.message };
     }
   }
 }

@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://jsabound:jsabound@postgres:5432/transcendance"
+  url      = "postgresql://jsabound:jsabound@localhost:5432/transcendance"
   // url      = env("DATABASE_URL")
 }
 
