@@ -19,9 +19,9 @@ export class AuthController {
 }
 
 // get the code
-// error
+//  error handling
 // get the token (post method)
-// error
+//  error handling
 // get the user
 // check if the user is in the database
 // if not, create the user

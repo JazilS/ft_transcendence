@@ -9,14 +9,16 @@ export class AuthService {
   async login(code: string) {
     const token = await this.getAcessToken(code);
     const user = await this.getUserInfo(token);
+    console.log(user);
     if (this.prismaService.user.findFirst({ where: { email: user.email } }))
-      return user;
+        return user; //jwt
     else {
       const newUser = await this.prismaService.user.create({
         data: {
           email: user.email,
-          name: user.name,
-          pfp: user.pfp,
+          nickname: user.name,
+          status: 'ONLINE',
+          avatar: user.pfp,
         },
       });
       return newUser;
@@ -26,6 +28,7 @@ export class AuthService {
 
   async getAcessToken(code: string) : Promise<string> {
     const url = process.env.AUTH_URL_42_TOKEN;
+    console.log(url);
     const data = {
       grant_type: 'authorization_code',
       client_id: process.env.UID,
@@ -45,20 +48,22 @@ export class AuthService {
 
   async getUserInfo(token: string) {
     const url = process.env.AUTH_URL_42_USER;
+    console.log(url);
     const headers = { Authorization: `Bearer ${token}` };
     try {
       const userInfo = await axios.get(url, { headers });
+      console.log(userInfo.data.image.versions.medium);
       return {
         name: userInfo.data.login,
         email: userInfo.data.email,
-        pfp: userInfo.data.image_url, //check var names on /v2/me
+        pfp: userInfo.data.image.versions.medium, //check var names on /v2/me
       }
     }
     catch (error) {
       //;
     }
   }
-
+}
   // async register(body: { username: string; password: string }) {
   //   const user = await this.prismaService.user.create({
   //     data: {
