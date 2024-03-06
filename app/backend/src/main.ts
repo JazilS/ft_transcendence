@@ -15,7 +15,7 @@ async function bootstrap() {
     ],
   });
   app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
-  app.setGlobalPrefix('api');
+  // app.setGlobalPrefix('api');
   await app.listen(4000);
   // logger.log(`Server is running on: ${port}`);
 }
