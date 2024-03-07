@@ -23,10 +23,10 @@ export class Player {
   private moveDown: boolean;
 
   constructor(
-    id: string,
-    position: Coordinate,
     dimension: Dimension,
-    velocity: Velocity
+    position: Coordinate,
+    velocity: Velocity,
+    id?: string,
   ) {
     this.id = id as string;
     this.position = position;

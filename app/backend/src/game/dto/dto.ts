@@ -5,6 +5,7 @@ enum Position {
   ARROW_UP = PongEvent.ARROW_UP,
   ARROW_DOWN = PongEvent.ARROW_DOWN,
 }
+
 export class updatePlayerPosition {
   @IsString()
   @IsNotEmpty()

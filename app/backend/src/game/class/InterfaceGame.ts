@@ -1,4 +1,5 @@
 import { Player } from '../../../../shared/Player';
+import { keyPressedType } from '../../../../shared/constant';
 
 export const PongTypeNormal = 'NORMAL';
 export const pongType = [PongTypeNormal] as const;
@@ -16,7 +17,7 @@ export abstract class IPongGame {
   private players: string[] = [];
   private socketId: string[] = [];
   private startGameTime: Date;
-  private endGame: Date;
+  private endTime: Date;
   private gameStarted: boolean;
   private gameTimeExceeded: boolean = false;
   private draw: boolean = false;
@@ -44,7 +45,7 @@ export abstract class IPongGame {
     }
 
     const now = new Date();
-    if (now >= this.endGame) {
+    if (now >= this.endTime) {
       this.gameTimeExceeded = true;
       if (this.getPlayer.getScore >= this.toWin) {
         this.setWinner = this.getPlayer;
@@ -55,14 +56,14 @@ export abstract class IPongGame {
         this.setLoser = this.getPlayer;
       }
 
-      this.draw = true;
+      this.setDraw = true;
     }
   }
 
   public startGame() {
     this.gameStarted = true;
     this.startGameTime = new Date();
-    this.endGame = new Date(
+    this.endTime = new Date(
       this.startGameTime.getTime() + pongGameDuration * 60000,
     );
   }
@@ -71,27 +72,124 @@ export abstract class IPongGame {
     this.players.push(playerid);
   }
 
+  public removePlayer(userId: string) {
+    this.players = this.players.filter((playerid) => playerid !== userId);
+  }
   public addNewSocket(socketid: string) {
     this.socketId.push(socketid);
   }
 
-  public removePlayer(userId: string) {
-    this.players = this.players.filter((playerid) => playerid !== userId);
+  public endGame(): boolean {
+    if (this.getWinner || this.getGameTimeExceeded) {
+      return true;
+    }
+    return false;
   }
 
-  get getPlayer(): Player {
-    return this.player;
+  public updatePlayerPosition(userId: string, move: keyPressedType) {
+    if (this.player.getPlayerId === userId) {
+      this.player.setMoves(move);
+    } else {
+      this.getOppenentPlayer.setMoves(move);
+    }
+  }
+
+  public stopUpdatePlayerPosition(userId: string, move: keyPressedType) {
+    if (this.player.getPlayerId === userId) {
+      this.player.clearMoves(move);
+    } else {
+      this.getOppenentPlayer.clearMoves(move);
+    }
+  }
+
+  set setOpponentPlayerId(playerId: string) {
+    this.addNewPlayer(playerId);
+    this.getOppenentPlayer.setId = playerId;
+  }
+  get getPlayers(): string[] {
+    return this.players;
+  }
+
+  get numberOfPlayers(): number {
+    return this.players.length;
+  }
+  set setGameId(gameId: string) {
+    this.gameId = gameId;
+  }
+
+  get getGameId(): string {
+    return this.gameId;
   }
 
   set setWinner(player: Player) {
     this.winner = player;
   }
 
+  get getWinner(): Player | undefined {
+    return this.winner;
+  }
+
   set setLoser(player: Player) {
     this.loser = player;
   }
 
+  get getLoser(): Player | undefined {
+    return this.loser;
+  }
+
+  set setDraw(draw: boolean) {
+    this.draw = draw;
+  }
+
+  get getDraw(): boolean {
+    return this.draw;
+  }
+
+  set setOpponentPlayer(player: Player) {
+    this.oppenentPlayer = player;
+  }
+
   get getOppenentPlayer(): Player {
     return this.oppenentPlayer;
+  }
+
+  set setPlayer(player: Player) {
+    this.player = player;
+  }
+
+  get getPlayer(): Player {
+    return this.player;
+  }
+
+  set setLastTime(lastTime: number) {
+    this.lastTime = lastTime;
+  }
+
+  get getLastTime(): number {
+    return this.lastTime;
+  }
+
+  set setActivate(activate: boolean) {
+    this.activate = activate;
+  }
+
+  get getActivate(): boolean {
+    return this.activate;
+  }
+
+  set setGameStarted(gameStarted: boolean) {
+    this.gameStarted = gameStarted;
+  }
+
+  get getGameStarted(): boolean {
+    return this.gameStarted;
+  }
+
+  set setGameTimeExceeded(gameTimeExceeded: boolean) {
+    this.gameTimeExceeded = gameTimeExceeded;
+  }
+
+  get getGameTimeExceeded(): boolean {
+    return this.gameTimeExceeded;
   }
 }
