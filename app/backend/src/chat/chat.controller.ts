@@ -11,7 +11,7 @@ export class ChatController {
       name: string;
       type: string;
       password?: string;
-      creator: string;
+      creatorId: string;
     },
   ) {
     return this.chatService.createChatRoom(body);
@@ -45,5 +45,30 @@ export class ChatController {
       throw new BadRequestException('channelId and userId are required');
     }
     return this.chatService.joinChatRoom(body);
+  }
+  @Post('/setRoomOn')
+  async setRoomOn(
+    @Body()
+    body: {
+      userId: string;
+      channelId: string;
+    },
+  ) {
+    if (!body.userId || !body.channelId) {
+      throw new BadRequestException('userId and channelId are required');
+    }
+    return this.chatService.setRoomOn(body.userId, body.channelId);
+  }
+  @Post('/getChatRoomById')
+  async getChatRoomById(
+    @Body()
+    body: {
+      channelId: string;
+    },
+  ) {
+    if (!body.channelId) {
+      throw new BadRequestException('channelId is required');
+    }
+    return this.chatService.getChatRoomById(body.channelId);
   }
 }

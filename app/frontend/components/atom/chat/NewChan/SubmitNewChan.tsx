@@ -3,24 +3,33 @@ import Button from "../../Button";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { addRoom } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import { joinChannel } from "@/app/store/features/User/UserSlice";
-import { useCreateChatRoomMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import {
+  useCreateChatRoomMutation,
+  useSetRoomOnMutation,
+} from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import createChatRoomForm from "@/models/ChatRoom/CreateChatRoomForm";
 import { useState } from "react";
 import { RootState } from "@/app/store/store";
+import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
+import { SerializedError } from "@reduxjs/toolkit";
 
 export default function SubmitNewChan({
   access,
   password,
   channelName,
   handleClose,
+  setRoomOnId,
 }: {
   access: string;
   password: string;
   channelName: string;
   handleClose: () => void;
+  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const dispatch = useAppDispatch();
   const [createChatRoom] = useCreateChatRoomMutation();
+  const [setRoomOn] = useSetRoomOnMutation();
   const user = useAppSelector((state: RootState) => state.user.user);
   const [error, setError] = useState<string>("false");
 
@@ -30,21 +39,21 @@ export default function SubmitNewChan({
       name: channelName,
       type: access,
       password: password,
-      creator: user.playerProfile.id,
+      creatorId: user.playerProfile.id,
     };
-    // dispatch(joinChannel(channelObject));
 
-    // TODO -> gerer correctement les cas d'erreur
     try {
       const response = await createChatRoom(channelObject);
-      console.log("response = ", response);
+      console.log("created chatroom = ", response);
       if ("data" in response) {
         if ("error" in response.data) {
+          console.log("error = ", response.data.error);
           setError(response.data.error as string);
         } else {
-          console.log(">REUSSSSSIIITTTEE");
-          dispatch(addRoom(response.data));
-          dispatch(joinChannel(response.data));
+          const responseData: ChatRoom = response.data;
+          dispatch(addRoom(responseData));
+          dispatch(joinChannel(responseData));
+          setRoomOnId(responseData.id);
           handleClose();
         }
       }
@@ -69,6 +78,7 @@ export default function SubmitNewChan({
         <Button
           variant={"rounded"}
           className={`w-[20%] text-white ${quantico.className} hover:bg-pink-500`}
+          onClick={handleClose}
         >
           Cancel
         </Button>

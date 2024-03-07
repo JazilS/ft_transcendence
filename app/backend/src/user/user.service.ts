@@ -4,6 +4,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  // REGISTER
   async register() {
     try {
       // Créer les utilisateurs
@@ -27,9 +29,11 @@ export class UserService {
       };
     } catch (error) {
       console.log(error);
+      return 'Error Register!';
     }
   }
 
+  // UPDATEUSERNAME
   async updateUsername(body: { userId: string; newName: string }) {
     try {
       console.log('userId', body.userId);
@@ -50,6 +54,8 @@ export class UserService {
       return 'Error !';
     }
   }
+
+  // UPDATEAVATAR
   async updateAvatar(body: { userId: string; newAvatar: string }) {
     try {
       await this.prismaService.user.update({
@@ -60,6 +66,19 @@ export class UserService {
     } catch (error) {
       console.log(error);
       return 'Error !';
+    }
+  }
+
+  // GETUSERNAMEBYID
+  async getUserNameById(body: { userId: string }) {
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { id: body.userId },
+      });
+      return { name: user.name };
+    } catch (error) {
+      console.log(error);
+      return 'Error getting username by id !';
     }
   }
 }

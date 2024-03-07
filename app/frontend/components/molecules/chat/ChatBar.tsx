@@ -1,12 +1,15 @@
+import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import SwitchChat from "../../atom/chat/ChatSwitch";
 import ChannelBar from "./ChannelList";
 import Friendsbar from "./FriendsBar";
 
 export default function ChoseChat ({
 		setIsChan,
-		isChan
+		setRoomOnId,
+		isChan,
 	} : {
 		setIsChan: React.Dispatch<React.SetStateAction<boolean>>;
+		setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
 		isChan: boolean
 	}) {
 
@@ -14,7 +17,7 @@ export default function ChoseChat ({
 		<div className="flex flex-col w-[20%]">
 			<SwitchChat setIsChan={setIsChan}/>
 			{isChan ? (
-				<ChannelBar/>
+				<ChannelBar setRoomOnId={setRoomOnId}/>
 				) : (
 				<Friendsbar/>
 			)}

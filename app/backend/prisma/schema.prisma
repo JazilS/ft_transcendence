@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://jsabound:jsabound@localhost:5432/transcendance"
+  url      = "postgresql://jsabound:jsabound@postgres:5432/transcendance"
   // url      = env("DATABASE_URL")
 }
 
@@ -20,6 +20,8 @@ model User {
   avatar        String?
   games         GameHistory[]
   chatRoomsIn   ChatroomUser[]
+  roomOn        Chatroom?     @relation(fields: [roomOnId], references: [id])
+  roomOnId      String?       @unique
   RestricedInChatrooms ChatroomRestrictedUsers[]
   BlockedBy     User[]          @relation("BlockedUsers")
   BlockedUsers  User[]       @relation("BlockedUsers")
@@ -38,6 +40,7 @@ model Message {
 model Chatroom {
   id              String    @id @default(uuid())
   name            String    @unique
+  userOn          User?
   password        String?
   messages        Message[]
   users           ChatroomUser[]

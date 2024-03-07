@@ -16,4 +16,8 @@ export class UserController {
   async updateAvatar(@Body() body: { userId: string; newAvatar: string }) {
     return this.userService.updateAvatar(body);
   }
+  @Post('getUserNameById')
+  async getUserNameById(@Body() body: { userId: string }) {
+    return this.userService.getUserNameById(body);
+  }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, ROLE, TYPE } from '@prisma/client';
+import { Message, Prisma, ROLE, TYPE } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -11,11 +11,11 @@ export class ChatService {
     name: string;
     type: string;
     password?: string;
-    creator: string;
+    creatorId: string;
   }) {
     try {
       const user = await this.prismaService.user.findUnique({
-        where: { id: body.creator },
+        where: { id: body.creatorId },
       });
       if (body.name === null || body.name === '')
         throw new Error('Chat room name cannot be empty');
@@ -41,6 +41,7 @@ export class ChatService {
           users: true,
         },
       });
+      this.setRoomOn(body.creatorId, chatroom.id);
       return {
         id: chatroom.id,
         name: chatroom.name,
@@ -55,7 +56,7 @@ export class ChatService {
       ) {
         return { error: 'Chat room name already exists' };
       }
-      return { error: 'error creating chatroom' };
+      return { error: error.message }; // Remove the comma after error.message
     }
   }
 
@@ -158,16 +159,63 @@ export class ChatService {
           },
         },
       });
-      return {
+      const roomOn: {
+        id: string;
+        name: string;
+        roomType: TYPE;
+        users: string[];
+        messages: Message | null;
+      } = {
         id: chatroom.id,
         name: chatroom.name,
         roomType: chatroom.chatroomType,
         users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
         messages: null,
       };
+      this.setRoomOn(body.userId, chatroom.id);
+      return { roomOn };
     } catch (error) {
       console.error('Error joining chatroom:', error);
       return { error: error.message };
+    }
+  }
+
+  // SETROOMON
+  async setRoomOn(userId: string, roomId: string) {
+    try {
+      const user = await this.prismaService.user.update({
+        where: { id: userId },
+        data: {
+          roomOnId: roomId,
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error('Error setting roomOn:', error);
+      return { error: 'Error setting roomOn' };
+    }
+  }
+
+  // GETCHATROOMBYID
+  async getChatRoomById(channelId: string) {
+    try {
+      const chatroom = await this.prismaService.chatroom.findUnique({
+        where: { id: channelId },
+        include: {
+          users: true,
+          messages: true,
+        },
+      });
+      return {
+        id: chatroom.id,
+        name: chatroom.name,
+        roomType: chatroom.chatroomType,
+        users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
+        messages: chatroom.messages,
+      };
+    } catch (error) {
+      console.error('Error getting chatroom by id:', error);
+      return { error: 'Error getting chatroom by id' };
     }
   }
 }

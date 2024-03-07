@@ -1,11 +1,12 @@
 import MessagesDisplay from '@/components/atom/chat/MessagesDisplay';
+import ChatRoom from '@/models/ChatRoom/ChatRoomModel';
+import Messages from '@/models/ChatRoom/messages';
 import {useEffect, useState} from 'react';
 import io, { Socket } from 'socket.io-client';
 
 
-export default function ChatZone() {
+export default function ChatZone({messages} : {messages: Messages[] | undefined}) {
 	const [socket, setSocket] = useState<Socket>()
-	const [messages, setMessages] = useState<string[]>([])
 	const [value, setValue] = useState<string>('')
 	// const channelName = useAppSelector(state => state.channel)
 

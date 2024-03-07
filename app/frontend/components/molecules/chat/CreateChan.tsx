@@ -21,13 +21,18 @@ export const style = {
   p: 4,
 };
 
-export default function CreateChanModal() {
+export default function CreateChanModal({setRoomOnId} : {setRoomOnId: React.Dispatch<React.SetStateAction<string>>}) {
   const [open, setOpen] = React.useState(false);
   const [channelName, setChannelName] = React.useState<string>('');
   const [access, setAccess] = React.useState<string>("PUBLIC");
-  const [password, setPassword] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>('');
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false)
+    setChannelName('')
+    setAccess('PUBLIC')
+    setPassword('')
+  };
 
   return (
     <div>
@@ -59,6 +64,7 @@ export default function CreateChanModal() {
               password={password}
               access={access}
               handleClose={handleClose}
+              setRoomOnId={setRoomOnId}
             />
           </div>
         </Box>
