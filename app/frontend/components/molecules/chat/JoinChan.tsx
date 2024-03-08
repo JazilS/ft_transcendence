@@ -76,8 +76,8 @@ export default function CreateChanModal({setRoomOnId}: {setRoomOnId: React.Dispa
         console.log("Error: ", response.data.error);
       } else if ("data" in response) {
         console.log("Joined channel:", response.data);
-        setRoomOnId(response.data.id);
         dispatch(joinChannel(response.data));
+        setRoomOnId(response.data.id); //! Regler le probleme ici
         handleClose();
       }
     } catch (error) {

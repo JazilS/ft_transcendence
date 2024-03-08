@@ -21,13 +21,17 @@ export default function ChatPage() {
   useEffect(() => {
     const fetchRoom = async () => {
       if (roomOnId === "") return;
-      const response: { data: ChatRoom; } | { error: FetchBaseQueryError | SerializedError; } = await getRoomById({channelId: roomOnId});
+      console.log("fetching room : ", roomOnId)
+      const response:
+        | { data: ChatRoom }
+        | { error: FetchBaseQueryError | SerializedError } = await getRoomById({
+        channelId: roomOnId,
+      });
       if ("data" in response && !response.data.error) {
         const responseData = response.data;
         setRoomOn(responseData);
         console.log("room : ", response);
-      }
-      else if ("error" in response){
+      } else if ("error" in response) {
         console.error("Error fetching actual room:", response.error);
       }
     };
@@ -41,9 +45,13 @@ export default function ChatPage() {
         <div
           className={`flex flex-row h-full w-5/6 bg-gradient-to-tr from-black to-[#314287] rounded-3xl p-2 ${quantico.className}`}
         >
-          <ChoseChat isChan={isChan} setIsChan={setIsChan} setRoomOnId={setRoomOnId}/>
+          <ChoseChat
+            isChan={isChan}
+            setIsChan={setIsChan}
+            setRoomOnId={setRoomOnId}
+          />
           <ChatZone messages={roomOn?.messages} />
-          <ChatMembers members={roomOn?.users} />
+          {/* <ChatMembers members={roomOn?.users} /> */}
         </div>
       </div>
     </div>

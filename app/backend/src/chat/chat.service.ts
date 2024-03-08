@@ -14,9 +14,11 @@ export class ChatService {
     creatorId: string;
   }) {
     try {
+      console.log('CreatorId', body.creatorId);
       const user = await this.prismaService.user.findUnique({
         where: { id: body.creatorId },
       });
+      console.log('User:', user);
       if (body.name === null || body.name === '')
         throw new Error('Chat room name cannot be empty');
       else if (
@@ -41,7 +43,8 @@ export class ChatService {
           users: true,
         },
       });
-      this.setRoomOn(body.creatorId, chatroom.id);
+      // this.setRoomOn(body.creatorId, chatroom.id);
+      console.log('Chatroom created:', chatroom);
       return {
         id: chatroom.id,
         name: chatroom.name,

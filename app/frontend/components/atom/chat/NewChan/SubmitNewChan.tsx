@@ -34,7 +34,7 @@ export default function SubmitNewChan({
   const [error, setError] = useState<string>("false");
 
   const handleSubmitNewChan = async () => {
-    console.log(password);
+    console.log('password : ', password);
     const channelObject: createChatRoomForm = {
       name: channelName,
       type: access,
