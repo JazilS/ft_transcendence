@@ -8,6 +8,8 @@ import { setAllData } from "../store/features/User/UserSlice";
 import { useAppDispatch } from "../store/hooks";
 import { store } from "../store/store";
 import { useRegisterMutation } from "../store/features/User/user.api.slice";
+import { Socket, io } from "socket.io-client";
+import { connectSocket, socket } from "../utils/getSocket";
 
 function LogPage() {
   const dispatch = useAppDispatch();
@@ -16,11 +18,20 @@ function LogPage() {
   const handleNewUser = async () => {
     const response = await register();
 
-    if ('error' in response) {
+    if ("error" in response) {
       // Handle error here
       console.error(response.error);
     } else {
       dispatch(setAllData(response.data));
+      connectSocket(response.data.playerProfile.id);
+
+      socket.on("connect", () => {
+        console.log("Connected to the server");
+      });
+
+      socket.on("disconnect", () => {
+        console.log("Disconnected from the server");
+      });
       console.log(response.data);
     }
   };

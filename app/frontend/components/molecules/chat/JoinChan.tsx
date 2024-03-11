@@ -14,6 +14,7 @@ import {
 } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { joinChannel } from "@/app/store/features/User/UserSlice";
+import { connectSocket, socket } from "@/app/utils/getSocket";
 
 export const style = {
   position: "absolute",
@@ -77,7 +78,12 @@ export default function CreateChanModal({setRoomOnId}: {setRoomOnId: React.Dispa
       } else if ("data" in response) {
         console.log("Joined channel:", response.data);
         dispatch(joinChannel(response.data));
-        setRoomOnId(response.data.id); //! Regler le probleme ici
+        setRoomOnId(response.data.id);
+
+        connectSocket(response.data.id);
+        socket.emit('JOIN_ROOM', { room: response.data.id });
+        // TODO verifier si l'utilisateur rejoint correctement la room dans le backend
+        
         handleClose();
       }
     } catch (error) {

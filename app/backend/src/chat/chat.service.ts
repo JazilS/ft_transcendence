@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Message, Prisma, ROLE, TYPE } from '@prisma/client';
+import { Prisma, ROLE, TYPE } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -162,21 +162,27 @@ export class ChatService {
           },
         },
       });
-      const roomOn: {
-        id: string;
-        name: string;
-        roomType: TYPE;
-        users: string[];
-        messages: Message | null;
-      } = {
+      // const roomOn: {
+      //   id: string;
+      //   name: string;
+      //   roomType: TYPE;
+      //   users: string[];
+      //   messages: Message | null;
+      // } = {
+      //   id: chatroom.id,
+      //   name: chatroom.name,
+      //   roomType: chatroom.chatroomType,
+      //   users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
+      //   messages: null,
+      // };
+      // this.setRoomOn(body.userId, chatroom.id);
+      return {
         id: chatroom.id,
         name: chatroom.name,
         roomType: chatroom.chatroomType,
         users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
         messages: null,
       };
-      this.setRoomOn(body.userId, chatroom.id);
-      return { roomOn };
     } catch (error) {
       console.error('Error joining chatroom:', error);
       return { error: error.message };
@@ -184,20 +190,20 @@ export class ChatService {
   }
 
   // SETROOMON
-  async setRoomOn(userId: string, roomId: string) {
-    try {
-      const user = await this.prismaService.user.update({
-        where: { id: userId },
-        data: {
-          roomOnId: roomId,
-        },
-      });
-      return user;
-    } catch (error) {
-      console.error('Error setting roomOn:', error);
-      return { error: 'Error setting roomOn' };
-    }
-  }
+  // async setRoomOn(userId: string, roomId: string) {
+  //   try {
+  //     const user = await this.prismaService.user.update({
+  //       where: { id: userId },
+  //       data: {
+  //         roomOnId: roomId,
+  //       },
+  //     });
+  //     return user;
+  //   } catch (error) {
+  //     console.error('Error setting roomOn:', error);
+  //     return { error: 'Error setting roomOn' };
+  //   }
+  // }
 
   // GETCHATROOMBYID
   async getChatRoomById(channelId: string) {
@@ -219,6 +225,36 @@ export class ChatService {
     } catch (error) {
       console.error('Error getting chatroom by id:', error);
       return { error: 'Error getting chatroom by id' };
+    }
+  }
+
+  // GETUSERNAMESFROMROOM
+  async getUserNamesFromRoom(
+    channelId: string,
+  ): Promise<string[] | { error: string }> {
+    try {
+      const chatroom = await this.prismaService.chatroom.findUnique({
+        where: { id: channelId },
+        include: {
+          users: {
+            select: {
+              user: { select: { name: true } }, // Sélectionnez seulement le nom de l'utilisateur
+            },
+          },
+        },
+      });
+      // Vérifiez si la salle de discussion existe
+      if (!chatroom) {
+        throw new Error('Chatroom not found');
+      }
+      // Mappez les noms d'utilisateur à partir des données de chatroom
+      const userNames = chatroom.users.map(
+        (chatroomUser) => chatroomUser.user.name,
+      );
+      return userNames;
+    } catch (error) {
+      console.error('Error getting usernames from room:', error);
+      return { error: 'Error getting usernames from room' };
     }
   }
 }

@@ -4,7 +4,7 @@ import CheckBoxMenuItem from "../atom/CheckBox";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
-import "../../style/FadeMenu.css"
+import "../../style/FadeMenu.css";
 
 export default function FadeMenu({ value }: { value: string }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -22,7 +22,7 @@ export default function FadeMenu({ value }: { value: string }) {
     <div>
       <Button
         className="hover:bg-[#f28eff] pl-9 "
-        variant={"channel"}
+        variant={"publicChannel"}
         size={"channel"}
         id="fade-button"
         aria-controls={open ? "fade-menu" : undefined}
@@ -46,30 +46,40 @@ export default function FadeMenu({ value }: { value: string }) {
       >
         <MenuItem onClick={handleClose}>Profile</MenuItem>
         {/* seulement si ils ne sont pas amis */}
-          <MenuItem onClick={handleClose}>Add Friend</MenuItem>
+        <MenuItem onClick={handleClose}>Add Friend</MenuItem>
         <MenuItem onClick={handleClose}>Send message</MenuItem>
         <MenuItem onClick={handleClose}>Invite in game</MenuItem>
-      
-        {/* le useState n'est pas bien gere pour le checkbox, Corriger ca quand on urilise les vraies donnees du back */}
-          <CheckBoxMenuItem value='block'></CheckBoxMenuItem>
-          <CheckBoxMenuItem value="mute"></CheckBoxMenuItem>
 
+        {/* le useState n'est pas bien gere pour le checkbox, Corriger ca quand on urilise les vraies donnees du back */}
+        {/* <CheckBoxMenuItem value="block"></CheckBoxMenuItem>
+        <CheckBoxMenuItem value="mute"></CheckBoxMenuItem> */}
 
         {/* ajouter ces options pour les operateurs */}
-          <MenuItem>Kick from channel</MenuItem>
-          <MenuItem>Ban from channel</MenuItem>
-          {/* seulement si l'utilisateur n'est pas deja promu */}
-            <MenuItem onClick={handleClose}>Promote in channel</MenuItem>
+        <MenuItem>Kick from channel</MenuItem>
+        <MenuItem>Ban from channel</MenuItem>
+        {/* seulement si l'utilisateur n'est pas deja promu */}
+        <MenuItem onClick={handleClose}>Promote in channel</MenuItem>
       </Menu>
     </div>
   );
 }
 
+/**
+ * TODO : differentes possibilites de menu
+ * !    Group Room ->
+ * * 1. Version membre non operateur : Profile, Add Friend, Send message, Invite in game, block
+ * * 2. Version operateur : ... + mute, kick, ban, promote
+ * *    - un operateur non createur du channel ne peux pas agir sur le createur
+ * * 3. Si l'utilisateur clique sur son propre nom, rien ne se passe
+ 
+ * !    Private Room ->
+ * * 1. seulement les options suivantes : Profile, Invite in game, block
+ * * 2. Si l'utilisateur clique sur son propre nom, rien ne se passe
+ */
 
 // import React, { useState } from 'react';
 
 // function App() {
- 
 
 //   return (
 //     <div>

@@ -46,19 +46,19 @@ export class ChatController {
     }
     return this.chatService.joinChatRoom(body);
   }
-  @Post('/setRoomOn')
-  async setRoomOn(
-    @Body()
-    body: {
-      userId: string;
-      channelId: string;
-    },
-  ) {
-    if (!body.userId || !body.channelId) {
-      throw new BadRequestException('userId and channelId are required');
-    }
-    return this.chatService.setRoomOn(body.userId, body.channelId);
-  }
+  // @Post('/setRoomOn')
+  // async setRoomOn(
+  //   @Body()
+  //   body: {
+  //     userId: string;
+  //     channelId: string;
+  //   },
+  // ) {
+  //   if (!body.userId || !body.channelId) {
+  //     throw new BadRequestException('userId and channelId are required');
+  //   }
+  //   return this.chatService.setRoomOn(body.userId, body.channelId);
+  // }
   @Post('/getChatRoomById')
   async getChatRoomById(
     @Body()
@@ -70,5 +70,17 @@ export class ChatController {
       throw new BadRequestException('channelId is required');
     }
     return this.chatService.getChatRoomById(body.channelId);
+  }
+  @Post('/getUserNamesFromRoom')
+  async getUserNamesFromRoom(
+    @Body()
+    body: {
+      channelId: string;
+    },
+  ) {
+    if (!body.channelId) {
+      throw new BadRequestException('channelId is required');
+    }
+    return this.chatService.getUserNamesFromRoom(body.channelId);
   }
 }

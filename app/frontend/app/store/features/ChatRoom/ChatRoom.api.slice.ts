@@ -46,6 +46,13 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    getUserNamesFromRoom: builder.mutation<string[], { channelId: string }>({
+      query: (data) => ({
+        url: "/chat/getUserNamesFromRoom",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -56,4 +63,5 @@ export const {
   useJoinChatRoomMutation,
   useSetRoomOnMutation,
   useGetChatRoomByIdMutation,
+  useGetUserNamesFromRoomMutation,
 } = ChatRoomApiSlice;

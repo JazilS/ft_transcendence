@@ -50,8 +50,8 @@ export default function ChatPage() {
             setIsChan={setIsChan}
             setRoomOnId={setRoomOnId}
           />
-          <ChatZone messages={roomOn?.messages} />
-          {/* <ChatMembers members={roomOn?.users} /> */}
+          <ChatZone roomOn={roomOn} />
+          <ChatMembers roomOnId={roomOnId} />
         </div>
       </div>
     </div>
