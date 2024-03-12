@@ -9,7 +9,7 @@ import { useAppDispatch } from "../store/hooks";
 import { store } from "../store/store";
 import { useRegisterMutation } from "../store/features/User/user.api.slice";
 import { Socket, io } from "socket.io-client";
-import { connectSocket, socket } from "../utils/getSocket";
+import { connectSocket, mySocket } from "../utils/getSocket";
 
 function LogPage() {
   const dispatch = useAppDispatch();
@@ -24,14 +24,15 @@ function LogPage() {
     } else {
       dispatch(setAllData(response.data));
       connectSocket(response.data.playerProfile.id);
+      // connectSocket(response.data.playerProfile.id);
 
-      socket.on("connect", () => {
-        console.log("Connected to the server");
-      });
+      // mySocket.on("connect", () => {
+        // console.log("Connected to the server");
+      // });
 
-      socket.on("disconnect", () => {
-        console.log("Disconnected from the server");
-      });
+      // mySocket.on("disconnect", () => {
+        // console.log("Disconnected from the server");
+      // });
       console.log(response.data);
     }
   };

@@ -13,6 +13,7 @@ import { RootState } from "@/app/store/store";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
+import { mySocket } from "@/app/utils/getSocket";
 
 export default function SubmitNewChan({
   access,
@@ -54,6 +55,7 @@ export default function SubmitNewChan({
           dispatch(addRoom(responseData));
           dispatch(joinChannel(responseData));
           setRoomOnId(responseData.id);
+          mySocket.emit('JOIN_ROOM', { room: responseData.id });
           handleClose();
         }
       }

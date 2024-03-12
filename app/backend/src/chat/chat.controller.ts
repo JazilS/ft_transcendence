@@ -83,4 +83,39 @@ export class ChatController {
     }
     return this.chatService.getUserNamesFromRoom(body.channelId);
   }
+  @Post('/addMessage')
+  async addMessage(
+    @Body()
+    body: {
+      message: {
+        id: string;
+        content: string;
+        chatId: string;
+        emitter: string;
+      };
+    },
+  ) {
+    if (
+      !body.message.chatId ||
+      !body.message.emitter ||
+      !body.message.content
+    ) {
+      throw new BadRequestException(
+        'channelId, userId and content are required',
+      );
+    }
+    return this.chatService.addMessage(body);
+  }
+  @Post('/getMessagesFromRoom')
+  async getMessagesFromRoom(
+    @Body()
+    body: {
+      roomId: string;
+    },
+  ) {
+    if (!body.roomId) {
+      throw new BadRequestException('roomId is required');
+    }
+    return this.chatService.getMessagesFromRoom(body.roomId);
+  }
 }

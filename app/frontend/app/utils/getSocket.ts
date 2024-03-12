@@ -1,15 +1,20 @@
-import { io, Socket } from "socket.io-client";
+import { Socket, io } from "socket.io-client";
 
-let socket: Socket;
+export let mySocket: Socket;
 
-const connectSocket = (userId: string) => {
-  if (!socket) {
-    socket = io("http://localhost:4000", {
-        auth: {
-          token: userId, // Use the user ID as the authentication token
-        },
-      });
+export function connectSocket(userId: string) {
+  mySocket = io("http://localhost:4000", {
+    auth: {
+      token: userId,
+    },
+    transports: ["websocket"],
+  });
+
+  return mySocket;
+}
+
+export function disconnectSocket() {
+  if (mySocket) {
+    mySocket.disconnect();
   }
-};
-
-export {connectSocket, socket}
+}

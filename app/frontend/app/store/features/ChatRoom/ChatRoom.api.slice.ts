@@ -1,6 +1,7 @@
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { apiSlice } from "../../api/apiSlice";
 import createChatRoomForm from "@/models/ChatRoom/CreateChatRoomForm";
+import Messages from "@/models/ChatRoom/messages";
 
 export const ChatRoomApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -53,6 +54,20 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    addMessage: builder.mutation<Messages[], {message: Messages}>({
+      query: (data) => ({
+        url: "/chat/addMessage",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    getMessagesFromRoom: builder.mutation<Messages[], {roomId: string}>({
+      query: (data) => ({
+        url: "/chat/getMessagesFromRoom",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -64,4 +79,6 @@ export const {
   useSetRoomOnMutation,
   useGetChatRoomByIdMutation,
   useGetUserNamesFromRoomMutation,
+  useAddMessageMutation,
+  useGetMessagesFromRoomMutation,
 } = ChatRoomApiSlice;

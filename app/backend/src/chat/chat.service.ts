@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, ROLE, TYPE } from '@prisma/client';
+import { Message, Prisma, ROLE, TYPE } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -255,6 +255,54 @@ export class ChatService {
     } catch (error) {
       console.error('Error getting usernames from room:', error);
       return { error: 'Error getting usernames from room' };
+    }
+  }
+
+  // ADDMESSAGE
+  async addMessage(body: {
+    message: {
+      id: string;
+      content: string;
+      chatId: string;
+      emitter: string;
+    };
+  }) {
+    try {
+      const newMessage: Message = await this.prismaService.message.create({
+        data: {
+          content: body.message.content,
+          chat: {
+            connect: {
+              id: body.message.chatId,
+            },
+          },
+          emitter: {
+            connect: {
+              id: body.message.emitter,
+            },
+          },
+        },
+      });
+      console.log('New message:', newMessage);
+      return newMessage;
+    } catch (error) {
+      console.error('Error adding message:', error);
+      return { error: 'Error adding message' };
+    }
+  }
+
+  // GETMESSAGESFROMROOM
+  async getMessagesFromRoom(roomId: string) {
+    try {
+      const messages = await this.prismaService.message.findMany({
+        where: {
+          chatId: roomId,
+        },
+      });
+      return messages;
+    } catch (error) {
+      console.error('Error getting messages from room:', error);
+      return { error: 'Error getting messages from room' };
     }
   }
 }
