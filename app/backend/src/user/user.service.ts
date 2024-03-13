@@ -81,4 +81,25 @@ export class UserService {
       return 'Error getting username by id !';
     }
   }
+
+  // GETPROFILEBYID
+  async getProfileById(userId: string) {
+    try {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+      const user = await this.prismaService.user.findUnique({
+        where: { id: userId },
+      });
+      return {
+        id: user.id,
+        name: user.name,
+        imageSrc: user.avatar,
+        games: [], //! A CHANGER POUR PROFILE (recuperer les games du user)
+      };
+    } catch (error) {
+      console.log(error);
+      return 'Error getting profile by id !';
+    }
+  }
 }

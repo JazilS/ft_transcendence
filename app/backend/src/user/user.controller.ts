@@ -20,4 +20,8 @@ export class UserController {
   async getUserNameById(@Body() body: { userId: string }) {
     return this.userService.getUserNameById(body);
   }
+  @Post('getProfileById')
+  async getProfileById(@Body() body: { userId: string }) {
+    return this.userService.getProfileById(body.userId);
+  }
 }

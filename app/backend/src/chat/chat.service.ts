@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Message, Prisma, ROLE, TYPE } from '@prisma/client';
+import Messages from 'src/gateway/types/Message.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -261,26 +262,29 @@ export class ChatService {
   // ADDMESSAGE
   async addMessage(body: {
     message: {
-      id: string;
-      content: string;
-      chatId: string;
-      emitter: string;
+      data: {
+        id: string;
+        content: string;
+        chatId: string;
+        emitter: string;
+      };
     };
   }) {
     try {
+      console.log('body', body);
       const newMessage: Message = await this.prismaService.message.create({
         data: {
-          content: body.message.content,
           chat: {
             connect: {
-              id: body.message.chatId,
+              id: body.message.data.chatId,
             },
           },
           emitter: {
             connect: {
-              id: body.message.emitter,
+              id: body.message.data.emitter,
             },
           },
+          content: body.message.data.content,
         },
       });
       console.log('New message:', newMessage);
@@ -294,11 +298,28 @@ export class ChatService {
   // GETMESSAGESFROMROOM
   async getMessagesFromRoom(roomId: string) {
     try {
-      const messages = await this.prismaService.message.findMany({
-        where: {
-          chatId: roomId,
+      if (!roomId || roomId === '' || roomId === undefined) {
+        return null;
+      }
+      const room = await this.prismaService.chatroom.findUnique({
+        where: { id: roomId },
+        include: {
+          messages: {
+            include: {
+              emitter: true,
+            },
+          },
         },
       });
+      const messages: Messages[] = room.messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        chatId: message.chatId,
+        emitterId: message.emitterId,
+        emitterName: message.emitter.name, // Access the name from the emitter object
+        emitterAvatar: message.emitter.avatar, // Access the avatar from the emitter object
+      }));
+      console.log('Messages from room:', messages);
       return messages;
     } catch (error) {
       console.error('Error getting messages from room:', error);

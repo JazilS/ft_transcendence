@@ -35,8 +35,15 @@ export default function ChatPage() {
         console.error("Error fetching actual room:", response.error);
       }
     };
-    console.log("roomOnId : ", roomOnId);
+
+
+  // TODO : quand je fetcj roomon, les messages sont connecte avec 
+  // TODO : les messages de la db mais ils ne contiennent pas emitterName et emitterAvatar.
+  // TODO : je dois trouver un moyen de recuperer tout ca correctement.
+
+
     fetchRoom();
+    console.log("roomOnId : ", roomOnId);
   }, [getRoomById, roomOnId]);
 
   return (

@@ -1,6 +1,7 @@
 import User from "@/models/User/UserModel";
 import { apiSlice } from "../../api/apiSlice";
 import { get } from "http";
+import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 
 export const UserApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -38,6 +39,13 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    getProfileById: builder.mutation<PlayerProfile, { userId: string }>({
+      query: (data) => ({
+        url: "/user/getProfileById",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -46,4 +54,5 @@ export const {
   useUpdateUsernameMutation,
   useUpdateAvatarMutation,
   useGetUserNameByIdMutation,
+  useGetProfileByIdMutation,
 } = UserApiSlice;

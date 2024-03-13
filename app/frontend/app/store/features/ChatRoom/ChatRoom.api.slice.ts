@@ -54,7 +54,8 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    addMessage: builder.mutation<Messages[], {message: Messages}>({
+    // addMessage: builder.mutation<Messages, { message: {data:{id: string; content: string; chatId: string; emitter: string;}} }>({
+      addMessage: builder.mutation<Messages, { message: { data: { id: string; content: string; chatId: string; emitter: string}} }>({
       query: (data) => ({
         url: "/chat/addMessage",
         method: "POST",

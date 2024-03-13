@@ -1,17 +1,17 @@
-import { newMessage } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { connectSocket, mySocket } from "@/app/utils/getSocket";
+import { mySocket } from "@/app/utils/getSocket";
 import MessagesDisplay from "@/components/atom/chat/MessagesDisplay";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import Messages from "@/models/ChatRoom/messages";
-import { stat } from "fs";
-import { Message } from "postcss";
 import { useEffect, useState } from "react";
-import io, { Socket } from "socket.io-client";
-import { useMemo } from "react";
-import { useGetMessagesFromRoomMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import { Socket } from "socket.io-client";
+import {
+  useAddMessageMutation,
+  useGetMessagesFromRoomMutation,
+} from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
+import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 
 export default function ChatZone({ roomOn }: { roomOn: ChatRoom | undefined }) {
   const [socket, setSocket] = useState<Socket>();
@@ -19,49 +19,58 @@ export default function ChatZone({ roomOn }: { roomOn: ChatRoom | undefined }) {
   const [messages, setMessages] = useState<Messages[]>([]);
   // const [receivedMessage, setReceivedMessage] = useState<Messages>();
   const channelName = roomOn?.name || "Not in a channel";
-  const userId: string = useAppSelector(
-    (state) => state.user.user.playerProfile.id
+  const user: PlayerProfile = useAppSelector(
+    (state) => state.user.user.playerProfile
   );
   const dispatch = useAppDispatch();
   const [getMessagesFromRoom] = useGetMessagesFromRoomMutation();
+  const [addMessage] = useAddMessageMutation();
 
-  // console.log("roomOn = ", roomOn);
-
+  // fetch messages
+  console.log("roomOn = ", roomOn);
   useEffect(() => {
-    async function fetchData() {
-      const response:
-        | { data: Messages[] }
-        | { error: FetchBaseQueryError | SerializedError } =
-        await getMessagesFromRoom({ roomId: roomOn?.id || "" });
-      if ("data" in response) {
-        setMessages(response.data);
+    console.log("IN USEFFECT FETCHDATA");
+    async function getMessages() {
+      if (roomOn?.messages === undefined || roomOn?.messages.length === 0) {
+        const response:
+          | { data: Messages[] }
+          | { error: FetchBaseQueryError | SerializedError } =
+          await getMessagesFromRoom({ roomId: roomOn?.id || "" });
+        console.log("response from getMessages = ", response);
+        if ("data" in response) {
+          setMessages(response.data);
+        }
+      } else {
+        setMessages(roomOn.messages);
       }
     }
+    getMessages();
+  }, [dispatch, getMessagesFromRoom, roomOn]);
 
+  // listen for messages
+  useEffect(() => {
     if (mySocket) {
-      mySocket.on("MESSAGE", (data: Messages) => {
-        dispatch(newMessage(data));
-        fetchData();
-        console.log("message received = ", data);
+      mySocket.on("MESSAGE", async (data: Messages) => {
+        console.log("Received message: LQLALALALALAALALA", data);
+        setMessages([...messages, data]);
       });
     }
     return () => {
       mySocket.off("MESSAGE");
     };
-  }, [dispatch, getMessagesFromRoom, roomOn]);
+  }, [addMessage, dispatch, getMessagesFromRoom, messages, roomOn?.messages]);
 
-  // useEffect(() => {
-  //
-  // }, [receivedMessage])
-
+  //emit messages
   const handleEmitMessage = (content: string) => {
     try {
-      console.log("TESTESTESTESTESTESTESTESTESTESTEST");
+      console.log("in handleEmitMessage");
       let message: Messages = {
         id: "",
         content: content,
         chatId: roomOn?.id || "",
-        emitter: userId,
+        emitterId: user.id,
+        emitterName: user.name || "",
+        emitterAvatar: user.imageSrc || "",
       };
 
       if (mySocket) {
@@ -89,8 +98,10 @@ export default function ChatZone({ roomOn }: { roomOn: ChatRoom | undefined }) {
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             // sendMessage((e.target as HTMLInputElement).content);
-            handleEmitMessage(content);
-            setContent("");
+            if (content !== "") {
+              handleEmitMessage(content);
+              setContent("");
+            }
           }
         }}
       />

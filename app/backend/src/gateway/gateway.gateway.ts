@@ -11,8 +11,8 @@ import {
 import { SocketWithAuth } from './types/socket.types';
 import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
-import Messages from './types/Message.types';
 import { Logger } from '@nestjs/common';
+import Messages from './types/Message.types';
 
 @WebSocketGateway()
 export class GatewayGateway
@@ -55,7 +55,10 @@ export class GatewayGateway
   @SubscribeMessage('MESSAGE')
   async handleMessage(
     // @MessageBody() payload: { message: MessageDto },
-    @MessageBody() payload: { message: Messages },
+    @MessageBody()
+    payload: {
+      message: Messages;
+    },
     // @ConnectedSocket() client: SocketWithAuth,
   ) {
     console.log(
@@ -68,7 +71,7 @@ export class GatewayGateway
       if (!payload.message.chatId || payload.message.chatId === '')
         throw 'No chatId provided';
 
-      this.prismaService.message.create({
+      const newMessage = await this.prismaService.message.create({
         data: {
           content: payload.message.content,
           chat: {
@@ -78,16 +81,28 @@ export class GatewayGateway
           },
           emitter: {
             connect: {
-              id: payload.message.emitter,
+              id: payload.message.emitterId,
             },
           },
         },
       });
 
-      this.server
-        .to(payload.message.chatId)
-        .emit('MESSAGE', { data: payload.message });
-      console.log('Message sent: ', payload.message);
+      this.server.to(newMessage.chatId).emit('MESSAGE', {
+        id: newMessage.id,
+        content: newMessage.content,
+        chatId: newMessage.chatId,
+        emitterId: newMessage.emitterId,
+        emitterName: payload.message.emitterName,
+        emitterAvatar: payload.message.emitterAvatar,
+      });
+      console.log('Message sent: ', {
+        id: newMessage.id,
+        content: newMessage.content,
+        chatId: newMessage.chatId,
+        emitterId: newMessage.emitterId,
+        emitterName: payload.message.emitterName,
+        emitterAvatar: payload.message.emitterAvatar,
+      });
     } catch (error) {
       console.error('Error sending message:', error);
     }

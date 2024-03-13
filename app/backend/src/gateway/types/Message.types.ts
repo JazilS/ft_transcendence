@@ -18,5 +18,7 @@ export default interface Messages {
   id: string;
   content: string;
   chatId: string;
-  emitter: string;
+  emitterId: string;
+  emitterName: string;
+  emitterAvatar: string;
 }
