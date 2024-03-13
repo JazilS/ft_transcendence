@@ -102,6 +102,10 @@ export abstract class IPongGame {
     }
   }
 
+  get getSocketId(): string[] {
+    return this.socketId;
+  }
+
   set setOpponentPlayerId(playerId: string) {
     this.addNewPlayer(playerId);
     this.getOppenentPlayer.setId = playerId;

@@ -5,10 +5,16 @@ import { GameInvitation } from './class/GameInvitation';
 import { PongGame } from './class/PongGame';
 import { UserNotFoundException } from 'src/exception/UserNotFoundExcepetion';
 import { keyPressedType } from '../../../shared/constant';
+import { Server } from 'socket.io';
+import { LibService } from 'src/lib/lib.service';
 
 @Injectable()
 export class GameService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly libService: LibService,
+  ) {}
+
   private readonly games: IPongGame[] = [];
   private readonly gameQueue: Map<string, string>[] = [];
   private readonly gameLeavers: Map<string, boolean> = new Map<
@@ -95,5 +101,40 @@ export class GameService {
     }
   }
 
-  updateGamePlayerPosition(index: number, userId: string, direction: keyPressedType) {};
+  updateGamePlayerPosition(
+    index: number,
+    userId: string,
+    direction: keyPressedType,
+  ) {
+    this.games[index].updatePlayerPosition(userId, direction);
+  }
+
+  getGameByIdAndReturnIndex(
+    gameId: string,
+  ): [game: IPongGame | undefined, index: number] {
+    const index = this.games.findIndex((game) => game.getGameId === gameId);
+
+    return index === -1 ? undefined : [this.games[index], index];
+  }
+
+  getGameById(gameId: string) {
+    return this.games.find((game) => game.getGameId === gameId);
+  }
+
+  deleteGameRoomGameId(gameId: string, server?: Server) {
+    const index = this.games.findIndex((game) => game.getGameId === gameId);
+
+    if (index !== -1) return;
+
+    if (server) {
+      const socketIds = this.games[index].getSocketId;
+
+      socketIds.map((id) => {
+        const socket = this.libService.getSocket(server, id);
+
+        socket?.leave(gameId);
+      });
+    }
+    this.games.splice(index, 1);
+  }
 }
