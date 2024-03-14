@@ -24,4 +24,8 @@ export class UserController {
   async getProfileById(@Body() body: { userId: string }) {
     return this.userService.getProfileById(body.userId);
   }
+  @Post('leaveChatroom')
+  async leaveChatroom(@Body() body: { userId: string; roomId: string }) {
+    return this.userService.leaveChatroom(body);
+  }
 }

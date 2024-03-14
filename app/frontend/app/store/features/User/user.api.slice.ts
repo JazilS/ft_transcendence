@@ -2,6 +2,7 @@ import User from "@/models/User/UserModel";
 import { apiSlice } from "../../api/apiSlice";
 import { get } from "http";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
+import { leaveChatroom } from "./UserSlice";
 
 export const UserApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -46,6 +47,13 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    leaveChatroom: builder.mutation<void, { userId: string, roomId: string }>({
+      query: (data) => ({
+        url: "/user/leaveChatroom",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -55,4 +63,5 @@ export const {
   useUpdateAvatarMutation,
   useGetUserNameByIdMutation,
   useGetProfileByIdMutation,
+  useLeaveChatroomMutation,
 } = UserApiSlice;

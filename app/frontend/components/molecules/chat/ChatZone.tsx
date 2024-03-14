@@ -12,8 +12,16 @@ import {
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
+import Button from "@/components/atom/Button";
+import LeaveChannel from "./LeaveChannel";
 
-export default function ChatZone({ roomOn }: { roomOn: ChatRoom | undefined }) {
+export default function ChatZone({
+  roomOn,
+  setRoomOnId,
+}: {
+  roomOn: ChatRoom | undefined;
+  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const [socket, setSocket] = useState<Socket>();
   const [content, setContent] = useState<string>("");
   const [messages, setMessages] = useState<Messages[]>([]);
@@ -27,19 +35,11 @@ export default function ChatZone({ roomOn }: { roomOn: ChatRoom | undefined }) {
   const [addMessage] = useAddMessageMutation();
 
   // fetch messages
-  console.log("roomOn = ", roomOn);
   useEffect(() => {
     console.log("IN USEFFECT FETCHDATA");
     async function getMessages() {
       if (roomOn?.messages === undefined || roomOn?.messages.length === 0) {
-        const response:
-          | { data: Messages[] }
-          | { error: FetchBaseQueryError | SerializedError } =
-          await getMessagesFromRoom({ roomId: roomOn?.id || "" });
-        console.log("response from getMessages = ", response);
-        if ("data" in response) {
-          setMessages(response.data);
-        }
+        setMessages([]);
       } else {
         setMessages(roomOn.messages);
       }
@@ -51,7 +51,6 @@ export default function ChatZone({ roomOn }: { roomOn: ChatRoom | undefined }) {
   useEffect(() => {
     if (mySocket) {
       mySocket.on("MESSAGE", async (data: Messages) => {
-        console.log("Received message: LQLALALALALAALALA", data);
         setMessages([...messages, data]);
       });
     }
@@ -63,7 +62,6 @@ export default function ChatZone({ roomOn }: { roomOn: ChatRoom | undefined }) {
   //emit messages
   const handleEmitMessage = (content: string) => {
     try {
-      console.log("in handleEmitMessage");
       let message: Messages = {
         id: "",
         content: content,
@@ -87,7 +85,21 @@ export default function ChatZone({ roomOn }: { roomOn: ChatRoom | undefined }) {
 
   return (
     <div className="h-full w-[60%] p-2 flex flex-col items-center">
-      <h1 className="text-4xl text-white ">{channelName}</h1>
+      {roomOn !== undefined ? (
+        <div className="flex flex-row justify-between items-center w-full">
+          <div></div> {/* Div vide pour prendre de l'espace */}
+          <h1 className="text-4xl text-white">{channelName}</h1>
+          <LeaveChannel
+            roomOnId={roomOn.id}
+            userName={user.name as string}
+            userId={user.id}
+            mySocket={mySocket}
+            setRoomOnId={setRoomOnId}
+          />
+        </div>
+      ) : (
+        <h1 className="text-4xl text-white">{channelName}</h1>
+      )}
       <MessagesDisplay roomOnId={roomOn?.id} messages={messages} />
       <input
         type="text"

@@ -15,6 +15,15 @@ export class UserService {
           avatar: '/Musashi.jpg',
         },
       });
+      if (!this.prismaService.user.findUnique({ where: { id: 'system' } })) {
+        await this.prismaService.user.create({
+          data: {
+            id: 'system',
+            name: 'System',
+            avatar: '/robot.png',
+          },
+        });
+      }
       return {
         playerProfile: {
           id: user1.id,
@@ -75,7 +84,7 @@ export class UserService {
       const user = await this.prismaService.user.findUnique({
         where: { id: body.userId },
       });
-      return { name: user.name };
+      return user.name;
     } catch (error) {
       console.log(error);
       return 'Error getting username by id !';
@@ -100,6 +109,44 @@ export class UserService {
     } catch (error) {
       console.log(error);
       return 'Error getting profile by id !';
+    }
+  }
+
+  // LEAVECHATROOM
+  async leaveChatroom(body: { userId: string; roomId: string }) {
+    try {
+      const chatroomUser = await this.prismaService.chatroomUser.findFirst({
+        where: {
+          userId: body.userId,
+          chatroomId: body.roomId,
+        },
+        include: {
+          chatroom: {
+            include: {
+              users: true,
+            },
+          },
+        },
+      });
+
+      if (chatroomUser) {
+        await this.prismaService.chatroomUser.delete({
+          where: {
+            id: chatroomUser.id,
+          },
+        });
+        if (chatroomUser.chatroom.users.length === 0) {
+          await this.prismaService.chatroom.delete({
+            where: {
+              id: chatroomUser.chatroomId,
+            },
+          });
+        }
+        return 'User left chatroom';
+      }
+    } catch (error) {
+      console.log(error);
+      return 'Error leaving chatroom';
     }
   }
 }

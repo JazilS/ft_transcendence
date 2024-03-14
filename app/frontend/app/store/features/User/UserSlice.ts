@@ -43,6 +43,13 @@ export const UserSlice = createSlice({
     getChatRoomsInLocal: (state, action: PayloadAction<ChatRoom[]>) => {
       if (state.user) state.user.channelsIn = action.payload;
     },
+    leaveChatroom: (state, action: PayloadAction<string>) => {
+      if (state.user)
+        state.user.channelsIn = state.user.channelsIn.filter(
+          (channel) => channel.id !== action.payload
+        );
+        console.log("leaveChatroom state.user.channelsIn", state.user.channelsIn);
+    },
   },
 });
 
@@ -53,5 +60,6 @@ export const {
   joinChannel,
   setAccessToken,
   getChatRoomsInLocal,
+  leaveChatroom,
 } = UserSlice.actions;
 export default UserSlice.reducer;

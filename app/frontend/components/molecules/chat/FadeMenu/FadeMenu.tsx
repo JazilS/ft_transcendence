@@ -1,12 +1,13 @@
 import * as React from "react";
-import Button from "../atom/Button";
-import CheckBoxMenuItem from "../atom/CheckBox";
+import Button from "../../../atom/Button";
+import CheckBoxMenuItem from "../../../atom/CheckBox";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
-import "../../style/FadeMenu.css";
+import "@/style/FadeMenu.css";
+import { quantico } from "@/models/FontModel";
 
-export default function FadeMenu({ value }: { value: string }) {
+export default function FadeMenu({ userName }: { userName: string }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -30,7 +31,7 @@ export default function FadeMenu({ value }: { value: string }) {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        {value}
+        {userName}
       </Button>
       <Menu
         id="fade-menu"
@@ -42,23 +43,29 @@ export default function FadeMenu({ value }: { value: string }) {
         onClose={handleClose}
         transitionDuration={150}
         TransitionComponent={Fade}
-        className="optionmembres ml-4"
+        className={`optionmembres ml-4`}
       >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
+        {/* <MenuItem onClick={handleClose}>
+          Profile
+        </MenuItem> */}
         {/* seulement si ils ne sont pas amis */}
-        <MenuItem onClick={handleClose}>Add Friend</MenuItem>
+        {/* <MenuItem onClick={handleClose}>Add Friend</MenuItem>
         <MenuItem onClick={handleClose}>Send message</MenuItem>
-        <MenuItem onClick={handleClose}>Invite in game</MenuItem>
+        <MenuItem onClick={handleClose}>Invite in game</MenuItem> */}
 
         {/* le useState n'est pas bien gere pour le checkbox, Corriger ca quand on urilise les vraies donnees du back */}
-        {/* <CheckBoxMenuItem value="block"></CheckBoxMenuItem>
-        <CheckBoxMenuItem value="mute"></CheckBoxMenuItem> */}
+        <CheckBoxMenuItem
+          value="block"
+          blockeduserName={userName}
+        ></CheckBoxMenuItem>
+
+        {/* <CheckBoxMenuItem value="mute"></CheckBoxMenuItem> */}
 
         {/* ajouter ces options pour les operateurs */}
-        <MenuItem>Kick from channel</MenuItem>
-        <MenuItem>Ban from channel</MenuItem>
+        {/* <MenuItem>Kick from channel</MenuItem>
+        <MenuItem>Ban from channel</MenuItem> */}
         {/* seulement si l'utilisateur n'est pas deja promu */}
-        <MenuItem onClick={handleClose}>Promote in channel</MenuItem>
+        {/* <MenuItem onClick={handleClose}>Promote in channel</MenuItem> */}
       </Menu>
     </div>
   );

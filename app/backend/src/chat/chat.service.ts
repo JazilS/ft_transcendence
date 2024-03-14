@@ -206,29 +206,6 @@ export class ChatService {
   //   }
   // }
 
-  // GETCHATROOMBYID
-  async getChatRoomById(channelId: string) {
-    try {
-      const chatroom = await this.prismaService.chatroom.findUnique({
-        where: { id: channelId },
-        include: {
-          users: true,
-          messages: true,
-        },
-      });
-      return {
-        id: chatroom.id,
-        name: chatroom.name,
-        roomType: chatroom.chatroomType,
-        users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
-        messages: chatroom.messages,
-      };
-    } catch (error) {
-      console.error('Error getting chatroom by id:', error);
-      return { error: 'Error getting chatroom by id' };
-    }
-  }
-
   // GETUSERNAMESFROMROOM
   async getUserNamesFromRoom(
     channelId: string,
@@ -287,11 +264,39 @@ export class ChatService {
           content: body.message.data.content,
         },
       });
-      console.log('New message:', newMessage);
+      // console.log('New message:', newMessage);
       return newMessage;
     } catch (error) {
       console.error('Error adding message:', error);
       return { error: 'Error adding message' };
+    }
+  }
+
+  // GETCHATROOMBYID
+  async getChatRoomById(channelId: string) {
+    try {
+      const chatroom = await this.prismaService.chatroom.findUnique({
+        where: { id: channelId },
+        include: {
+          users: true,
+          messages: {
+            include: {
+              emitter: true,
+            },
+          },
+        },
+      });
+      const messages = await this.getMessagesFromRoom(channelId);
+      return {
+        id: chatroom.id,
+        name: chatroom.name,
+        roomType: chatroom.chatroomType,
+        users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
+        messages: messages,
+      };
+    } catch (error) {
+      console.error('Error getting chatroom by id:', error);
+      return { error: 'Error getting chatroom by id' };
     }
   }
 
@@ -319,7 +324,7 @@ export class ChatService {
         emitterName: message.emitter.name, // Access the name from the emitter object
         emitterAvatar: message.emitter.avatar, // Access the avatar from the emitter object
       }));
-      console.log('Messages from room:', messages);
+      // console.log('Messages from room:', messages);
       return messages;
     } catch (error) {
       console.error('Error getting messages from room:', error);

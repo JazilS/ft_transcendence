@@ -1,0 +1,21 @@
+.scrollbar-hide_2 {
+  overflow: auto;
+}
+
+.scrollbar-hide_2::-webkit-scrollbar {
+  width: 0px;
+}
+
+.scrollbar-hide_2:hover::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-hide_2::-webkit-scrollbar-thumb {
+  background: #8c95a0;
+  border-radius: 4px;
+}
+
+.scrollbar-hide_2::-webkit-scrollbar-thumb:hover {
+  background: #8c95a0;
+  border-radius: 4px;
+}

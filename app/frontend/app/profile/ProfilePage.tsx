@@ -18,7 +18,7 @@ export default function ProfilePage() {
   if (user?.isConnected === true) color = "bg-green-500";
   else color = "bg-red-500";
   return (
-    <div className={`flex justify-center h-[85%] ${blur ? "blur-xl" : "none"}`}>
+    <div className={`flex justify-center h-[95%] ${blur ? "blur-xl" : "none"}`}>
       <div className="flex flex-row w-5/6 h-full bg-white rounded-3xl p-7 space-x-7">
         <div
           className={`h-[100%] w-[20%] flex flex-col justify-center items-center bg-gradient-to-br rounded-3xl from-indigo-500  to-fuchsia-500`}

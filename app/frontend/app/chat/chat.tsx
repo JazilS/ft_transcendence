@@ -20,8 +20,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     const fetchRoom = async () => {
-      if (roomOnId === "") return;
-      console.log("fetching room : ", roomOnId)
+      if (roomOnId === "") {
+        setRoomOn(undefined);
+        return;
+      }
       const response:
         | { data: ChatRoom }
         | { error: FetchBaseQueryError | SerializedError } = await getRoomById({
@@ -36,19 +38,13 @@ export default function ChatPage() {
       }
     };
 
-
-  // TODO : quand je fetcj roomon, les messages sont connecte avec 
-  // TODO : les messages de la db mais ils ne contiennent pas emitterName et emitterAvatar.
-  // TODO : je dois trouver un moyen de recuperer tout ca correctement.
-
-
     fetchRoom();
     console.log("roomOnId : ", roomOnId);
   }, [getRoomById, roomOnId]);
 
   return (
     <div className="h-full">
-      <div className="flex justify-center h-[85%] ">
+      <div className="flex justify-center h-[95%] ">
         <div
           className={`flex flex-row h-full w-5/6 bg-gradient-to-tr from-black to-[#314287] rounded-3xl p-2 ${quantico.className}`}
         >
@@ -57,7 +53,7 @@ export default function ChatPage() {
             setIsChan={setIsChan}
             setRoomOnId={setRoomOnId}
           />
-          <ChatZone roomOn={roomOn} />
+          <ChatZone roomOn={roomOn} setRoomOnId={setRoomOnId} />
           <ChatMembers roomOnId={roomOnId} />
         </div>
       </div>
