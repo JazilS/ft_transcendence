@@ -1,34 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
+import { Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService,
+              private jwtService: JwtService) {}
 
-  async login(code: string) {
-    const token = await this.getAcessToken(code);
-    const user = await this.getUserInfo(token);
+  async login(code: string, res: Response) {
+    const token = await this.getAccessToken(code);
+    let user = await this.getUserInfo(token);
     console.log(user);
-    if (this.prismaService.user.findFirst({ where: { email: user.email } }))
-        return user; //jwt
-    else {
+    if (! await this.prismaService.user.findFirst({ where: { email: user.email } })) {
       const newUser = await this.prismaService.user.create({
         data: {
           email: user.email,
-          nickname: user.name,
+          nickname: user.nickname,
           status: 'ONLINE',
-          avatar: user.pfp,
+          avatar: user.avatar,
         },
       });
-      return newUser;
+      user = newUser
     }
-    return user;
+    else
+      await this.prismaService.user.update({
+        where: { email: user.email },
+        data: { status : 'ONLINE'}
+      });
+    const jwt = this.jwtService.sign(user);
+    res.cookie("accessToken", jwt);
+    return jwt;
   }
 
-  async getAcessToken(code: string) : Promise<string> {
+  async getAccessToken(code: string) : Promise<string> {
     const url = process.env.AUTH_URL_42_TOKEN;
-    console.log(url);
     const data = {
       grant_type: 'authorization_code',
       client_id: process.env.UID,
@@ -36,13 +43,15 @@ export class AuthService {
       code: code,
       redirect_uri: process.env.REDIRECT_URI,
     };
+    console.log(url);
+    console.log(data);
     try {
       const response = await axios.post(url, data);
       console.log(response.data);
       return response.data.access_token;
     }
     catch (error) {
-      //;
+      throw new HttpException('Failed to get access token', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -51,16 +60,17 @@ export class AuthService {
     console.log(url);
     const headers = { Authorization: `Bearer ${token}` };
     try {
+      console.log(headers);
       const userInfo = await axios.get(url, { headers });
-      console.log(userInfo.data.image.versions.medium);
+      // console.log(userInfo.data.login);
       return {
-        name: userInfo.data.login,
+        nickname: userInfo.data.login,
         email: userInfo.data.email,
-        pfp: userInfo.data.image.versions.medium, //check var names on /v2/me
+        avatar: userInfo.data.image.versions.medium, //check var names on /v2/me
       }
     }
     catch (error) {
-      //;
+      throw new HttpException('Failed to get user info', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

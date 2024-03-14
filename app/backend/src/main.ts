@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SocketIOAdapter } from './socket-io-adapter';
 import { ConfigService } from '@nestjs/config';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,7 @@ async function bootstrap() {
       new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
     ],
   });
+  app.use(cookieParser());
   app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
   // app.setGlobalPrefix('api');
   await app.listen(4000);
