@@ -7,6 +7,9 @@ import { UserNotFoundException } from 'src/exception/UserNotFoundExcepetion';
 import { keyPressedType } from '../../../shared/constant';
 import { Server } from 'socket.io';
 import { LibService } from 'src/lib/lib.service';
+import { PlayerStartGameInfo, StartGameInfo } from '../../../shared/types';
+import { SocketWithAuth } from 'src/gateway/types/socket.types';
+import { WsUnknownException } from '../exception/customException';
 
 @Injectable()
 export class GameService {
@@ -121,7 +124,7 @@ export class GameService {
     return this.games.find((game) => game.getGameId === gameId);
   }
 
-  deleteGameRoomGameId(gameId: string, server?: Server) {
+  deleteGameRoomGameById(gameId: string, server?: Server) {
     const index = this.games.findIndex((game) => game.getGameId === gameId);
 
     if (index !== -1) return;
@@ -136,5 +139,212 @@ export class GameService {
       });
     }
     this.games.splice(index, 1);
+  }
+
+  leaveQueue(userId: string) {
+    const index = this.gameQueue.findIndex((map) => map.has(userId));
+
+    if (index !== -1) {
+      return;
+    }
+  }
+
+  leaveRoom(userId: string) {
+    const index = this.games.findIndex((game) =>
+      game.getPlayers.includes(userId),
+    );
+
+    if (index === -1) return;
+
+    this.games[index].removePlayer(userId);
+    if (this.games[index].getPlayers.length === 0) {
+      this.games.splice(index, 1);
+    }
+  }
+
+  async gameUpdate(server: Server) {
+    for (const [index, game] of this.games.entries()) {
+      if (game.getGameStarted) {
+        game.update();
+        this.libService.sendToSocket(server, game.getGameId, 'gameUpdate', {
+          data: game.getUpdatedData(),
+        });
+        if (game.endGame()) {
+          let data = { message: 'Draw' };
+          const winnerId = game.getWinner.getPlayerId;
+          const loserId = game.getLoser.getPlayerId;
+          if (!game.getDraw) {
+            data = await this.setPongWinner(winnerId, loserId);
+          }
+          this.libService.sendToSocket(server, game.getGameId, 'gameEnd', {
+            data,
+          });
+          this.deleteGameRoomByIndex(index, server);
+          this.libService.deleteSocketRoom(server, game.getGameId);
+          this.libService.updateUserStatus(server, {
+            ids: [winnerId, loserId],
+            status: 'ONLINE',
+          });
+        }
+      }
+    }
+  }
+
+  private deleteGameRoomByIndex(index: number, server?: Server) {
+    if (this.games[index]) {
+      const { getSocketId, getGameId } = this.games[index];
+      if (server) {
+        getSocketId.map((id) => {
+          const socket = this.libService.getSocket(server, id);
+
+          socket?.leave(getGameId);
+        });
+      }
+
+      this.games.splice(index, 1);
+    }
+  }
+
+  private async setPongWinner(
+    winnerId: string,
+    loserId: string,
+  ): Promise<{ message: string | undefined }> {
+    const winner = await this.prismaService.user.findFirst({
+      where: { id: winnerId },
+      select: { pong: true, profile: true, nickname: true },
+    });
+
+    const loser = await this.prismaService.user.findFirst({
+      where: { id: loserId },
+      select: { pong: true, profile: true, nickname: true },
+    });
+
+    if (!winner || !loser) return { message: undefined };
+
+    await this.prismaService.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: winnerId },
+        data: { status: 'ONLINE' },
+      });
+      await tx.user.update({
+        where: { id: loserId },
+        data: { status: 'ONLINE' },
+      });
+      await tx.pong.upsert({
+        where: { userId: loserId },
+        create: { userId: loserId, losses: 1 },
+        update: { losses: { increment: 1 } },
+      });
+      await tx.pong.upsert({
+        where: { userId: winnerId },
+        create: {
+          userId: winnerId,
+          victory: 1,
+          rating: 10,
+          winnedGame: {
+            create: {
+              looser: { connect: { userId: loserId } },
+            },
+          },
+        },
+        update: {
+          victory: { increment: 1 },
+          rating: { increment: 10 },
+          winnedGame: {
+            create: {
+              looser: { connect: { userId: loserId } },
+            },
+          },
+        },
+      });
+    });
+    return { message: `${winner.nickname} has won the game` };
+  }
+
+  async joinGame(
+    server: Server,
+    room: string,
+    {
+      creator,
+      opponent,
+    }: { creator: PlayerStartGameInfo; opponent: PlayerStartGameInfo },
+    userId: string,
+    creatorId: string,
+    mySocket: SocketWithAuth,
+    otherSocket: SocketWithAuth,
+  ) {
+    const data: StartGameInfo = {
+      room,
+      creator,
+      opponent,
+    };
+
+    try {
+      await this.prismaService.$transaction([
+        this.prismaService.user.update({
+          where: { id: userId },
+          data: { status: 'PLAYING' },
+        }),
+        this.prismaService.user.update({
+          where: { id: creatorId },
+          data: { status: 'PLAYING' },
+        }),
+      ]);
+    } catch (error) {
+      this.deleteGameRoomGameById(room);
+      throw new WsUnknownException('error');
+    }
+    this.libService.updateUserStatus(server, {
+      ids: [userId, creator.id as string],
+      status: 'PLAYING',
+    });
+
+    mySocket.join(room);
+    otherSocket.join(room);
+    server.to(room).emit('gameStart', { data });
+  }
+
+  async checkIfMatchupPossible(
+    userId: string,
+    socketId: string,
+  ): Promise<
+    { room?: string; creator: PlayerStartGameInfo | undefined } | undefined
+  > {
+    const index = this.games.findIndex((game) => game.getPlayers.length === 1);
+    if (index === -1) return undefined;
+
+    const creator = await this.prismaService.user.findFirst({
+      where: { id: this.games[index].getPlayer.getPlayerId },
+      include: { profile: true },
+    });
+    if (!creator) {
+      this.deleteGameRoomByIndex(index);
+      return { creator: undefined };
+    }
+
+    const creatorSocketId = this.games[index].getSocketId[0] ?? undefined;
+
+    this.games[index].setOpponentPlayerId = userId;
+    this.games[index].setNewSocketId = socketId;
+    this.games[index].startGame();
+    return {
+      room: this.games[index].getGameId,
+      creator: {
+        id: creator.id,
+        nickname: creator.nickname,
+        avatar: creator.profile.avatar,
+        socketId: creatorSocketId,
+      },
+    };
+  }
+
+  updateGameByUserId(game: IPongGame, userId: string) {
+    const index = this.games.findIndex((game) =>
+      game.getPlayers.includes(userId),
+    );
+
+    if (index >= 0) {
+      this.games[index] = game;
+    }
   }
 }
