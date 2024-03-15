@@ -55,7 +55,7 @@ export default function SubmitNewChan({
           dispatch(addRoom(responseData));
           dispatch(joinChannel(responseData));
           setRoomOnId(responseData.id);
-          mySocket.emit('JOIN_ROOM', { room: responseData.id });
+          mySocket.emit('JOIN_ROOM', { room: responseData.id, userId: user.playerProfile.id });
           handleClose();
         }
       }

@@ -1,17 +1,72 @@
-import * as React from "react";
 import Button from "../../../atom/Button";
 import CheckBoxMenuItem from "../../../atom/CheckBox";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import "@/style/FadeMenu.css";
-import { quantico } from "@/models/FontModel";
+import { useGetFadeMenuInfosMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import { useEffect, useState } from "react";
+import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
+import { useAppSelector } from "@/app/store/hooks";
 
-export default function FadeMenu({ userName }: { userName: string }) {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+export default function FadeMenu({
+  targetName,
+  targetId,
+  active,
+  role,
+  roomOnId,
+}: {
+  targetName: string;
+  targetId: string;
+  active: boolean;
+  role: string;
+  roomOnId: string;
+}) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [infos, setInfos] = useState<FadeMenuInfos | undefined>(undefined);
   const open = Boolean(anchorEl);
 
+  const userId = useAppSelector((state) => state.user.user.playerProfile.id);
+  const [getFadeMenuInfos] = useGetFadeMenuInfosMutation();
+
+  useEffect(() => {
+    const fetchFadeMenuInfos = async () => {
+      const response:
+        | { data: FadeMenuInfos }
+        | { error: FetchBaseQueryError | SerializedError } =
+        await getFadeMenuInfos({
+          userId: userId,
+          targetId: targetId,
+          roomId: roomOnId,
+        });
+      if ("data" in response) {
+        setInfos(response.data);
+      } else {
+        console.error(
+          "Error during API call for fade menu infos:",
+          response.error
+        );
+      }
+    };
+    fetchFadeMenuInfos();
+  }, [anchorEl, getFadeMenuInfos, roomOnId, targetId, userId]);
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    console.log(
+      "targetName : ",
+      targetName,
+      "targetId : ",
+      targetId,
+      "active : ",
+      active,
+      "role : ",
+      role,
+      "infos : ",
+      infos
+    );
+
     setAnchorEl(event.currentTarget);
   };
 
@@ -31,7 +86,7 @@ export default function FadeMenu({ userName }: { userName: string }) {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        {userName}
+        {targetName}
       </Button>
       <Menu
         id="fade-menu"
@@ -54,10 +109,7 @@ export default function FadeMenu({ userName }: { userName: string }) {
         <MenuItem onClick={handleClose}>Invite in game</MenuItem> */}
 
         {/* le useState n'est pas bien gere pour le checkbox, Corriger ca quand on urilise les vraies donnees du back */}
-        <CheckBoxMenuItem
-          value="block"
-          blockeduserName={userName}
-        ></CheckBoxMenuItem>
+        <CheckBoxMenuItem value="block" targetId={targetId}></CheckBoxMenuItem>
 
         {/* <CheckBoxMenuItem value="mute"></CheckBoxMenuItem> */}
 
@@ -82,7 +134,10 @@ export default function FadeMenu({ userName }: { userName: string }) {
  * !    Private Room ->
  * * 1. seulement les options suivantes : Profile, Invite in game, block
  * * 2. Si l'utilisateur clique sur son propre nom, rien ne se passe
- */
+
+
+
+*/
 
 // import React, { useState } from 'react';
 

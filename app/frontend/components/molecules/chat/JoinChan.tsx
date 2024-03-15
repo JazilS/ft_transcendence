@@ -81,10 +81,7 @@ export default function CreateChanModal({setRoomOnId}: {setRoomOnId: React.Dispa
         dispatch(joinChannel(response.data));
         dispatch(addChatroom(response.data));
         setRoomOnId(response.data.id);
-
-        mySocket.emit('JOIN_ROOM', { room: response.data.id });
-        // TODO verifier si l'utilisateur rejoint correctement la room dans le backend
-        
+        mySocket.emit('JOIN_ROOM', { room: response.data.id, userId: userId});
         handleClose();
       }
     } catch (error) {

@@ -3,45 +3,54 @@ import FadeMenu from "../../molecules/chat/FadeMenu/FadeMenu";
 import { useGetUserNameByIdMutation } from "@/app/store/features/User/user.api.slice";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
-import { useGetUserNamesFromRoomMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import { useGetProfilesFromRoomMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import { mySocket } from "@/app/utils/getSocket";
 import "@/style/ChatMembers.css";
+import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 
 export default function ChatMembers({ roomOnId }: { roomOnId: string }) {
-  const [userNames, setUserNames] = useState<string[]>([]);
-  const [GetUserNamesFromRoom] = useGetUserNamesFromRoomMutation();
+  const [UserProfiles, setUserProfiles] = useState<{ userProfile: PlayerProfile, role: string }[]>([]);
+  const [GetProfilesFromRoom] = useGetProfilesFromRoomMutation();
+  const userId: string = useAppSelector(
+    (state) => state.user.user.playerProfile.id
+  );
 
   useEffect(() => {
-    const fetchUserNames = async () => {
+    const fetchUserProfiles = async () => {
       if (roomOnId === "") {
-        setUserNames(["No members"]);
+        setUserProfiles([]);
       } else
         try {
-          const names:
-            | { data: string[] }
+          const profiles:
+            | { data: { userProfile: PlayerProfile, role: string }[] }
             | { error: FetchBaseQueryError | SerializedError } =
-            await GetUserNamesFromRoom({ channelId: roomOnId });
-          if ("data" in names && !("error" in names)) {
-            setUserNames(names.data);
-          } else if ("error" in names) {
+            await GetProfilesFromRoom({ channelId: roomOnId });
+          if ("data" in profiles && !("error" in profiles)) {
+            setUserProfiles(profiles.data);
+          } else if ("error" in profiles) {
             console.error(
-              "An error occurred while fetching user names:",
-              names.error
+              "An error occurred while fetching user profiles:",
+              profiles.error
             );
           }
         } catch (error) {
-          console.error("An error occurred while fetching user names:", error);
+          console.error(
+            "An error occurred while fetching user profiles:",
+            error
+          );
         }
     };
-    fetchUserNames();
-  }, [GetUserNamesFromRoom, roomOnId]);
+    fetchUserProfiles();
+  }, [GetProfilesFromRoom, roomOnId]);
 
   // listen for new members
   useEffect(() => {
     if (mySocket) {
-      mySocket.on("JOIN_ROOM", async (userName: string) => {
-        console.log("NEW MEMBER : ", userName);
-        setUserNames([...userNames, userName]);
+      mySocket.on("JOIN_ROOM", async (data: { userProfile: PlayerProfile, role: string }) => {
+        console.log("NEW MEMBER : ", data.userProfile);
+        console.log("ROLE : ", data.role);
+        setUserProfiles([...UserProfiles, data]);
       });
     }
     return () => {
@@ -54,8 +63,8 @@ export default function ChatMembers({ roomOnId }: { roomOnId: string }) {
   //   if (mySocket) {
   //     mySocket.on("LEAVE_ROOM", async (userName: string) => {
   //       console.log("LEAVE MEMBER : ", userName);
-  //       setUserNames((userNames) =>
-  //         userNames.filter((name) => name !== userName)
+  //       setUserProfiles((UserProfiles) =>
+  //         UserProfiles.filter((name) => name !== userName)
   //       );
   //     });
   //   }
@@ -70,9 +79,25 @@ export default function ChatMembers({ roomOnId }: { roomOnId: string }) {
       <h1 className="text-3xl pl-[18%] pb-[5%] pt-[3%] ">Chat Members</h1>
       <div className={"h-[90%] w-full scrollbar-hide_3"}>
         <ul>
-          {userNames.map((user, index) => (
+          {UserProfiles.map((user: { userProfile: PlayerProfile, role: string }, index) => (
             <li key={index}>
-              <FadeMenu userName={user} />{" "}
+              {user.userProfile.id !== userId ? (
+                <FadeMenu
+                  targetName={user.userProfile.name as string}
+                  targetId={user.userProfile.id}
+                  active={true}
+                  role={user.role}
+                  roomOnId={roomOnId}
+                />
+              ) : (
+                <FadeMenu
+                targetName={user.userProfile.name as string}
+                targetId={user.userProfile.id}
+                active={false}
+                role={user.role}
+                roomOnId={roomOnId}
+                />
+              )}
             </li>
           ))}
         </ul>

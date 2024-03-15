@@ -47,6 +47,7 @@ export default function ChatZone({
     getMessages();
   }, [dispatch, getMessagesFromRoom, roomOn]);
 
+
   // listen for messages
   useEffect(() => {
     if (mySocket) {
@@ -58,6 +59,7 @@ export default function ChatZone({
       mySocket.off("MESSAGE");
     };
   }, [addMessage, dispatch, getMessagesFromRoom, messages, roomOn?.messages]);
+
 
   //emit messages
   const handleEmitMessage = (content: string) => {

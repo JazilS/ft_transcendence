@@ -7,23 +7,30 @@ import { useAppSelector } from "@/app/store/hooks";
 
 export default function CheckBoxMenuItem({
   value,
-  blockeduserName,
+  targetId,
 }: {
   value: string;
-  blockeduserName: string;
+  targetId: string;
 }) {
-  const [checked, setChecked] = React.useState(false);
-  const userId = useAppSelector((state) => state.user.user.playerProfile.id);
-  
-// TODO: recuperer le id du user a bloquer  
-  
+  const [checked, setChecked] = React.useState();
+
+
+  async function fetchIsBlocked( targetId: string) {
+    const response: boolean = await ;
+    return response;
+  }
+
+
   const handleCheckbox = () => {
-    setChecked(!checked);
-    mySocket.emit("BLOCK_USER", {
-      blockerId: userId,
-      blockedUserId: blockeduserId, // TODO: ICI
-      value: checked,
-    });
+    setChecked(checked);
+    console.log(checked);
+    if (userId !== "" && value === "block") {
+      mySocket.emit("BLOCK_USER", {
+        blockerId: userId,
+        blockedUserId: targetId,
+        value: checked,
+      });
+    }
   };
 
   return (
@@ -33,7 +40,7 @@ export default function CheckBoxMenuItem({
           <span>{value}</span>
         </div>
         <div>
-          <input type="checkbox" checked={checked} onChange={handleCheckbox} />
+          <input type="checkbox" checked={checked} onChange={() => {}} />
         </div>
       </div>
     </MenuItem>

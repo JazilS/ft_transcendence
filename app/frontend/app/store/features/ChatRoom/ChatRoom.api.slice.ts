@@ -2,6 +2,8 @@ import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { apiSlice } from "../../api/apiSlice";
 import createChatRoomForm from "@/models/ChatRoom/CreateChatRoomForm";
 import Messages from "@/models/ChatRoom/messages";
+import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
+import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 
 export const ChatRoomApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -54,7 +56,13 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    // addMessage: builder.mutation<Messages, { message: {data:{id: string; content: string; chatId: string; emitter: string;}} }>({
+    getProfilesFromRoom: builder.mutation<{ userProfile: PlayerProfile, role: string }[], { channelId: string }>({
+      query: (data) => ({
+        url: "/chat/getProfilesFromRoom",
+        method: "POST",
+        body: data,
+      }),
+    }),
       addMessage: builder.mutation<Messages, { message: { data: { id: string; content: string; chatId: string; emitter: string}} }>({
       query: (data) => ({
         url: "/chat/addMessage",
@@ -65,6 +73,13 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
     getMessagesFromRoom: builder.mutation<Messages[], {roomId: string}>({
       query: (data) => ({
         url: "/chat/getMessagesFromRoom",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    getFadeMenuInfos: builder.mutation< FadeMenuInfos, {userId: string; targetId: string; roomId: string}>({
+      query: (data) => ({
+        url: "/chat/getFadeMenuInfos",
         method: "POST",
         body: data,
       }),
@@ -82,4 +97,6 @@ export const {
   useGetUserNamesFromRoomMutation,
   useAddMessageMutation,
   useGetMessagesFromRoomMutation,
+  useGetProfilesFromRoomMutation,
+  useGetFadeMenuInfosMutation,
 } = ChatRoomApiSlice;

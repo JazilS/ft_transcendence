@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Message, Prisma, ROLE, TYPE } from '@prisma/client';
+import { Message, Prisma, ROLE, TYPE, User } from '@prisma/client';
 import Messages from 'src/gateway/types/Message.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -329,6 +329,67 @@ export class ChatService {
     } catch (error) {
       console.error('Error getting messages from room:', error);
       return { error: 'Error getting messages from room' };
+    }
+  }
+
+  // GETPROFILESFROMROOM
+  async getProfilesFromRoom(channelId: string) {
+    try {
+      const chatroom = await this.prismaService.chatroom.findUnique({
+        where: { id: channelId },
+        include: {
+          users: {
+            select: {
+              user: true,
+              role: true,
+            },
+          },
+        },
+      });
+      const profiles: {
+        userProfile: {
+          id: string;
+          name: string;
+          imageSrc: string;
+          gameHistory: any[];
+        };
+        role: string;
+      }[] = chatroom.users.map((chatroomUser) => ({
+        userProfile: {
+          id: chatroomUser.user.id,
+          name: chatroomUser.user.name,
+          imageSrc: chatroomUser.user.avatar,
+          gameHistory: [], // A CHANGER POUR PROFILE (recuperer les games du user)
+        },
+        role: chatroomUser.role,
+      }));
+      return profiles;
+    } catch (error) {
+      console.error('Error getting profiles from room:', error);
+      return { error: 'Error getting profiles from room' };
+    }
+  }
+
+  // GETFADEMENUINFOS
+  async getFadeMenuInfos(userId: string, targetId: string, roomId: string) {
+    try {
+      const user: User = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        include: { BlockedUsers: true },
+      });
+      const target: User = await this.prismaService.user.findUnique({
+        where: { id: targetId },
+        include: { BlockedBy: true },
+      });
+      if (!user || !target) {
+        throw new Error('User or target not found');
+      }
+      if (target.BlockedBy.map((user) => user.id).includes(userId)) {
+        return { error: 'User is blocked by target' };
+      }
+    } catch (error) {
+      console.error('Error getting fade menu infos:', error);
+      return { error: 'Error getting fade menu infos' };
     }
   }
 }

@@ -14,6 +14,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
 import Messages from './types/Message.types';
 import { UserService } from 'src/user/user.service';
+import { ChatroomUser } from '@prisma/client';
 
 @WebSocketGateway()
 export class GatewayGateway
@@ -132,7 +133,7 @@ export class GatewayGateway
   @SubscribeMessage('JOIN_ROOM')
   async handleJoinRoom(
     @ConnectedSocket() client: SocketWithAuth,
-    @MessageBody() payload: { room: string },
+    @MessageBody() payload: { room: string; userId: string },
   ): Promise<string> {
     // check if room exists in db
     if (
@@ -162,7 +163,20 @@ export class GatewayGateway
           emitterAvatar: '/robot.png',
         },
       });
-      client.to(payload.room).emit('JOIN_ROOM', userName);
+
+      const userProfile = await this.userService.getProfileById(payload.userId);
+      const userRole: ChatroomUser =
+        await this.prismaService.chatroomUser.findFirst({
+          where: {
+            chatroomId: payload.room,
+            userId: payload.userId,
+          },
+        });
+
+      client.to(payload.room).emit('JOIN_ROOM', {
+        userProfile: userProfile,
+        role: userRole.role as string,
+      });
       return userName;
     } else {
       this.logger.error('Rooms are not defined.');
@@ -226,7 +240,34 @@ export class GatewayGateway
           },
         },
       });
-      this.server.to(payload.blockedUserId).emit('BLOCKED', payload.blockerId);
+      this.prismaService.user.update({
+        where: { id: payload.blockedUserId },
+        data: {
+          BlockedBy: {
+            connect: {
+              id: payload.blockerId,
+            },
+          },
+        },
+      });
+
+      const blockerName = await this.userService.getUserNameById({
+        userId: payload.blockerId,
+      });
+
+      let blockedMessageContent: string;
+      if (!payload.value) blockedMessageContent = ' blocked';
+      else blockedMessageContent = ' unblocked';
+
+      const blockedMessage: Messages = {
+        id: '',
+        content: 'You have been' + blockedMessageContent + ' by ' + blockerName,
+        chatId: payload.blockedUserId,
+        emitterId: 'system',
+        emitterName: 'System',
+        emitterAvatar: '/robot.png',
+      };
+      this.server.to(payload.blockedUserId).emit('MESSAGE', blockedMessage);
     } catch (error) {
       console.error('Error blocking user:', error);
     }

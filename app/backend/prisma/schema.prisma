@@ -55,6 +55,7 @@ model ChatroomUser {
   chatroom Chatroom @relation(fields: [chatroomId], references: [id])
   chatroomId String
   role      ROLE
+  restriction RESTRICTION
 }
 
 model ChatroomRestrictedUsers {
