@@ -4,11 +4,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import usePageSize from "@/app/game/utils/usePageSize";
-import { GAME_MARGIN, ASPECT_RATIO } from "../../../shared/constant";
+import {
+  GAME_MARGIN,
+  ASPECT_RATIO,
+  PADDLE_HALF_HEIGHT,
+  PADDLE_HEIGHT,
+} from "../../../shared/constant";
 import { PongEvent } from "../../../shared/socketEvent";
 import { RootState } from "../store/store";
 import { Socket, io } from "socket.io-client";
 import { StartGameInfo } from "../../../shared/types";
+import { Ball } from "./Ball";
+import { Player } from "./Player";
+import { connect } from "http2";
+import { connectSocket } from "../utils/getSockets";
 let socket: Socket = io("http://localhost:3000");
 
 const Pong = () => {
@@ -88,9 +97,23 @@ const Pong = () => {
 
     context.fillStyle = "black";
 
+    const ball = new Ball();
+
+    const Player1 = new Player(canvas, context, {
+      height: PADDLE_HEIGHT,
+      width: 0.015,
+    });
+
+    const Player2 = new Player(canvas, context, {
+      height: PADDLE_HEIGHT,
+      width: 0.015,
+    });
+
     window.addEventListener("keydown", keyPress);
 
     window.addEventListener("keyup", keyup);
+
+    connectSocket();
 
     return () => {
       document.removeEventListener("keydown", keyPress);
@@ -125,3 +148,4 @@ const Pong = () => {
     </div>
   );
 };
+
