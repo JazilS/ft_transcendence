@@ -11,7 +11,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = "postgresql://jsabound:jsabound@postgres:5432/transcendance"
-  // url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL") 
 }
 
 model User {
@@ -23,9 +23,17 @@ model User {
   roomOn        Chatroom?     @relation(fields: [roomOnId], references: [id])
   roomOnId      String?       @unique
   RestricedInChatrooms ChatroomRestrictedUsers[]
-  BlockedBy     User[]          @relation("BlockedUsers")
-  BlockedUsers  User[]       @relation("BlockedUsers")
+  BlockedBy     BlockedUser[] @relation("BlockedByRelation")
+  BlockedUsers  BlockedUser[] @relation("BlockedUsersRelation")
   messagesSend  Message[]
+}
+
+model BlockedUser {
+  id        String @id @default(uuid())
+  user      User @relation("BlockedUsersRelation", fields: [userId], references: [id])
+  userId    String
+  blockedBy User @relation("BlockedByRelation", fields: [blockedById], references: [id])
+  blockedById String
 }
 
 model Message {
@@ -90,6 +98,7 @@ enum ROLE {
 }
 
 enum RESTRICTION {
+  NONE
   MUTED
   BANNED
   KICKED

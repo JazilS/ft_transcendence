@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Message, Prisma, ROLE, TYPE, User } from '@prisma/client';
+import { BlockedUser, Message, Prisma, RESTRICTION, ROLE, TYPE, User } from '@prisma/client';
 import Messages from 'src/gateway/types/Message.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -37,6 +37,7 @@ export class ChatService {
             create: {
               userId: user.id,
               role: 'CREATOR' as ROLE,
+              restriction: 'NONE' as RESTRICTION,
             },
           },
         },
@@ -151,6 +152,7 @@ export class ChatService {
       await this.prismaService.chatroomUser.create({
         data: {
           role: 'MEMBER',
+          restriction: 'NONE' as RESTRICTION,
           chatroom: {
             connect: {
               id: body.channelId,
@@ -375,8 +377,9 @@ export class ChatService {
     try {
       const user: User = await this.prismaService.user.findUnique({
         where: { id: userId },
-        include: { BlockedUsers: true },
+        include: { BlockedUsers: true, BlockedBy: true },
       });
+      const blockedUsers: BlockedUser[] = user.
       const target: User = await this.prismaService.user.findUnique({
         where: { id: targetId },
         include: { BlockedBy: true },

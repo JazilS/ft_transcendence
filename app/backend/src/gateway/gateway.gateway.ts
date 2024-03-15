@@ -230,27 +230,20 @@ export class GatewayGateway
     payload: { blockerId: string; blockedUserId: string; value: boolean },
   ) {
     try {
-      this.prismaService.user.update({
-        where: { id: payload.blockerId },
+      this.prismaService.blockedUser.create({
         data: {
-          BlockedUsers: {
+          blockedBy: {
+            connect: {
+              id: payload.blockerId,
+            },
+          },
+          user: {
             connect: {
               id: payload.blockedUserId,
             },
           },
         },
       });
-      this.prismaService.user.update({
-        where: { id: payload.blockedUserId },
-        data: {
-          BlockedBy: {
-            connect: {
-              id: payload.blockerId,
-            },
-          },
-        },
-      });
-
       const blockerName = await this.userService.getUserNameById({
         userId: payload.blockerId,
       });
