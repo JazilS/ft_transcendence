@@ -1,4 +1,4 @@
-import { PongEvent } from '../../../../shared/socketEvent';
+import { PongEvent } from '../../../shared/socketEvent';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 enum Position {

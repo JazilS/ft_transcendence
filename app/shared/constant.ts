@@ -13,6 +13,7 @@ export const PLAYER_SPEED = 0.0013;
 export const PADDLE_HALF_HEIGHT = PADDLE_HEIGHT / 2;
 export const PADDLE_HALF_WIDTH = PADDLE_WIDTH / 2;
 export const MAX_DATE = '9999-12-31T23:59:59.999Z';
+export const FRAME_RATE = 1000 / 60;
 
 //TYPES
 export type gameStatus = "NOT_STARTED" | "STARTED" | "IN_PROGRESS" | "FINISHED";

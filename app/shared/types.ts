@@ -25,3 +25,11 @@ export type Velocity = {
   x: number;
   y: number;
 };
+
+export type PlayerData = { id: string; score: number } & Coordinate;
+
+export type UpdatedGameData = {
+  player1: PlayerData;
+  player2: PlayerData;
+  coordinates: Coordinate[];
+};

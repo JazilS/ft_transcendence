@@ -1,5 +1,5 @@
 import { Coordinate } from "./types";
-import { BALL_HALF_WIDTH } from "../../../shared/constant";
+import { BALL_HALF_WIDTH } from "../../shared/constant";
 
 export class Ball {
   public draw(

@@ -4,12 +4,14 @@ import { IPongGame } from './class/InterfaceGame';
 import { GameInvitation } from './class/GameInvitation';
 import { PongGame } from './class/PongGame';
 import { UserNotFoundException } from 'src/exception/UserNotFoundExcepetion';
-import { keyPressedType } from '../../../shared/constant';
+import { keyPressedType } from '../../shared/constant';
 import { Server } from 'socket.io';
 import { LibService } from 'src/lib/lib.service';
-import { PlayerStartGameInfo, StartGameInfo } from '../../../shared/types';
+import { PlayerStartGameInfo, StartGameInfo } from '../../shared/types';
 import { SocketWithAuth } from 'src/gateway/types/socket.types';
 import { WsUnknownException } from '../exception/customException';
+import { PongEvent } from '../../shared/socketEvent';
+import { STATUS } from '@prisma/client';
 
 @Injectable()
 export class GameService {
@@ -166,9 +168,14 @@ export class GameService {
     for (const [index, game] of this.games.entries()) {
       if (game.getGameStarted) {
         game.update();
-        this.libService.sendToSocket(server, game.getGameId, 'gameUpdate', {
-          data: game.getUpdatedData(),
-        });
+        this.libService.sendToSocket(
+          server,
+          game.getGameId,
+          PongEvent.UPDATE_GAME,
+          {
+            data: game.getUpdatedData(),
+          },
+        );
         if (game.endGame()) {
           let data = { message: 'Draw' };
           const winnerId = game.getWinner.getPlayerId;
@@ -176,14 +183,19 @@ export class GameService {
           if (!game.getDraw) {
             data = await this.setPongWinner(winnerId, loserId);
           }
-          this.libService.sendToSocket(server, game.getGameId, 'gameEnd', {
-            data,
-          });
+          this.libService.sendToSocket(
+            server,
+            game.getGameId,
+            PongEvent.END_GAME,
+            {
+              data,
+            },
+          );
           this.deleteGameRoomByIndex(index, server);
           this.libService.deleteSocketRoom(server, game.getGameId);
           this.libService.updateUserStatus(server, {
             ids: [winnerId, loserId],
-            status: 'ONLINE',
+            status: STATUS.ONLINE,
           });
         }
       }
@@ -224,11 +236,11 @@ export class GameService {
     await this.prismaService.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: winnerId },
-        data: { status: 'ONLINE' },
+        data: { status: STATUS.ONLINE },
       });
       await tx.user.update({
         where: { id: loserId },
-        data: { status: 'ONLINE' },
+        data: { status: STATUS.ONLINE },
       });
       await tx.pong.upsert({
         where: { userId: loserId },
@@ -283,11 +295,11 @@ export class GameService {
       await this.prismaService.$transaction([
         this.prismaService.user.update({
           where: { id: userId },
-          data: { status: 'PLAYING' },
+          data: { status: STATUS.PLAYING },
         }),
         this.prismaService.user.update({
           where: { id: creatorId },
-          data: { status: 'PLAYING' },
+          data: { status: STATUS.PLAYING },
         }),
       ]);
     } catch (error) {
@@ -301,7 +313,7 @@ export class GameService {
 
     mySocket.join(room);
     otherSocket.join(room);
-    server.to(room).emit('gameStart', { data });
+    server.to(room).emit(PongEvent.LETS_PLAY, { data });
   }
 
   async checkIfMatchupPossible(

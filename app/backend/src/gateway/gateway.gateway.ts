@@ -1,22 +1,22 @@
 import {
   ConnectedSocket,
-  MessageBody,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
-  WsException,
 } from '@nestjs/websockets';
 import { SocketWithAuth } from './types/socket.types';
 import { Server } from 'socket.io';
-import { updatePlayerPosition } from 'src/game/dto/dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserService } from 'src/user/user.service';
+import { Interval } from '@nestjs/schedule';
+import { FRAME_RATE } from '../../shared/constant';
+import { GameService } from 'src/game/game.service';
 
 @WebSocketGateway()
 export class GatewayGateway {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
+    private readonly gameService: GameService,
   ) {}
   server: Server;
   async handleConnection(@ConnectedSocket() client: SocketWithAuth) {
@@ -24,9 +24,9 @@ export class GatewayGateway {
     console.log('client connected');
   }
 
-  async handleDisconnect(client: SocketWithAuth) {
-    console.log('client disconnected');
-  }
+  // async handleDisconnect(client: SocketWithAuth) {
+  //   console.log('client disconnected');
+  // }
 
   @SubscribeMessage('MESSAGE')
   handleEvent(
@@ -41,13 +41,9 @@ export class GatewayGateway {
     }
     return 'Message sent to all users in room';
   }
-
-  @SubscribeMessage('UPDATE_PLAYER_POSITION')
-  updatePositionPlayer(
-    @ConnectedSocket() client: SocketWithAuth,
-    @MessageBody() { gameId, keyPressed }: updatePlayerPosition,
-  ) {
-    const { userId } = client;
-    const { game, index } = this.pongService.getGamebyIdAndReturnIndex(gameId);
+  //-----------------------------------------------------------------------------------------------------------------
+  @Interval(FRAME_RATE)
+  async updateGame() {
+    this.gameService.up;
   }
 }

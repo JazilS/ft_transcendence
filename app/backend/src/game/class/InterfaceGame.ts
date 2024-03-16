@@ -1,5 +1,5 @@
-import { Player } from '../../../../shared/Player';
-import { keyPressedType } from '../../../../shared/constant';
+import { Player } from '../../../shared/Player';
+import { keyPressedType } from '../../../shared/constant';
 
 export const PongTypeNormal = 'NORMAL';
 export const pongType = [PongTypeNormal] as const;

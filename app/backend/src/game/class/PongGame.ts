@@ -1,11 +1,11 @@
 import { IPongGame } from './InterfaceGame';
-import { Player } from '../../../../shared/Player';
+import { Player } from '../../../shared/Player';
 import {
   defaultPlayer,
   defaultOpponentPlayer,
   defaultBall,
-} from '../../../../shared/constant';
-import { Ball } from '../../../../shared/Ball';
+} from '../../../shared/constant';
+import { Ball } from '../../../shared/Ball';
 
 export class PongGame extends IPongGame {
   private ball: Ball;

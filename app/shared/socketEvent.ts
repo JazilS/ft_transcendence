@@ -1,8 +1,26 @@
+const pong = 'pong';
+
 export enum PongEvent {
-  ARROW_UP = "ArrowUp",
-  UPDATE_PLAYER_POSITION = "pong.update.paddle.position",
-  ARROW_DOWN = "ArrowDown",
-  USER_STOP_UPDATE = "pong.user.stop.update",
+  ARROW_UP = `ArrowUp`,
+  ARROW_DOWN = `ArrowDown`,
+  NEW_PLAYER = `${pong}.new.player`,
+  PADDLE_UP = `${pong}.up`,
+  PADDLE_DOWN = `${pong}.down`,
+  JOIN_QUEUE = `${pong}.join.queue`,
+  LEAVE_QUEUE = `${pong}.leave.queue`,
+  LETS_PLAY = `${pong}.lets.play`,
+  REFRESHING_AND_LEAVE_QUEUE = `${pong}.refresh.leave.queue`,
+  UPDATE_GAME = `${pong}.update.game`,
+  USER_NO_MORE_IN_GAME = `${pong}.user.no.more.in.game`,
+  SEND_GAME_INVITATION = `${pong}.send.game.invitation`,
+  RECEIVE_GAME_INVITATION = `${pong}.receive.game.invitation`,
+  ACCEPT_GAME_INVITATION = `${pong}.accept.game.invitation`,
+  DECLINE_GAME_INVITATION = `${pong}.decline.game.invitation`,
+  USER_DECLINED_INVITATION = `${pong}.user.declined.invitation`,
+  UPDATE_PLAYER_POSITION = `${pong}.update.paddle.position`,
+  USER_STOP_UPDATE = `${pong}.user.stop.update`,
+  END_GAME = `${pong}.end.game`,
+  JOIN_BACK_CURRENT_GAME = `${pong}.join.current.game`,
 }
 
 const General = 'general';
