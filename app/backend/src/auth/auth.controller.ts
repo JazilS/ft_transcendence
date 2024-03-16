@@ -1,7 +1,9 @@
-import { BadRequestException, Body, Controller, Get, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Request } from 'express';
 import { Response } from 'express';
 import { connected } from 'process';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +20,15 @@ export class AuthController {
       return await this.authService.login(code, res);
     }
   }
+
+  //add guard
+  @UseGuards(AuthGuard)
+  @Get('logout')
+  async logout(@Req() req: Request) {
+    return await this.authService.logout(req);
+      //delete the cookie
+  }
+
 }
 
 

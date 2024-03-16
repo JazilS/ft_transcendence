@@ -1,17 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, Req, Res } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
 import { Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly prismaService: PrismaService,
               private jwtService: JwtService) {}
 
-  async login(code: string, res: Response) {
+  async login(code: string, @Res() res: Response) {
     const token = await this.getAccessToken(code);
-    let user = await this.getUserInfo(token);
+    let user = await this.getUserInfo(token) as { nickname: any; email: any; avatar: any; id: any };
     console.log(user);
     if (! await this.prismaService.user.findFirst({ where: { email: user.email } })) {
       const newUser = await this.prismaService.user.create({
@@ -22,16 +23,19 @@ export class AuthService {
           avatar: user.avatar,
         },
       });
-      user = newUser
+      user = { ...newUser, id: newUser.id };
     }
-    else
-      await this.prismaService.user.update({
+    else {
+      const tmp = await this.prismaService.user.update({
         where: { email: user.email },
         data: { status : 'ONLINE'}
       });
-    const jwt = this.jwtService.sign(user);
+      user = { ...tmp, id: tmp.id };
+    }
+    const payload = { login: user.nickname, id: user.id };
+    const jwt = this.jwtService.sign(payload);
     res.cookie("accessToken", jwt);
-    return jwt;
+    return res.json({ access_token: jwt });
   }
 
   async getAccessToken(code: string) : Promise<string> {
@@ -73,7 +77,34 @@ export class AuthService {
       throw new HttpException('Failed to get user info', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async logout(@Req() req: Request) {
+    try {
+      const token = this.extractTokenFromHeader(req);
+      if (!token)
+         throw new BadRequestException('authorization header not found');
+      const decoded = this.jwtService.decode(token);
+      if (!decoded)
+        throw new BadRequestException('invalid token');
+      console.log(decoded);
+      await this.prismaService.user.update({
+        where: { id: decoded.id },
+        data: { status : 'OFFLINE'}
+      });
+    }
+    catch (error) {
+      return { error: error.message };
+    }
+  }
+
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  }
+
 }
+
+
   // async register(body: { username: string; password: string }) {
   //   const user = await this.prismaService.user.create({
   //     data: {
