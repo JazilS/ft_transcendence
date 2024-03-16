@@ -1,11 +1,11 @@
 export default interface FadeMenuInfos {
-  isFriend: boolean | null | undefined;
-  isConnected: boolean | null | undefined;
-  isInvited: boolean | null | undefined;
-  isBlocked: boolean | null | undefined;
-  isMuted: boolean | null | undefined;
-  isKicked: boolean | null | undefined;
-  isBanned: boolean | null | undefined;
+  isFriend: boolean | undefined;
+  isConnected: boolean | undefined;
+  isInvited: boolean | undefined;
+  isBlocked: boolean | undefined;
+  isMuted: boolean | undefined;
+  isKicked: boolean | undefined;
+  isBanned: boolean | undefined;
   role: string;
 }
 

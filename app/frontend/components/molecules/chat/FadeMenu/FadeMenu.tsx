@@ -4,7 +4,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import "@/style/FadeMenu.css";
-import { useGetFadeMenuInfosMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import { useGetFadeMenuInfosMutation } from "@/app/store/features/User/user.api.slice";
 import { useEffect, useState } from "react";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -109,7 +109,7 @@ export default function FadeMenu({
         <MenuItem onClick={handleClose}>Invite in game</MenuItem> */}
 
         {/* le useState n'est pas bien gere pour le checkbox, Corriger ca quand on urilise les vraies donnees du back */}
-        <CheckBoxMenuItem value="block" targetId={targetId}></CheckBoxMenuItem>
+        <CheckBoxMenuItem value="block" userId={userId} targetId={targetId} isBlocked={infos?.isBlocked}></CheckBoxMenuItem>
 
         {/* <CheckBoxMenuItem value="mute"></CheckBoxMenuItem> */}
 

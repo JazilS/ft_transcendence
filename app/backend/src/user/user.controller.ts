@@ -28,4 +28,19 @@ export class UserController {
   async leaveChatroom(@Body() body: { userId: string; roomId: string }) {
     return this.userService.leaveChatroom(body);
   }
+  @Post('/getFadeMenuInfos')
+  async getFadeMenuInfos(
+    @Body()
+    body: {
+      userId: string;
+      targetId: string;
+      roomId: string;
+    },
+  ) {
+    return this.userService.getFadeMenuInfos(
+      body.userId,
+      body.targetId,
+      body.roomId,
+    );
+  }
 }

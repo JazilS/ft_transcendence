@@ -23,7 +23,7 @@ function LogPage() {
       console.error(response.error);
     } else {
       dispatch(setAllData(response.data));
-      connectSocket(response.data.playerProfile.id);
+      connectSocket();
       // connectSocket(response.data.playerProfile.id);
 
       // mySocket.on("connect", () => {

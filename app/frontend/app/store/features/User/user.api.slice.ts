@@ -3,6 +3,7 @@ import { apiSlice } from "../../api/apiSlice";
 import { get } from "http";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import { leaveChatroom } from "./UserSlice";
+import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 
 export const UserApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -54,6 +55,13 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    getFadeMenuInfos: builder.mutation< FadeMenuInfos, {userId: string; targetId: string; roomId: string}>({
+      query: (data) => ({
+        url: "/user/getFadeMenuInfos",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -64,4 +72,5 @@ export const {
   useGetUserNameByIdMutation,
   useGetProfileByIdMutation,
   useLeaveChatroomMutation,
+  useGetFadeMenuInfosMutation,
 } = UserApiSlice;

@@ -14,7 +14,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
 import Messages from './types/Message.types';
 import { UserService } from 'src/user/user.service';
-import { ChatroomUser } from '@prisma/client';
+import { ChatroomUser, User } from '@prisma/client';
 
 @WebSocketGateway()
 export class GatewayGateway
@@ -95,10 +95,10 @@ export class GatewayGateway
 
       const emitter = await this.prismaService.user.findUnique({
         where: { id: payload.message.emitterId },
-        include: { BlockedUsers: true },
       });
 
-      const blockedUserIds = emitter.BlockedUsers.map((user) => user.id);
+      // Get all blocked users
+      const blockedUserIds = emitter.blockedUsers;
 
       // Get all users in the chat room
       const usersInRoom = this.getAllSockeIdsByKey(payload.message.chatId);
@@ -230,36 +230,48 @@ export class GatewayGateway
     payload: { blockerId: string; blockedUserId: string; value: boolean },
   ) {
     try {
-      this.prismaService.blockedUser.create({
-        data: {
-          blockedBy: {
-            connect: {
-              id: payload.blockerId,
-            },
-          },
-          user: {
-            connect: {
-              id: payload.blockedUserId,
-            },
-          },
-        },
+      let user: User = await this.prismaService.user.findUnique({
+        where: { id: payload.blockerId },
       });
-      const blockerName = await this.userService.getUserNameById({
-        userId: payload.blockerId,
-      });
-
       let blockedMessageContent: string;
-      if (!payload.value) blockedMessageContent = ' blocked';
-      else blockedMessageContent = ' unblocked';
 
+      if (!payload.value) {
+        // BLOCK
+        blockedMessageContent = ' blocked';
+        if (user) {
+          user.blockedUsers.push(payload.blockedUserId);
+
+          user = await this.prismaService.user.update({
+            where: { id: payload.blockerId },
+            data: { blockedUsers: user.blockedUsers },
+          });
+        }
+      } else {
+        // UNBLOCK
+        blockedMessageContent = ' unblocked';
+        if (user) {
+          user.blockedUsers = user.blockedUsers.filter(
+            (id) => id !== payload.blockedUserId,
+          );
+
+          user = await this.prismaService.user.update({
+            where: { id: payload.blockerId },
+            data: { blockedUsers: user.blockedUsers },
+          });
+        }
+      }
+
+      // create message
       const blockedMessage: Messages = {
         id: '',
-        content: 'You have been' + blockedMessageContent + ' by ' + blockerName,
+        content: 'You have been' + blockedMessageContent + ' by ' + user.name,
         chatId: payload.blockedUserId,
         emitterId: 'system',
         emitterName: 'System',
         emitterAvatar: '/robot.png',
       };
+
+      // send message to blocked user
       this.server.to(payload.blockedUserId).emit('MESSAGE', blockedMessage);
     } catch (error) {
       console.error('Error blocking user:', error);

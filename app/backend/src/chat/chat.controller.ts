@@ -119,20 +119,4 @@ export class ChatController {
   ) {
     return this.chatService.getProfilesFromRoom(body.channelId);
   }
-
-  @Post('/getFadeMenuInfos')
-  async getFadeMenuInfos(
-    @Body()
-    body: {
-      userId: string;
-      targetId: string;
-      roomId: string;
-    },
-  ) {
-    return this.chatService.getFadeMenuInfos(
-      body.userId,
-      body.targetId,
-      body.roomId,
-    );
-  }
 }

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -8,6 +9,7 @@ export class UserService {
   // REGISTER
   async register() {
     try {
+      console.log('REGISTER USER SERVICE');
       // Créer les utilisateurs
       const user1 = await this.prismaService.user.create({
         data: {
@@ -84,6 +86,9 @@ export class UserService {
       const user = await this.prismaService.user.findUnique({
         where: { id: body.userId },
       });
+      if (!user) {
+        throw new Error('User not found');
+      }
       return user.name;
     } catch (error) {
       console.log(error);
@@ -147,6 +152,43 @@ export class UserService {
     } catch (error) {
       console.log(error);
       return 'Error leaving chatroom';
+    }
+  }
+
+  // GETFADEMENUINFOS
+  async getFadeMenuInfos(userId: string, targetId: string, roomId: string) {
+    try {
+      void roomId;
+      let isBlocked: boolean;
+
+      const user: User = await this.prismaService.user.findUnique({
+        where: { id: userId },
+      });
+
+      const chatroomUser = await this.prismaService.chatroomUser.findFirst({
+        where: {
+          userId: userId,
+          chatroomId: roomId,
+        },
+      });
+      if (user.blockedUsers.find((id) => id === targetId)) {
+        isBlocked = true;
+      }
+      console.log('IS BLOCKED:', isBlocked);
+
+      return {
+        isFriend: false,
+        isConnected: false,
+        isInvited: false,
+        isBlocked: isBlocked,
+        isMuted: false,
+        isKicked: false,
+        isBanned: false,
+        role: chatroomUser.role as string,
+      };
+    } catch (error) {
+      console.error('Error getting fade menu infos:', error);
+      return { error: 'Error getting fade menu infos' };
     }
   }
 }

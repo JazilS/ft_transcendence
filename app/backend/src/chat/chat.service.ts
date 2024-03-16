@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BlockedUser, Message, Prisma, RESTRICTION, ROLE, TYPE, User } from '@prisma/client';
+import { Message, Prisma, RESTRICTION, ROLE, TYPE, User } from '@prisma/client';
 import Messages from 'src/gateway/types/Message.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -369,30 +369,6 @@ export class ChatService {
     } catch (error) {
       console.error('Error getting profiles from room:', error);
       return { error: 'Error getting profiles from room' };
-    }
-  }
-
-  // GETFADEMENUINFOS
-  async getFadeMenuInfos(userId: string, targetId: string, roomId: string) {
-    try {
-      const user: User = await this.prismaService.user.findUnique({
-        where: { id: userId },
-        include: { BlockedUsers: true, BlockedBy: true },
-      });
-      const blockedUsers: BlockedUser[] = user.
-      const target: User = await this.prismaService.user.findUnique({
-        where: { id: targetId },
-        include: { BlockedBy: true },
-      });
-      if (!user || !target) {
-        throw new Error('User or target not found');
-      }
-      if (target.BlockedBy.map((user) => user.id).includes(userId)) {
-        return { error: 'User is blocked by target' };
-      }
-    } catch (error) {
-      console.error('Error getting fade menu infos:', error);
-      return { error: 'Error getting fade menu infos' };
     }
   }
 }

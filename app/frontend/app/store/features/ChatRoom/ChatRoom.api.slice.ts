@@ -77,13 +77,7 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getFadeMenuInfos: builder.mutation< FadeMenuInfos, {userId: string; targetId: string; roomId: string}>({
-      query: (data) => ({
-        url: "/chat/getFadeMenuInfos",
-        method: "POST",
-        body: data,
-      }),
-    }),
+
   }),
 });
 
@@ -98,5 +92,4 @@ export const {
   useAddMessageMutation,
   useGetMessagesFromRoomMutation,
   useGetProfilesFromRoomMutation,
-  useGetFadeMenuInfosMutation,
 } = ChatRoomApiSlice;

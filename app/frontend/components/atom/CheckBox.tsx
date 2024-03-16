@@ -1,25 +1,22 @@
 import { MenuItem } from "@mui/material";
-import * as React from "react";
 import { quantico } from "@/models/Font/FontModel";
 import { mySocket } from "@/app/utils/getSocket";
 import { useAppSelector } from "@/app/store/hooks";
+import { useState } from "react";
 // import '../style/Checkbox.css'
 
 export default function CheckBoxMenuItem({
   value,
+  userId,
   targetId,
+  isBlocked,
 }: {
   value: string;
+  userId: string;
   targetId: string;
+  isBlocked: boolean | undefined;
 }) {
-  const [checked, setChecked] = React.useState();
-
-
-  async function fetchIsBlocked( targetId: string) {
-    const response: boolean = await ;
-    return response;
-  }
-
+  const [checked, setChecked] = useState<boolean | undefined>(isBlocked);
 
   const handleCheckbox = () => {
     setChecked(checked);
