@@ -32,7 +32,7 @@ export class AuthService {
       });
       user = { ...tmp, id: tmp.id };
     }
-    const payload = { login: user.nickname, id: user.id };
+    const payload = { sub: user.nickname, id: user.id };
     const jwt = this.jwtService.sign(payload);
     res.cookie("accessToken", jwt);
     return res.json({ access_token: jwt });

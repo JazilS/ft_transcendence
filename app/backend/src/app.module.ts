@@ -10,9 +10,10 @@ import { PrismaModule } from './prisma/prisma.module';
 // import { GameController } from './game/game.controller';
 // import { GameService } from './game/game.service';
 // import { GameModule } from './game/game.module';
+import { TwofaModule } from './twofa/twofa.module';
 
 @Module({
-  imports: [ChatModule, /*GatewayModule,*/ UserModule, AuthModule, PrismaModule, /*GameModule*/],
+  imports: [ChatModule, /*GatewayModule,*/ UserModule, AuthModule, PrismaModule, TwofaModule, /*GameModule*/],
   controllers: [AppController, /*GameController*/],
   providers: [AppService, ChatService, /*GameService*/],
 })

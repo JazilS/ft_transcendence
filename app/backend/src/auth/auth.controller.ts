@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request } from 'express';
+import { ExecutionContext } from "@nestjs/common";
 import { Response } from 'express';
 import { connected } from 'process';
 import { AuthGuard } from './auth.guard';
@@ -28,6 +29,19 @@ export class AuthController {
     return await this.authService.logout(req);
       //delete the cookie
   }
+
+  // @UseGuards(AuthGuard)
+  // @Get('test')
+  // async test(context: ExecutionContext) {
+  //   const request: Express.Request = context.switchToHttp().getRequest();
+
+  //   if (context) {
+  //     let req = context.getArgByIndex(1);
+  //   }
+  //   // console.log(request.user);
+  //   // return await this.authService.logout(req);
+  //     //delete the cookie
+  // }
 
 }
 

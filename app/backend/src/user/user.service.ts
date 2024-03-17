@@ -16,13 +16,13 @@ export class UserService {
           id: true,
           nickname: true,
           status: true,
-          pong: {
-            select: {
-              victory: true,
-              defeat: true,
-              classment: true,
-            },
-          },
+          // pong: {
+          //   select: {
+          //     victory: true,
+          //     defeat: true,
+          //     classment: true,
+          //   },
+          // },
         },
       }),
     ]);
@@ -42,13 +42,13 @@ export class UserService {
         id: true,
         status: true,
         nickname: true,
-        pong: {
-          select: {
-            victory: true,
-            defeat: true,
-            classment: true,
-          },
-        },
+        // pong: {
+        //   select: {
+        //     victory: true,
+        //     defeat: true,
+        //     classment: true,
+        //   },
+        // },
       },
     });
   }
