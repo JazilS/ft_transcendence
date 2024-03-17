@@ -319,11 +319,13 @@ export class GameService {
   async checkIfMatchupPossible(
     userId: string,
     socketId: string,
+    pongType: string,
   ): Promise<
     { room?: string; creator: PlayerStartGameInfo | undefined } | undefined
   > {
     const index = this.games.findIndex((game) => game.getPlayers.length === 1);
-    if (index === -1) return undefined;
+    if (index === -1 || pongType !== this.games[index].getPongType)
+      return undefined;
 
     const creator = await this.prismaService.user.findFirst({
       where: { id: this.games[index].getPlayer.getPlayerId },
@@ -358,5 +360,10 @@ export class GameService {
     if (index >= 0) {
       this.games[index] = game;
     }
+  }
+
+  hasActiveInvitation(id: string): boolean {
+    const invitation = this.gameInvitations.get(id);
+    return invitation?.hasExpired() > 0 ? true : false;
   }
 }

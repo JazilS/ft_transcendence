@@ -51,7 +51,7 @@ export class UserService {
     });
   }
 
-  async finUserById(id: string, select: UserInfo) {
+  async findUserById(id: string, select: UserInfo) {
     return this.prismaService.user.findUnique({
       where: { id },
       select,

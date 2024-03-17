@@ -23,6 +23,7 @@ export abstract class IPongGame {
   private draw: boolean = false;
   private lastTime: number = -1;
   private toWin: number;
+  private pongType: PongGameType;
 
   constructor() {
     this.toWin = scoreToWinPongGame;
@@ -199,5 +200,9 @@ export abstract class IPongGame {
 
   get getGameTimeExceeded(): boolean {
     return this.gameTimeExceeded;
+  }
+
+  get getPongType(): PongGameType {
+    return this.pongType;
   }
 }

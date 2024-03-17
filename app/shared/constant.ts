@@ -18,6 +18,12 @@ export const FRAME_RATE = 1000 / 60;
 //TYPES
 export type gameStatus = "NOT_STARTED" | "STARTED" | "IN_PROGRESS" | "FINISHED";
 export type keyPressedType = "ArrowUp" | "ArrowDown";
+export const PongTypeNormal = 'NORMAL';
+export const PongTypeSpecial = 'SPECIAL';
+export const pongType = [PongTypeNormal, PongTypeSpecial] as const;
+export type PongGameType = (typeof pongType)[number];
+export const scoreToWinPongGame = 5;
+export const pongGameDuration = 15;
 
 export const defaultPlayer = {
   paddleWidth: PADDLE_WIDTH,
