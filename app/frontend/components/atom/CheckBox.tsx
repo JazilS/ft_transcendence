@@ -14,13 +14,13 @@ export default function CheckBoxMenuItem({
   value: string;
   userId: string;
   targetId: string;
-  isBlocked: boolean | undefined;
+  isBlocked: boolean;
 }) {
-  const [checked, setChecked] = useState<boolean | undefined>(isBlocked);
+  const [checked, setChecked] = useState<boolean>(isBlocked);
 
   const handleCheckbox = () => {
     setChecked(checked);
-    console.log(checked);
+    console.log("check value = ", checked);
     if (userId !== "" && value === "block") {
       mySocket.emit("BLOCK_USER", {
         blockerId: userId,

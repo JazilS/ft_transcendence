@@ -60,7 +60,7 @@ export class GatewayGateway
   // MESSAGE
   @SubscribeMessage('MESSAGE')
   async handleMessage(
-    // @MessageBody() payload: { message: MessageDto },
+    // @MessageBody() payload: { message: Messages },
     @MessageBody()
     payload: {
       message: Messages;
@@ -76,6 +76,14 @@ export class GatewayGateway
     try {
       if (!payload.message.chatId || payload.message.chatId === '')
         throw 'No chatId provided';
+
+      const userExists = await this.prismaService.user.findUnique({
+        where: { id: payload.message.emitterId },
+      });
+
+      if (!userExists) {
+        throw new Error('User not found');
+      }
 
       const newMessage = await this.prismaService.message.create({
         data: {
@@ -146,7 +154,8 @@ export class GatewayGateway
       const sockets = this.server.of('/').adapter.rooms.get(payload.room);
 
       // Log the client's id
-      this.logger.log('Client id:', client.id);
+      this.logger.log('Client id:', client.userId);
+      console.log(client.userId);
       console.log('sockets in room', sockets);
 
       // send message to room

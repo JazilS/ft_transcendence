@@ -25,7 +25,16 @@ export default function FadeMenu({
   roomOnId: string;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [infos, setInfos] = useState<FadeMenuInfos | undefined>(undefined);
+  const [infos, setInfos] = useState<FadeMenuInfos>({
+    isBanned: false,
+    isBlocked: false,
+    isConnected: false,
+    isFriend: false,
+    isInvited: false,
+    isKicked: false,
+    isMuted: false,
+    role: "",
+  });
   const open = Boolean(anchorEl);
 
   const userId = useAppSelector((state) => state.user.user.playerProfile.id);
@@ -109,7 +118,12 @@ export default function FadeMenu({
         <MenuItem onClick={handleClose}>Invite in game</MenuItem> */}
 
         {/* le useState n'est pas bien gere pour le checkbox, Corriger ca quand on urilise les vraies donnees du back */}
-        <CheckBoxMenuItem value="block" userId={userId} targetId={targetId} isBlocked={infos?.isBlocked}></CheckBoxMenuItem>
+        <CheckBoxMenuItem
+          value="block"
+          userId={userId}
+          targetId={targetId}
+          isBlocked={infos.isBlocked}
+        ></CheckBoxMenuItem>
 
         {/* <CheckBoxMenuItem value="mute"></CheckBoxMenuItem> */}
 

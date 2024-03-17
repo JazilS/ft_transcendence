@@ -3,13 +3,14 @@
 import { press_Start_2P, quantico } from "@/models/Font/FontModel";
 import Link from "next/link";
 import "../../style/page.css";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import { setAllData } from "../store/features/User/UserSlice";
-import { useAppDispatch } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { store } from "../store/store";
 import { useRegisterMutation } from "../store/features/User/user.api.slice";
 import { Socket, io } from "socket.io-client";
 import { connectSocket, mySocket } from "../utils/getSocket";
+import { useEffect } from "react";
 
 function LogPage() {
   const dispatch = useAppDispatch();
@@ -23,20 +24,22 @@ function LogPage() {
       console.error(response.error);
     } else {
       dispatch(setAllData(response.data));
-      connectSocket();
-      // connectSocket(response.data.playerProfile.id);
-
-      // mySocket.on("connect", () => {
-        // console.log("Connected to the server");
-      // });
-
-      // mySocket.on("disconnect", () => {
-        // console.log("Disconnected from the server");
-      // });
       console.log(response.data);
     }
   };
 
+  // Assuming you have a selector to get the updated state from the store
+  const updatedState = useAppSelector((state) => state);
+
+  useEffect(() => {
+    if (updatedState) {
+      connectSocket();
+    }
+  }, [updatedState]);
+
+  const handleconnectSocket = () => {
+    connectSocket();
+  };
   return (
     <div className="flex flex-col items-center justify-evenly">
       {/* <MyHeader display={false} /> */}
@@ -46,7 +49,10 @@ function LogPage() {
       <Link href="/home">
         <button
           className={`text-white text-xl bg-gradient-to-r from-fuchsia-900 to-indigo-900  rounded-lg p-1 pl-14 pr-14  ${quantico.className}`}
-          onClick={handleNewUser}
+          onClick={() => {
+            handleNewUser();
+            handleconnectSocket();
+          }}
         >
           Login with 42
         </button>

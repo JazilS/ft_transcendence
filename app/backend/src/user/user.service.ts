@@ -17,7 +17,12 @@ export class UserService {
           avatar: '/Musashi.jpg',
         },
       });
-      if (!this.prismaService.user.findUnique({ where: { id: 'system' } })) {
+      const user = await this.prismaService.user.findUnique({
+        where: { id: 'system' },
+      });
+
+      if (!user) {
+        console.log('CREATING SYSTEM USER');
         await this.prismaService.user.create({
           data: {
             id: 'system',
