@@ -8,36 +8,55 @@ import { Request } from 'express';
 @Injectable()
 export class AuthService {
   constructor(private readonly prismaService: PrismaService,
-              private jwtService: JwtService) {}
-
-  async login(code: string, @Res() res: Response) {
-    const token = await this.getAccessToken(code);
-    let user = await this.getUserInfo(token) as { nickname: any; email: any; avatar: any; id: any };
-    console.log(user);
-    if (! await this.prismaService.user.findFirst({ where: { email: user.email } })) {
-      const newUser = await this.prismaService.user.create({
-        data: {
-          email: user.email,
-          nickname: user.nickname,
-          status: 'ONLINE',
-          avatar: user.avatar,
-        },
-      });
-      user = { ...newUser, id: newUser.id };
+    private jwtService: JwtService) {}
+    
+    async login(code: string, @Res() res: Response) {
+      const token = await this.getAccessToken(code);
+      let user = await this.getUserInfo(token) as { nickname: any; email: any; avatar: any; id: any };
+      console.log(user);
+      if (! await this.prismaService.user.findFirst({ where: { email: user.email } })) {
+        const newUser = await this.prismaService.user.create({
+          data: {
+            email: user.email,
+            nickname: user.nickname,
+            status: 'ONLINE',
+            avatar: user.avatar,
+          },
+        });
+        user = { ...newUser, id: newUser.id };
+      }
+      else {
+        const tmp = await this.prismaService.user.update({
+          where: { email: user.email },
+          data: { status : 'ONLINE'}
+        });
+        user = { ...tmp, id: tmp.id };
+      }
+      const payload = { sub: user.nickname, id: user.id };
+      const jwt = this.jwtService.sign(payload);
+      res.cookie("accessToken", jwt);
+      return res.json({ access_token: jwt });
     }
-    else {
-      const tmp = await this.prismaService.user.update({
-        where: { email: user.email },
-        data: { status : 'ONLINE'}
-      });
-      user = { ...tmp, id: tmp.id };
-    }
-    const payload = { sub: user.nickname, id: user.id };
-    const jwt = this.jwtService.sign(payload);
-    res.cookie("accessToken", jwt);
-    return res.json({ access_token: jwt });
-  }
 
+    async logout(@Req() req: Request) {
+      try {
+        const token = this.extractTokenFromHeader(req);
+        if (!token)
+           throw new BadRequestException('authorization header not found');
+        const decoded = this.jwtService.decode(token);
+        if (!decoded)
+          throw new BadRequestException('invalid token');
+        console.log(decoded);
+        await this.prismaService.user.update({
+          where: { id: decoded.id },
+          data: { status : 'OFFLINE'}
+        });
+      }
+      catch (error) {
+        return { error: error.message };
+      }
+    }
+    
   async getAccessToken(code: string) : Promise<string> {
     const url = process.env.AUTH_URL_42_TOKEN;
     const data = {
@@ -75,25 +94,6 @@ export class AuthService {
     }
     catch (error) {
       throw new HttpException('Failed to get user info', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  async logout(@Req() req: Request) {
-    try {
-      const token = this.extractTokenFromHeader(req);
-      if (!token)
-         throw new BadRequestException('authorization header not found');
-      const decoded = this.jwtService.decode(token);
-      if (!decoded)
-        throw new BadRequestException('invalid token');
-      console.log(decoded);
-      await this.prismaService.user.update({
-        where: { id: decoded.id },
-        data: { status : 'OFFLINE'}
-      });
-    }
-    catch (error) {
-      return { error: error.message };
     }
   }
 

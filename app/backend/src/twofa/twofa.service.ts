@@ -10,20 +10,45 @@ export class TwofaService {
     async setupTwoFa(UserId: string) {
         // console.log(UserId);
         const secret = speakeasy.generateSecret();
-        const qrCodeImage = await qrcode.toDataURL(secret.otpauthUrl);
         console.log(secret);
+        const qrCodeImage = await qrcode.toDataURL(secret.otpauth_url);
         await this.prismaService.user.update({
             where: { id: UserId },
             data: { twoFaSecret: secret.base32.toString(),
                     twoFa: true }
         });
-        return { secret: secret.base32, qrCode: qrCodeImage}
+        return { secret: secret.base32, qrCode: qrCodeImage }
     }
 
-    async turnOnTwoFactorAuthenticaton(userId: string) {
-        await this.prismaService.user.update({
-            where: { id: userId },
-            data: { twoFa: true }
-        })
+    async validateTwoFa(UserId: string, code: string) {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                id: UserId,
+            },
+        });
+        const verified = speakeasy.totp.verify({
+            secret: user.twoFaSecret,
+            encoding: 'base32',
+            token: code,
+        });
+        console.log(verified);
     }
+
+    async disableTwoFa(UserId: string) {
+        const user = await this.prismaService.user.update({
+            where: {
+                id: UserId,
+            },
+            data: {
+                twoFa: false,
+                twoFaSecret: null,
+            }
+        });
+    }
+    // async turnOnTwoFactorAuthenticaton(userId: string) {
+    //     await this.prismaService.user.update({
+    //         where: { id: userId },
+    //         data: { twoFa: true }
+    //     })
+    // }
 }
