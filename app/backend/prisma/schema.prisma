@@ -23,23 +23,9 @@ model User {
   roomOn        Chatroom?     @relation(fields: [roomOnId], references: [id])
   roomOnId      String?       @unique
   restricedInChatrooms ChatroomRestrictedUsers[]
-  // blockedBy     User[]
-  // blockedUsers  BlockedUser[]
   blockedUsers  String[]
+  blockedByUsers  String[]
   messagesSend  Message[]
-}
-
-// model BlockedUser {
-//   id              String @id @default(uuid())
-//   blockedUser      User @relation(fields: [blockedUserId], references: [User])
-//   blockedUserId    String
-//   blockedBy        User @relation(fields: [blockedById], references: [id])
-//   blockedById       String
-// }
-
-model TestModel {
-  id String @id @default(uuid())
-  name String
 }
 
 model Message {

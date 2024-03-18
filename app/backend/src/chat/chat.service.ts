@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Message, Prisma, RESTRICTION, ROLE, TYPE, User } from '@prisma/client';
+import { Message, Prisma, RESTRICTION, ROLE, TYPE } from '@prisma/client';
 import Messages from 'src/gateway/types/Message.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -275,7 +275,7 @@ export class ChatService {
   }
 
   // GETCHATROOMBYID
-  async getChatRoomById(channelId: string) {
+  async getChatRoomById(channelId: string, userId: string) {
     try {
       const chatroom = await this.prismaService.chatroom.findUnique({
         where: { id: channelId },
@@ -288,13 +288,19 @@ export class ChatService {
           },
         },
       });
+      const user = await this.prismaService.chatroomUser.findFirst({
+        where: { chatroomId: channelId, userId: userId },
+      });
       const messages = await this.getMessagesFromRoom(channelId);
       return {
-        id: chatroom.id,
-        name: chatroom.name,
-        roomType: chatroom.chatroomType,
-        users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
-        messages: messages,
+        chatroom: {
+          id: chatroom.id,
+          name: chatroom.name,
+          roomType: chatroom.chatroomType,
+          users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
+          messages: messages,
+        },
+        role: user.role as string,
       };
     } catch (error) {
       console.error('Error getting chatroom by id:', error);
@@ -368,7 +374,7 @@ export class ChatService {
       return profiles;
     } catch (error) {
       console.error('Error getting profiles from room:', error);
-      return { error: 'Error getting profiles from room' };
+      return [];
     }
   }
 }

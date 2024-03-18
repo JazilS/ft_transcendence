@@ -172,7 +172,7 @@ export class UserService {
 
       const chatroomUser = await this.prismaService.chatroomUser.findFirst({
         where: {
-          userId: userId,
+          userId: targetId,
           chatroomId: roomId,
         },
       });

@@ -5,24 +5,33 @@ import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import "@/style/FadeMenu.css";
 import { useGetFadeMenuInfosMutation } from "@/app/store/features/User/user.api.slice";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
 import { useAppSelector } from "@/app/store/hooks";
+import { info } from "console";
+import { usePromoteUserInChatRoomMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import { mySocket } from "@/app/utils/getSocket";
+import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
+import { quantico } from "@/models/FontModel";
 
 export default function FadeMenu({
   targetName,
   targetId,
   active,
-  role,
-  roomOnId,
+  targetRole,
+  userRole,
+  setUserRole,
+  roomOn,
 }: {
   targetName: string;
   targetId: string;
   active: boolean;
-  role: string;
-  roomOnId: string;
+  targetRole: string;
+  userRole: string;
+  setUserRole: React.Dispatch<React.SetStateAction<string>>;
+  roomOn: ChatRoom;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [infos, setInfos] = useState<FadeMenuInfos>({
@@ -37,7 +46,7 @@ export default function FadeMenu({
   });
   const open = Boolean(anchorEl);
 
-  const userId = useAppSelector((state) => state.user.user.playerProfile.id);
+  const user = useAppSelector((state) => state.user.user);
   const [getFadeMenuInfos] = useGetFadeMenuInfosMutation();
 
   useEffect(() => {
@@ -46,9 +55,9 @@ export default function FadeMenu({
         | { data: FadeMenuInfos }
         | { error: FetchBaseQueryError | SerializedError } =
         await getFadeMenuInfos({
-          userId: userId,
+          userId: user.playerProfile.id,
           targetId: targetId,
-          roomId: roomOnId,
+          roomId: roomOn.id,
         });
       if ("data" in response) {
         setInfos(response.data);
@@ -60,7 +69,7 @@ export default function FadeMenu({
       }
     };
     fetchFadeMenuInfos();
-  }, [anchorEl, getFadeMenuInfos, roomOnId, targetId, userId]);
+  }, [anchorEl, getFadeMenuInfos, roomOn.id, targetId, user]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     console.log(
@@ -70,8 +79,8 @@ export default function FadeMenu({
       targetId,
       "active : ",
       active,
-      "role : ",
-      role,
+      "targetRole : ",
+      targetRole,
       "infos : ",
       infos
     );
@@ -79,14 +88,35 @@ export default function FadeMenu({
     setAnchorEl(event.currentTarget);
   };
 
+  const handlePromote = () => {
+    console.log("IN HNADLE PROMOTE_USER");
+    mySocket.emit("PROMOTE_USER", { targetId: targetId, roomOnId: roomOn.id });
+    setUserRole("ADMIN");
+  };
+
+  useEffect(() => {
+    if (mySocket) {
+      mySocket.on(
+        "PROMOTE_USER",
+        async (data: { targetId: string; roomOnId: string }) => {
+          setInfos({ ...infos, role: data.targetId });
+          console.log("PROMOTE_USER : ", data);
+        }
+      );
+    }
+    return () => {
+      mySocket.off("PROMOTE_USER");
+    };
+  });
+
   const handleClose = () => {
     setAnchorEl(null);
   };
 
   return (
-    <div>
+    <div className="w-[100%]">
       <Button
-        className="hover:bg-[#f28eff] pl-9 "
+        className="hover:bg-[#f28eff] pl-9 w-[100%]"
         variant={"publicChannel"}
         size={"channel"}
         id="fade-button"
@@ -109,6 +139,27 @@ export default function FadeMenu({
         TransitionComponent={Fade}
         className={`optionmembres ml-4`}
       >
+        <CheckBoxMenuItem
+          userId={user.playerProfile.id}
+          targetId={targetId}
+          isBlocked={infos.isBlocked}
+        ></CheckBoxMenuItem>
+
+        {infos.role === "MEMBER" &&
+          (userRole === "CREATOR" || userRole === "ADMIN") && (
+            <MenuItem
+              onClick={() => {
+                console.log("userRole", userRole);
+                console.log("targetRole", targetRole);
+                handleClose();
+                handlePromote();
+              }}
+              className={`${quantico.className} w-full`}
+            >
+              Promote in channel
+            </MenuItem>
+          )}
+
         {/* <MenuItem onClick={handleClose}>
           Profile
         </MenuItem> */}
@@ -117,21 +168,12 @@ export default function FadeMenu({
         <MenuItem onClick={handleClose}>Send message</MenuItem>
         <MenuItem onClick={handleClose}>Invite in game</MenuItem> */}
 
-        {/* le useState n'est pas bien gere pour le checkbox, Corriger ca quand on urilise les vraies donnees du back */}
-        <CheckBoxMenuItem
-          value="block"
-          userId={userId}
-          targetId={targetId}
-          isBlocked={infos.isBlocked}
-        ></CheckBoxMenuItem>
-
         {/* <CheckBoxMenuItem value="mute"></CheckBoxMenuItem> */}
 
         {/* ajouter ces options pour les operateurs */}
-        {/* <MenuItem>Kick from channel</MenuItem>
-        <MenuItem>Ban from channel</MenuItem> */}
+        {/* <MenuItem>Kick from channel</MenuItem> */}
+        {/* <MenuItem>Ban from channel</MenuItem> */}
         {/* seulement si l'utilisateur n'est pas deja promu */}
-        {/* <MenuItem onClick={handleClose}>Promote in channel</MenuItem> */}
       </Menu>
     </div>
   );
@@ -148,20 +190,5 @@ export default function FadeMenu({
  * !    Private Room ->
  * * 1. seulement les options suivantes : Profile, Invite in game, block
  * * 2. Si l'utilisateur clique sur son propre nom, rien ne se passe
-
-
-
-*/
-
-// import React, { useState } from 'react';
-
-// function App() {
-
-//   return (
-//     <div>
-
-//     </div>
-//   );
-// }
-
-// export default App;
+ * 
+ * */

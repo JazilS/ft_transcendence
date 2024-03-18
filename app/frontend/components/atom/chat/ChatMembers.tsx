@@ -8,9 +8,20 @@ import { mySocket } from "@/app/utils/getSocket";
 import "@/style/ChatMembers.css";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 
-export default function ChatMembers({ roomOnId }: { roomOnId: string }) {
-  const [UserProfiles, setUserProfiles] = useState<{ userProfile: PlayerProfile, role: string }[]>([]);
+export default function ChatMembers({
+  roomOn,
+  role,
+  setUserRole,
+}: {
+  roomOn: ChatRoom;
+  role: string;
+  setUserRole: React.Dispatch<React.SetStateAction<string>>;
+}) {
+  const [UserProfiles, setUserProfiles] = useState<
+    { userProfile: PlayerProfile; role: string }[]
+  >([]);
   const [GetProfilesFromRoom] = useGetProfilesFromRoomMutation();
   const userId: string = useAppSelector(
     (state) => state.user.user.playerProfile.id
@@ -18,14 +29,14 @@ export default function ChatMembers({ roomOnId }: { roomOnId: string }) {
 
   useEffect(() => {
     const fetchUserProfiles = async () => {
-      if (roomOnId === "") {
+      if (roomOn.id === "") {
         setUserProfiles([]);
       } else
         try {
           const profiles:
-            | { data: { userProfile: PlayerProfile, role: string }[] }
+            | { data: { userProfile: PlayerProfile; role: string }[] }
             | { error: FetchBaseQueryError | SerializedError } =
-            await GetProfilesFromRoom({ channelId: roomOnId });
+            await GetProfilesFromRoom({ channelId: roomOn.id });
           if ("data" in profiles && !("error" in profiles)) {
             setUserProfiles(profiles.data);
           } else if ("error" in profiles) {
@@ -42,16 +53,19 @@ export default function ChatMembers({ roomOnId }: { roomOnId: string }) {
         }
     };
     fetchUserProfiles();
-  }, [GetProfilesFromRoom, roomOnId]);
+  }, [GetProfilesFromRoom, roomOn.id]);
 
   // listen for new members
   useEffect(() => {
     if (mySocket) {
-      mySocket.on("JOIN_ROOM", async (data: { userProfile: PlayerProfile, role: string }) => {
-        console.log("NEW MEMBER : ", data.userProfile);
-        console.log("ROLE : ", data.role);
-        setUserProfiles([...UserProfiles, data]);
-      });
+      mySocket.on(
+        "JOIN_ROOM",
+        async (data: { userProfile: PlayerProfile; role: string }) => {
+          console.log("NEW MEMBER : ", data.userProfile);
+          console.log("ROLE : ", data.role);
+          setUserProfiles([...UserProfiles, data]);
+        }
+      );
     }
     return () => {
       mySocket.off("JOIN_ROOM");
@@ -79,27 +93,33 @@ export default function ChatMembers({ roomOnId }: { roomOnId: string }) {
       <h1 className="text-3xl pl-[18%] pb-[5%] pt-[3%] ">Chat Members</h1>
       <div className={"h-[90%] w-full scrollbar-hide_3"}>
         <ul>
-          {UserProfiles.map((user: { userProfile: PlayerProfile, role: string }, index) => (
-            <li key={index}>
-              {user.userProfile.id !== userId ? (
-                <FadeMenu
-                  targetName={user.userProfile.name as string}
-                  targetId={user.userProfile.id}
-                  active={true}
-                  role={user.role}
-                  roomOnId={roomOnId}
-                />
-              ) : (
-                <FadeMenu
-                targetName={user.userProfile.name as string}
-                targetId={user.userProfile.id}
-                active={false}
-                role={user.role}
-                roomOnId={roomOnId}
-                />
-              )}
-            </li>
-          ))}
+          {UserProfiles.map(
+            (user: { userProfile: PlayerProfile; role: string }, index) => (
+              <li key={index}>
+                {user.userProfile.id !== userId ? (
+                  <FadeMenu
+                    targetName={user.userProfile.name as string}
+                    targetId={user.userProfile.id}
+                    active={true}
+                    targetRole={user.role}
+                    userRole={role}
+                    setUserRole={setUserRole}
+                    roomOn={roomOn}
+                  />
+                ) : (
+                  <FadeMenu
+                    targetName={user.userProfile.name as string}
+                    targetId={user.userProfile.id}
+                    active={false}
+                    targetRole={user.role}
+                    userRole={role}
+                    setUserRole={setUserRole}
+                    roomOn={roomOn}
+                  />
+                )}
+              </li>
+            )
+          )}
         </ul>
       </div>
     </div>

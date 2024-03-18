@@ -64,12 +64,13 @@ export class ChatController {
     @Body()
     body: {
       channelId: string;
+      userId: string;
     },
   ) {
     if (!body.channelId) {
       throw new BadRequestException('channelId is required');
     }
-    return this.chatService.getChatRoomById(body.channelId);
+    return this.chatService.getChatRoomById(body.channelId, body.userId);
   }
   @Post('/getUserNamesFromRoom')
   async getUserNamesFromRoom(

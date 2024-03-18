@@ -11,12 +11,17 @@ import { useGetChatRoomByIdMutation } from "../store/features/ChatRoom/ChatRoom.
 import User from "@/models/User/UserModel";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
+import { useAppSelector } from "../store/hooks";
 
 export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
   const [roomOnId, setRoomOnId] = useState<string>("");
+  const [role, setRole] = useState<string>("");
   const [roomOn, setRoomOn] = useState<ChatRoom | undefined>(undefined);
   const [getRoomById] = useGetChatRoomByIdMutation();
+  const userId: string = useAppSelector(
+    (state) => state.user.user.playerProfile.id
+  );
 
   useEffect(() => {
     const fetchRoom = async () => {
@@ -25,13 +30,15 @@ export default function ChatPage() {
         return;
       }
       const response:
-        | { data: ChatRoom }
+        | { data: {chatroom: ChatRoom, role: string} }
         | { error: FetchBaseQueryError | SerializedError } = await getRoomById({
         channelId: roomOnId,
+        userId: userId,
       });
-      if ("data" in response && !response.data.error) {
+      if ("data" in response) {
         const responseData = response.data;
-        setRoomOn(responseData);
+        setRoomOn(responseData.chatroom);
+        setRole(responseData.role);
         console.log("room : ", response);
       } else if ("error" in response) {
         console.error("Error fetching actual room:", response.error);
@@ -40,7 +47,17 @@ export default function ChatPage() {
 
     fetchRoom();
     console.log("roomOnId : ", roomOnId);
-  }, [getRoomById, roomOnId]);
+  }, [getRoomById, roomOnId, userId]);
+
+
+  const defaultChatRoom: ChatRoom = {
+    error: "",
+    id: "defaultChatRoom",
+    name: "Not in a chatRoom",
+    roomType: "",
+    users: [],
+    messages: [],
+  };
 
   return (
     <div className="h-full">
@@ -54,7 +71,7 @@ export default function ChatPage() {
             setRoomOnId={setRoomOnId}
           />
           <ChatZone roomOn={roomOn} setRoomOnId={setRoomOnId} />
-          <ChatMembers roomOnId={roomOnId} />
+          <ChatMembers roomOn={roomOn || defaultChatRoom} role={role} setUserRole={setRole}/>
         </div>
       </div>
     </div>

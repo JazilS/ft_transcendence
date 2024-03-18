@@ -6,22 +6,20 @@ import { useState } from "react";
 // import '../style/Checkbox.css'
 
 export default function CheckBoxMenuItem({
-  value,
   userId,
   targetId,
   isBlocked,
 }: {
-  value: string;
   userId: string;
   targetId: string;
   isBlocked: boolean;
 }) {
   const [checked, setChecked] = useState<boolean>(isBlocked);
 
-  const handleCheckbox = () => {
-    setChecked(checked);
+  const handleCheckbox = (newValue: boolean) => {
+    setChecked(newValue);
     console.log("check value = ", checked);
-    if (userId !== "" && value === "block") {
+    if (userId !== "") {
       mySocket.emit("BLOCK_USER", {
         blockerId: userId,
         blockedUserId: targetId,
@@ -31,14 +29,14 @@ export default function CheckBoxMenuItem({
   };
 
   return (
-    <MenuItem onClick={handleCheckbox} className={`${quantico.className}`}>
+    <MenuItem
+      onClick={() => {
+        handleCheckbox(!checked);
+      }}
+      className={`${quantico.className} w-full`}
+    >
       <div className="flex flex-row justify-between w-full">
-        <div>
-          <span>{value}</span>
-        </div>
-        <div>
-          <input type="checkbox" checked={checked} onChange={() => {}} />
-        </div>
+        {checked ? <span>Unblock</span> : <span>Block</span>}
       </div>
     </MenuItem>
   );

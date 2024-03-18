@@ -42,7 +42,7 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getChatRoomById: builder.mutation<ChatRoom, { channelId: string }>({
+    getChatRoomById: builder.mutation<{chatroom: ChatRoom, role: string} , { channelId: string, userId: string }>({
       query: (data) => ({
         url: "/chat/getChatRoomById",
         method: "POST",
@@ -77,7 +77,13 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-
+    promoteUserInChatRoom: builder.mutation<string, { chatroomId: string; userId: string }>({
+      query: (data) => ({
+        url: "/chat/promoteUserInChatRoom",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -92,4 +98,5 @@ export const {
   useAddMessageMutation,
   useGetMessagesFromRoomMutation,
   useGetProfilesFromRoomMutation,
+  usePromoteUserInChatRoomMutation,
 } = ChatRoomApiSlice;

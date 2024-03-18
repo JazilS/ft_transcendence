@@ -29,7 +29,7 @@ function LogPage() {
   };
 
   // Assuming you have a selector to get the updated state from the store
-  const updatedState = useAppSelector((state) => state);
+  const updatedState = useAppSelector((state) => state.user);
 
   useEffect(() => {
     if (updatedState) {

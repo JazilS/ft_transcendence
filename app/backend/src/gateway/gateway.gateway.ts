@@ -33,6 +33,12 @@ export class GatewayGateway
     return this.server.of('/').adapter.rooms.get(key);
   }
 
+  private getAllUserIdsByKey(key: string): string[] {
+    const socketIds = this.server.of('/').adapter.rooms.get(key);
+    return Array.from(socketIds).map(
+      (id) => (this.server.of('/').sockets.get(id) as SocketWithAuth).userId,
+    );
+  }
   async handleConnection(client: SocketWithAuth) {
     const { sockets } = this.server.sockets;
     const { id } = client;
@@ -105,16 +111,44 @@ export class GatewayGateway
         where: { id: payload.message.emitterId },
       });
 
-      // Get all blocked users
-      const blockedUserIds = emitter.blockedUsers;
-
       // Get all users in the chat room
-      const usersInRoom = this.getAllSockeIdsByKey(payload.message.chatId);
+      // const usersInRoom: Set<string> = this.getAllSockeIdsByKey(
+      //   payload.message.chatId,
+      // );
+      // const usersIdInRoom: string[] = this.getAllUserIdsByKey(
+      //   payload.message.chatId,
+      // );
 
-      // Emit the message to all users in the room except the blocked ones
-      usersInRoom.forEach((user) => {
-        if (!blockedUserIds.includes(user)) {
-          this.server.to(user).emit('MESSAGE', {
+      // // Get all blocked users
+      // const blockedByUserIds: string[] = emitter.blockedByUsers;
+      // console.log('Blocked users:', blockedByUserIds);
+
+      // // Emit the message to all users in the room except the blocked ones
+      // usersInRoom.forEach((user) => {
+      //   if (!blockedByUserIds.includes()) {
+      //     this.server.to(user).emit('MESSAGE', {
+      //       id: newMessage.id,
+      //       content: newMessage.content,
+      //       chatId: newMessage.chatId,
+      //       emitterId: newMessage.emitterId,
+      //       emitterName: payload.message.emitterName,
+      //       emitterAvatar: payload.message.emitterAvatar,
+      //     });
+      //   }
+      // });
+      const usersInRoom: string[] = this.getAllUserIdsByKey(
+        payload.message.chatId,
+      );
+
+      // Get all users who blocked the emitter
+      const blockedByUserIds: string[] = emitter.blockedByUsers.map(
+        (user) => user,
+      );
+
+      usersInRoom.forEach((userId) => {
+        // If the user has not blocked the emitter, send them the message
+        if (!blockedByUserIds.includes(userId)) {
+          this.server.to(userId).emit('MESSAGE', {
             id: newMessage.id,
             content: newMessage.content,
             chatId: newMessage.chatId,
@@ -239,41 +273,66 @@ export class GatewayGateway
     payload: { blockerId: string; blockedUserId: string; value: boolean },
   ) {
     try {
-      let user: User = await this.prismaService.user.findUnique({
-        where: { id: payload.blockerId },
-      });
       let blockedMessageContent: string;
 
-      if (!payload.value) {
-        // BLOCK
-        blockedMessageContent = ' blocked';
-        if (user) {
-          user.blockedUsers.push(payload.blockedUserId);
+      // Blocker User
+      let BlockerUser: User = await this.prismaService.user.findUnique({
+        where: { id: payload.blockerId },
+      });
+      //Blocked User
+      let BlockedUser: User = await this.prismaService.user.findUnique({
+        where: { id: payload.blockedUserId },
+      });
 
-          user = await this.prismaService.user.update({
+      if (!payload.value) {
+        blockedMessageContent = ' blocked';
+        // BLOCK (UPDATE BLOCKER USER)
+        if (BlockerUser) {
+          BlockerUser.blockedUsers.push(payload.blockedUserId);
+          BlockerUser = await this.prismaService.user.update({
             where: { id: payload.blockerId },
-            data: { blockedUsers: user.blockedUsers },
+            data: { blockedUsers: BlockerUser.blockedUsers },
           });
+
+          // (UPDATE BLOCKED USER)
+          if (BlockedUser) {
+            BlockedUser.blockedByUsers.push(payload.blockerId);
+
+            BlockedUser = await this.prismaService.user.update({
+              where: { id: payload.blockedUserId },
+              data: { blockedByUsers: BlockedUser.blockedByUsers },
+            });
+          }
         }
       } else {
-        // UNBLOCK
         blockedMessageContent = ' unblocked';
-        if (user) {
-          user.blockedUsers = user.blockedUsers.filter(
+        // UNBLOCK (UPDATE BLOCKER USER)
+        if (BlockerUser) {
+          BlockerUser.blockedUsers = BlockerUser.blockedUsers.filter(
             (id) => id !== payload.blockedUserId,
           );
-
-          user = await this.prismaService.user.update({
+          await this.prismaService.user.update({
             where: { id: payload.blockerId },
-            data: { blockedUsers: user.blockedUsers },
+            data: { blockedUsers: BlockerUser.blockedUsers },
           });
         }
+
+        // (UPDATE BLOCKED USER)
+        if (BlockedUser)
+          BlockedUser.blockedByUsers = BlockedUser.blockedByUsers.filter(
+            (id) => id !== payload.blockerId,
+          );
+        await this.prismaService.user.update({
+          where: { id: payload.blockedUserId },
+          data: { blockedByUsers: BlockedUser.blockedByUsers },
+        });
       }
 
       // create message
       const blockedMessage: Messages = {
         id: '',
-        content: 'You have been' + blockedMessageContent + ' by ' + user.name,
+        content:
+          'You have been' + blockedMessageContent + ' by ' + BlockerUser.name,
         chatId: payload.blockedUserId,
         emitterId: 'system',
         emitterName: 'System',
@@ -284,6 +343,29 @@ export class GatewayGateway
       this.server.to(payload.blockedUserId).emit('MESSAGE', blockedMessage);
     } catch (error) {
       console.error('Error blocking user:', error);
+    }
+  }
+
+  @SubscribeMessage('PROMOTE_USER')
+  async handlePromoteUser(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody() payload: { targetId: string; roomOnId: string },
+  ) {
+    try {
+      console.log('PROMOTE_USER:', payload);
+      const userToPromote = await this.prismaService.chatroomUser.findFirst({
+        where: { chatroomId: payload.roomOnId, userId: payload.targetId },
+      });
+
+      await this.prismaService.chatroomUser.update({
+        where: { id: userToPromote.id },
+        data: { role: 'ADMIN' },
+      });
+      this.server
+        .to(payload.targetId)
+        .emit('PROMOTE_USER', { targetId: 'ADMIN', roomOnId: '' });
+    } catch (error) {
+      console.error('Error promoting user:', error);
     }
   }
 
