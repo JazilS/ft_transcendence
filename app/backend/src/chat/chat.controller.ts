@@ -16,6 +16,7 @@ export class ChatController {
   ) {
     return this.chatService.createChatRoom(body);
   }
+
   @Post('/getPublicChatRooms')
   async getPublicChatRooms() {
     return this.chatService.getPublicChatRooms();

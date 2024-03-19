@@ -26,7 +26,7 @@ export class UserService {
         await this.prismaService.user.create({
           data: {
             id: 'system',
-            name: 'System',
+            name: '',
             avatar: '/robot.png',
           },
         });
@@ -170,6 +170,10 @@ export class UserService {
         where: { id: userId },
       });
 
+      if (!user) {
+        console.log('user not found (getFadeMenuInfo');
+        return;
+      }
       const chatroomUser = await this.prismaService.chatroomUser.findFirst({
         where: {
           userId: targetId,
@@ -179,8 +183,6 @@ export class UserService {
       if (user.blockedUsers.find((id) => id === targetId)) {
         isBlocked = true;
       }
-      console.log('IS BLOCKED:', isBlocked);
-
       return {
         isFriend: false,
         isConnected: false,

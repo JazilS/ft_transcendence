@@ -14,10 +14,12 @@ export default function ChatMembers({
   roomOn,
   role,
   setUserRole,
+  setRoomOnId,
 }: {
   roomOn: ChatRoom;
   role: string;
   setUserRole: React.Dispatch<React.SetStateAction<string>>;
+  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [UserProfiles, setUserProfiles] = useState<
     { userProfile: PlayerProfile; role: string }[]
@@ -61,8 +63,6 @@ export default function ChatMembers({
       mySocket.on(
         "JOIN_ROOM",
         async (data: { userProfile: PlayerProfile; role: string }) => {
-          console.log("NEW MEMBER : ", data.userProfile);
-          console.log("ROLE : ", data.role);
           setUserProfiles([...UserProfiles, data]);
         }
       );
@@ -75,7 +75,7 @@ export default function ChatMembers({
   // TODO: il faut reactiver ce code quand chaque utilisateur aura un nom unique
   // useEffect(() => {
   //   if (mySocket) {
-  //     mySocket.on("LEAVE_ROOM", async (userName: string) => {
+  //     mySocket.on("UPDATE_CHAT_MEMBERS", async (userName: string) => {
   //       console.log("LEAVE MEMBER : ", userName);
   //       setUserProfiles((UserProfiles) =>
   //         UserProfiles.filter((name) => name !== userName)
@@ -83,7 +83,7 @@ export default function ChatMembers({
   //     });
   //   }
   //   return () => {
-  //     mySocket.off("LEAVE_ROOM");
+  //     mySocket.off("UPDATE_CHAT_MEMBERS");
   //   };
   // });
 
@@ -104,6 +104,7 @@ export default function ChatMembers({
                     targetRole={user.role}
                     userRole={role}
                     setUserRole={setUserRole}
+                    setRoomOnId={setRoomOnId}
                     roomOn={roomOn}
                   />
                 ) : (
@@ -114,6 +115,7 @@ export default function ChatMembers({
                     targetRole={user.role}
                     userRole={role}
                     setUserRole={setUserRole}
+                    setRoomOnId={setRoomOnId}
                     roomOn={roomOn}
                   />
                 )}

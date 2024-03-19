@@ -202,7 +202,7 @@ export class GatewayGateway
           content: userName + ' has joined the room',
           chatId: payload.room || '',
           emitterId: 'system',
-          emitterName: 'System',
+          emitterName: '',
           emitterAvatar: '/robot.png',
         },
       });
@@ -231,28 +231,57 @@ export class GatewayGateway
   // LEAVE_ROOM
   @SubscribeMessage('LEAVE_ROOM')
   async handleLeaveRoom(
-    @MessageBody() payload: { room: string; userName: string },
-    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody()
+    payload: {
+      room: string;
+      userName: string;
+      userId: string;
+      leavingType: string;
+    },
+    @ConnectedSocket() emitter: SocketWithAuth,
   ): Promise<string> {
-    client.leave(payload.room);
+    // leave socketRoom
+    if (payload.leavingType === 'LEAVING') emitter.leave(payload.room);
+    else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const [_, socket] of this.server.of('/').sockets) {
+        const client = socket as SocketWithAuth;
+
+        // If the socket's userId matches the given userId, make it leave the room
+        if (client.userId === payload.userId) {
+          client.leave(payload.room);
+          break;
+        }
+      }
+    }
+
+    // send message to all chat
+    let messageContent: string;
+    if (payload.leavingType === 'LEAVING')
+      messageContent = payload.userName + ' has left the room';
+    else if (payload.leavingType === 'KICKED')
+      messageContent = payload.userName + ' is kicked from the room';
+    else if (payload.leavingType === 'BANNED')
+      messageContent = payload.userName + ' is banned from the room';
+
     await this.handleMessage({
       message: {
         id: '',
-        content: payload.userName + ' has left the room',
+        content: messageContent,
         chatId: payload.room || '',
         emitterId: 'system',
-        emitterName: 'System',
+        emitterName: '',
         emitterAvatar: '/robot.png',
       },
     });
+
     // Get all clients in the room
-    const clientsInRoom = await this.server.in(payload.room).allSockets();
+    const clientsInRoom = await this.server.in(payload.room).fetchSockets();
 
     // If the room is empty, delete it from the database
-    if (clientsInRoom.size === 0) {
-      console.log('Room is empty, deleting room:', payload.room);
-
+    if (clientsInRoom.length === 0) {
       // Delete all messages associated with the room
+      console.log('Room is empty, deleting room:', payload.room);
       await this.prismaService.message.deleteMany({
         where: { chatId: payload.room },
       });
@@ -261,8 +290,12 @@ export class GatewayGateway
       await this.prismaService.chatroom.delete({
         where: { id: payload.room },
       });
+      return;
     }
-    this.server.to(payload.room).emit('LEAVE_ROOM', payload.userName);
+    if (payload.leavingType === 'KICKED' || payload.leavingType === 'BANNED')
+      this.server.to(payload.userId).emit('LEAVING_ROOM', payload.userName);
+    this.server.to(payload.room).emit('UPDATE_CHAT_MEMBERS', payload.userName);
+    // this.server.to(payload.room).emit('LEAVE_ROOM', payload.userName);
     return 'Left room : ' + payload.room;
   }
 
@@ -335,7 +368,7 @@ export class GatewayGateway
           'You have been' + blockedMessageContent + ' by ' + BlockerUser.name,
         chatId: payload.blockedUserId,
         emitterId: 'system',
-        emitterName: 'System',
+        emitterName: '',
         emitterAvatar: '/robot.png',
       };
 
@@ -361,9 +394,7 @@ export class GatewayGateway
         where: { id: userToPromote.id },
         data: { role: 'ADMIN' },
       });
-      this.server
-        .to(payload.targetId)
-        .emit('PROMOTE_USER', { targetId: 'ADMIN', roomOnId: '' });
+      this.server.to(payload.targetId).emit('PROMOTE_USER');
     } catch (error) {
       console.error('Error promoting user:', error);
     }

@@ -51,7 +51,12 @@ export default function LeaveChannel({
     leaveChannel({ userId: userId, roomId: roomOnId });
     dispatch(leaveChatroom(roomOnId));
     if (mySocket)
-      mySocket.emit("LEAVE_ROOM", { room: roomOnId, userName: userName });
+      mySocket.emit("LEAVE_ROOM", {
+        room: roomOnId,
+        userName: userName,
+        userId: userId,
+        leavingType: "LEAVING",
+      });
     else console.log("No socket");
     setRoomOnId("");
   };

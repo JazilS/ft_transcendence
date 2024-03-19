@@ -11,7 +11,10 @@ import { useGetChatRoomByIdMutation } from "../store/features/ChatRoom/ChatRoom.
 import User from "@/models/User/UserModel";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
-import { useAppSelector } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { mySocket } from "../utils/getSocket";
+import { useLeaveChatroomMutation } from "../store/features/User/user.api.slice";
+import { leaveChatroom } from "../store/features/User/UserSlice";
 
 export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
@@ -30,7 +33,7 @@ export default function ChatPage() {
         return;
       }
       const response:
-        | { data: {chatroom: ChatRoom, role: string} }
+        | { data: { chatroom: ChatRoom; role: string } }
         | { error: FetchBaseQueryError | SerializedError } = await getRoomById({
         channelId: roomOnId,
         userId: userId,
@@ -49,6 +52,20 @@ export default function ChatPage() {
     console.log("roomOnId : ", roomOnId);
   }, [getRoomById, roomOnId, userId]);
 
+  const dispatch = useAppDispatch();
+  const [leaveChannel] = useLeaveChatroomMutation();
+  useEffect(() => {
+    if (mySocket) {
+      mySocket.on("LEAVING_ROOM", async (userName: string) => {
+        leaveChannel({ userId: userId, roomId: roomOnId });
+        dispatch(leaveChatroom(roomOnId));
+        setRoomOnId("");
+      });
+    }
+    return () => {
+      mySocket.off("LEAVING_ROOM");
+    };
+  });
 
   const defaultChatRoom: ChatRoom = {
     error: "",
@@ -71,7 +88,12 @@ export default function ChatPage() {
             setRoomOnId={setRoomOnId}
           />
           <ChatZone roomOn={roomOn} setRoomOnId={setRoomOnId} />
-          <ChatMembers roomOn={roomOn || defaultChatRoom} role={role} setUserRole={setRole}/>
+          <ChatMembers
+            roomOn={roomOn || defaultChatRoom}
+            role={role}
+            setUserRole={setRole}
+            setRoomOnId={setRoomOnId}
+          />
         </div>
       </div>
     </div>

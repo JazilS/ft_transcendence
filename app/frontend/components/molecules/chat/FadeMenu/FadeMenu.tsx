@@ -4,17 +4,21 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import "@/style/FadeMenu.css";
-import { useGetFadeMenuInfosMutation } from "@/app/store/features/User/user.api.slice";
+import {
+  useGetFadeMenuInfosMutation,
+  useLeaveChatroomMutation,
+} from "@/app/store/features/User/user.api.slice";
 import { use, useEffect, useState } from "react";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
-import { useAppSelector } from "@/app/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { info } from "console";
 import { usePromoteUserInChatRoomMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import { mySocket } from "@/app/utils/getSocket";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { quantico } from "@/models/FontModel";
+import { leaveChatroom } from "@/app/store/features/User/UserSlice";
 
 export default function FadeMenu({
   targetName,
@@ -23,6 +27,7 @@ export default function FadeMenu({
   targetRole,
   userRole,
   setUserRole,
+  setRoomOnId,
   roomOn,
 }: {
   targetName: string;
@@ -31,6 +36,7 @@ export default function FadeMenu({
   targetRole: string;
   userRole: string;
   setUserRole: React.Dispatch<React.SetStateAction<string>>;
+  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
   roomOn: ChatRoom;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -85,7 +91,7 @@ export default function FadeMenu({
       infos
     );
 
-    setAnchorEl(event.currentTarget);
+    if (active) setAnchorEl(event.currentTarget);
   };
 
   const handlePromote = () => {
@@ -94,15 +100,39 @@ export default function FadeMenu({
     setUserRole("ADMIN");
   };
 
+  const [leaveChannel] = useLeaveChatroomMutation();
+  const dispatch = useAppDispatch();
+
+  const handleKick = () => {
+    // leave from db
+    // leaveChannel({ userId: targetId, roomId: roomOn.id });
+    // dispatch(leaveChatroom(roomOn.id));
+    if (mySocket)
+      mySocket.emit("LEAVE_ROOM", {
+        room: roomOn.id,
+        userName: targetName,
+        userId: targetId,
+        leavingType: "KICKED",
+      });
+    else console.log("No socket");
+    // setRoomOnId("");
+
+    // console.log("IN HANDLE KICK");
+    // if (mySocket)
+    //   mySocket.emit("LEAVE_ROOM", {
+    //     room: roomOn.id,
+    //     userName: targetId,
+    //     leavingType: "KICKED",
+    //   });
+  };
+
   useEffect(() => {
     if (mySocket) {
-      mySocket.on(
-        "PROMOTE_USER",
-        async (data: { targetId: string; roomOnId: string }) => {
-          setInfos({ ...infos, role: data.targetId });
-          console.log("PROMOTE_USER : ", data);
-        }
-      );
+      mySocket.on("PROMOTE_USER", async () => {
+        console.log(" i have been promoted to ADMIN");
+        setUserRole("ADMIN");
+        setInfos({ ...infos, role: "ADMIN" });
+      });
     }
     return () => {
       mySocket.off("PROMOTE_USER");
@@ -139,13 +169,16 @@ export default function FadeMenu({
         TransitionComponent={Fade}
         className={`optionmembres ml-4`}
       >
-        <CheckBoxMenuItem
-          userId={user.playerProfile.id}
-          targetId={targetId}
-          isBlocked={infos.isBlocked}
-        ></CheckBoxMenuItem>
+        {active && (
+          <CheckBoxMenuItem
+            userId={user.playerProfile.id}
+            targetId={targetId}
+            isBlocked={infos.isBlocked}
+          ></CheckBoxMenuItem>
+        )}
 
-        {infos.role === "MEMBER" &&
+        {active &&
+          infos.role === "MEMBER" &&
           (userRole === "CREATOR" || userRole === "ADMIN") && (
             <MenuItem
               onClick={() => {
@@ -159,6 +192,18 @@ export default function FadeMenu({
               Promote in channel
             </MenuItem>
           )}
+
+        {active && infos.role !== "CREATOR" && userRole !== "MEMBER" && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              handleKick();
+            }}
+            className={`${quantico.className} w-full`}
+          >
+            Kick
+          </MenuItem>
+        )}
 
         {/* <MenuItem onClick={handleClose}>
           Profile

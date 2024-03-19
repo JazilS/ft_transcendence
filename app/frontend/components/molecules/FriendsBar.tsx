@@ -44,7 +44,7 @@ export default function Friendsbar() {
 					<ul>
 						{friends.map(friends => (
 							<li key={friends.name}>
-								<Button className="hover:text-2xl text-white hover:bg-[#767ac9] active:bg-[#858ae6] " variant={'channel'} size={'channel'}>
+								<Button className="hover:text-2xl text-white hover:bg-[#767ac9] active:bg-[#858ae6] " variant={'publicChannel'} size={'channel'}>
 									<h1 className="pl-8">{friends.name}</h1>
 								</Button>
 							</li>
