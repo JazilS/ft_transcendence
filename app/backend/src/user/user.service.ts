@@ -51,28 +51,28 @@ export class UserService {
   //   });
   // }
 
-  async getUserById(id: string) {
-    return this.prismaService.user.findUnique({
-      where: { id }
+  async getUserById(userId: string) {
+    return await this.prismaService.user.findUnique({
+      where: { id: userId, },
     });
   }
 
   async findUserById(id: string, select: UserInfo) {
-    return this.prismaService.user.findUnique({
+    return await this.prismaService.user.findUnique({
       where: { id },
       select,
     });
   }
 
   async findUserByNickname(nickname: string, select: UserInfo) {
-    return this.prismaService.user.findUnique({
+    return await this.prismaService.user.findUnique({
       where: { nickname },
       select,
     });
   }
 
   async findManyUsers(ids: string[], select: UserInfo) {
-    return this.prismaService.user.findMany({
+    return await this.prismaService.user.findMany({
       where: {
         id: {
           in: ids,

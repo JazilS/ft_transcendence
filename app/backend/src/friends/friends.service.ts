@@ -43,8 +43,8 @@ export class FriendsService {
         });
     }
     async   addFriend(userId: string, friendId: string) {
-        const   user = await this.userService.findUserById(userId, {id: true, nickname: true, status: true, pong: false });
-        const   friend = await this.userService.findUserById(userId, {id: true, nickname: true, status: true, pong: false });
+        const   user = await this.userService.getUserById(userId);
+        const   friend = await this.userService.getUserById(userId);
 
         if (!user || !friend)
             return ({ success: false, message: 'user not found !'});
@@ -62,8 +62,8 @@ export class FriendsService {
     }
 
     async   removeFriend(userId: string, friendId: string) {
-        const   user = await this.userService.findUserById(userId, {id: true, nickname: true, status: true, pong: false });
-        const   friend = await this.userService.findUserById(userId, {id: true, nickname: true, status: true, pong: false });
+        const   user = await this.userService.getUserById(userId);
+        const   friend = await this.userService.getUserById(userId);
 
         if (!user || !friend)
             return ({ success: false, message: 'user not found !'});

@@ -11,10 +11,11 @@ import { PrismaModule } from './prisma/prisma.module';
 // import { GameService } from './game/game.service';
 // import { GameModule } from './game/game.module';
 import { TwofaModule } from './twofa/twofa.module';
+import { FriendsModule } from './friends/friends.module';
 
 @Module({
-  imports: [ChatModule, /*GatewayModule,*/ UserModule, AuthModule, PrismaModule, TwofaModule, /*GameModule*/],
-  controllers: [AppController, /*GameController*/],
-  providers: [AppService, ChatService, /*GameService*/],
+  imports: [ChatModule, /*GatewayModule,*/ UserModule, AuthModule, PrismaModule, TwofaModule, FriendsModule, /*GameModule*/],
+  controllers: [AppController /*GameController*/],
+  providers: [AppService, ChatService /*GameService*/],
 })
 export class AppModule {}
