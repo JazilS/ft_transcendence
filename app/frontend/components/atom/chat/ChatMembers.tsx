@@ -72,22 +72,20 @@ export default function ChatMembers({
     };
   });
 
-  // TODO: il faut reactiver ce code quand chaque utilisateur aura un nom unique
-  // useEffect(() => {
-  //   if (mySocket) {
-  //     mySocket.on("UPDATE_CHAT_MEMBERS", async (userName: string) => {
-  //       console.log("LEAVE MEMBER : ", userName);
-  //       setUserProfiles((UserProfiles) =>
-  //         UserProfiles.filter((name) => name !== userName)
-  //       );
-  //     });
-  //   }
-  //   return () => {
-  //     mySocket.off("UPDATE_CHAT_MEMBERS");
-  //   };
-  // });
+  useEffect(() => {
+    if (mySocket) {
+      mySocket.on("UPDATE_CHAT_MEMBERS", async (userId: string) => {
+        console.log("LEAVE MEMBER : ", userId);
+        setUserProfiles((UserProfiles) =>
+          UserProfiles.filter((user) => user.userProfile.id !== userId)
+        );
+      });
+    }
+    return () => {
+      mySocket.off("UPDATE_CHAT_MEMBERS");
+    };
+  });
 
-  // return
   return (
     <div className="h-[95%] mt-9 w-[20%] bg-[#BC80D0] rounded-3xl">
       <h1 className="text-3xl pl-[18%] pb-[5%] pt-[3%] ">Chat Members</h1>

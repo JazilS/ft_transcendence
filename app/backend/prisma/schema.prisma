@@ -17,10 +17,11 @@ datasource db {
 
 model User {
   id            String        @id @default(uuid())
-  name          String?       //@unique
+  name          String?       //@uniquechat
   avatar        String?
   games         GameHistory[]
   chatRoomsIn   ChatroomUser[]
+  bannedFromRooms    String[]
   roomOn        Chatroom?     @relation(fields: [roomOnId], references: [id])
   roomOnId      String?       @unique
   restricedInChatrooms ChatroomRestrictedUsers[]

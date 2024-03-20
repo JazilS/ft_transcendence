@@ -165,33 +165,58 @@ export class UserService {
     try {
       void roomId;
       let isBlocked: boolean;
+      let isMuted: boolean;
+      let role: string;
 
+      // get user
       const user: User = await this.prismaService.user.findUnique({
         where: { id: userId },
       });
-
       if (!user) {
         console.log('user not found (getFadeMenuInfo');
         return;
       }
+
+      // check if user is blocked
+      if (user.blockedUsers.find((id) => id === targetId)) {
+        isBlocked = true;
+      }
+
+      // get chatroomUser
       const chatroomUser = await this.prismaService.chatroomUser.findFirst({
         where: {
           userId: targetId,
           chatroomId: roomId,
         },
       });
-      if (user.blockedUsers.find((id) => id === targetId)) {
-        isBlocked = true;
+      if (!chatroomUser) {
+        return {
+          isFriend: false,
+          isConnected: false,
+          isInvited: false,
+          isBlocked: isBlocked,
+          isMuted: false,
+          isKicked: false,
+          isBanned: false,
+          role: '',
+        };
       }
+
+      // check if user is muted
+      if (chatroomUser.restriction === 'MUTED') {
+        isMuted = true;
+      }
+      if (chatroomUser.role) role = chatroomUser.role as string;
+      else role = '';
       return {
         isFriend: false,
         isConnected: false,
         isInvited: false,
         isBlocked: isBlocked,
-        isMuted: false,
+        isMuted: isMuted,
         isKicked: false,
         isBanned: false,
-        role: chatroomUser.role as string,
+        role: role,
       };
     } catch (error) {
       console.error('Error getting fade menu infos:', error);

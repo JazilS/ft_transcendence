@@ -40,22 +40,22 @@ export class GatewayGateway
     );
   }
   async handleConnection(client: SocketWithAuth) {
-    const { sockets } = this.server.sockets;
-    const { id } = client;
+    // const { sockets } = this.server.sockets;
+    // const { id } = client;
 
-    this.logger.log(
-      `WS client with id: ${id} and userId : ${client.handshake.auth.token} connected!`,
-    );
-    this.logger.log(`Socket data: `, sockets);
-    this.logger.debug(`Number of connected sockets: ${sockets.size}`);
+    // this.logger.log(
+    // `WS client with id: ${id} and userId : ${client.handshake.auth.token} connected!`,
+    // );
+    // this.logger.log(`Socket data: `, sockets);
+    // this.logger.debug(`Number of connected sockets: ${sockets.size}`);
 
     client.userId = client.handshake.auth.token;
     client.join(client.userId);
 
-    const rooms = this.server.of('/').adapter.rooms;
-    console.log({ rooms });
-    const room = this.server.of('/').adapter.rooms.get(client.userId);
-    this.logger.log('Room:', room);
+    // const rooms = this.server.of('/').adapter.rooms;
+    // console.log({ rooms });
+    // const room = this.server.of('/').adapter.rooms.get(client.userId);
+    // this.logger.log('Room:', room);
   }
 
   async handleDisconnect(client: SocketWithAuth) {
@@ -91,6 +91,17 @@ export class GatewayGateway
         throw new Error('User not found');
       }
 
+      const userInChatroom: ChatroomUser =
+        await this.prismaService.chatroomUser.findFirst({
+          where: {
+            chatroomId: payload.message.chatId,
+            userId: payload.message.emitterId,
+          },
+        });
+      if (!userInChatroom) throw 'User not in chatroom';
+      if (userInChatroom.restriction === 'MUTED') throw 'User is muted';
+
+      // create message
       const newMessage = await this.prismaService.message.create({
         data: {
           content: payload.message.content,
@@ -111,31 +122,6 @@ export class GatewayGateway
         where: { id: payload.message.emitterId },
       });
 
-      // Get all users in the chat room
-      // const usersInRoom: Set<string> = this.getAllSockeIdsByKey(
-      //   payload.message.chatId,
-      // );
-      // const usersIdInRoom: string[] = this.getAllUserIdsByKey(
-      //   payload.message.chatId,
-      // );
-
-      // // Get all blocked users
-      // const blockedByUserIds: string[] = emitter.blockedByUsers;
-      // console.log('Blocked users:', blockedByUserIds);
-
-      // // Emit the message to all users in the room except the blocked ones
-      // usersInRoom.forEach((user) => {
-      //   if (!blockedByUserIds.includes()) {
-      //     this.server.to(user).emit('MESSAGE', {
-      //       id: newMessage.id,
-      //       content: newMessage.content,
-      //       chatId: newMessage.chatId,
-      //       emitterId: newMessage.emitterId,
-      //       emitterName: payload.message.emitterName,
-      //       emitterAvatar: payload.message.emitterAvatar,
-      //     });
-      //   }
-      // });
       const usersInRoom: string[] = this.getAllUserIdsByKey(
         payload.message.chatId,
       );
@@ -182,6 +168,8 @@ export class GatewayGateway
       !this.prismaService.chatroom.findUnique({ where: { id: payload.room } })
     )
       return 'Room does not exist';
+
+    // join room
     client.join(payload.room);
 
     if (this.server.of('/').adapter.rooms) {
@@ -261,8 +249,19 @@ export class GatewayGateway
       messageContent = payload.userName + ' has left the room';
     else if (payload.leavingType === 'KICKED')
       messageContent = payload.userName + ' is kicked from the room';
-    else if (payload.leavingType === 'BANNED')
+    else if (payload.leavingType === 'BANNED') {
       messageContent = payload.userName + ' is banned from the room';
+      const user: User = await this.prismaService.user.findFirst({
+        where: { id: payload.userId },
+      });
+      const bannedFromRooms = user.bannedFromRooms;
+      bannedFromRooms.push(payload.room);
+      console.log('Banned from rooms:', bannedFromRooms);
+      await this.prismaService.user.update({
+        where: { id: payload.userId },
+        data: { bannedFromRooms: bannedFromRooms },
+      });
+    }
 
     await this.handleMessage({
       message: {
@@ -294,7 +293,7 @@ export class GatewayGateway
     }
     if (payload.leavingType === 'KICKED' || payload.leavingType === 'BANNED')
       this.server.to(payload.userId).emit('LEAVING_ROOM', payload.userName);
-    this.server.to(payload.room).emit('UPDATE_CHAT_MEMBERS', payload.userName);
+    this.server.to(payload.room).emit('UPDATE_CHAT_MEMBERS', payload.userId);
     // this.server.to(payload.room).emit('LEAVE_ROOM', payload.userName);
     return 'Left room : ' + payload.room;
   }
@@ -400,6 +399,69 @@ export class GatewayGateway
     }
   }
 
+  private muteIntervals: { [key: string]: NodeJS.Timeout } = {};
+
+  @SubscribeMessage('MUTE_USER')
+  async handleMuteUser(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody()
+    payload: { roomId: string; mutedUser: string; muteTime: string },
+  ) {
+    try {
+      console.log('MUTE_USER:', payload);
+      const userToMute = await this.prismaService.chatroomUser.findFirst({
+        where: { chatroomId: payload.roomId, userId: payload.mutedUser },
+      });
+
+      await this.prismaService.chatroomUser.update({
+        where: { id: userToMute.id },
+        data: { restriction: 'MUTED' },
+      });
+      let muteTimeLeft = parseInt(payload.muteTime);
+      this.server.to(payload.mutedUser).emit('MUTE_USER', muteTimeLeft);
+
+      // Créer un nouvel intervalle pour cet utilisateur
+      this.muteIntervals[payload.mutedUser] = setInterval(() => {
+        muteTimeLeft--;
+        if (muteTimeLeft <= 0) {
+          // Si le temps est écoulé, démuter l'utilisateur et effacer l'intervalle
+          this.handleUnMuteUser(client, payload);
+        } else {
+          // Sinon, envoyer le temps restant au client
+          this.server.to(payload.mutedUser).emit('MUTE_USER', muteTimeLeft);
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('Error muting user:', error);
+    }
+  }
+
+  @SubscribeMessage('UNMUTE_USER')
+  async handleUnMuteUser(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody()
+    payload: { roomId: string; mutedUser: string },
+  ) {
+    try {
+      console.log('MUTE_USER:', payload);
+      const userToMute = await this.prismaService.chatroomUser.findFirst({
+        where: { chatroomId: payload.roomId, userId: payload.mutedUser },
+      });
+
+      await this.prismaService.chatroomUser.update({
+        where: { id: userToMute.id },
+        data: { restriction: 'NONE' },
+      });
+
+      // Effacer l'intervalle pour cet utilisateur
+      clearInterval(this.muteIntervals[payload.mutedUser]);
+      delete this.muteIntervals[payload.mutedUser];
+
+      this.server.to(payload.mutedUser).emit('UNMUTE_USER');
+    } catch (error) {
+      console.error('Error muting user:', error);
+    }
+  }
   // createTokenMiddleware =
   //   (jwtService: JwtTokenService, logger: Logger) =>
   //   async (socket: SocketWithAuth, next) => {

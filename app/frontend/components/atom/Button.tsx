@@ -3,6 +3,8 @@ import { VariantProps, cva } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import "../../app/styles.css";
+import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
+import MemberLogo from "./chat/MemberLogo";
 
 interface ButtonProps {}
 
@@ -21,6 +23,7 @@ const buttonVariants = cva(
         rounded:
           "bg-[#6E82B6] justify-center items-center rounded-full hover:bg-[#53648f] hover:text-gray-300 ",
         chatSwitch: "justify-center rounded-t-2xl text-lg",
+        chatMember: "bg-transparant p-1.5 text-xl rounded-full overflow-hidden",
       },
       size: {
         default: "h-10 py-2 px-4",
@@ -43,6 +46,7 @@ export interface buttonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   isLoading?: boolean;
+  infos?: FadeMenuInfos;
 }
 
 export default function Button({
@@ -50,6 +54,7 @@ export default function Button({
   children,
   variant,
   isLoading,
+  infos,
   size,
   ...props
 }: buttonProps) {
@@ -79,6 +84,11 @@ export default function Button({
               />
             </svg>
           </div>
+        </div>
+      ) : variant === "chatMember" && infos ? (
+        <div className="flex flex-row justify-between w-full">
+          <span>{children}</span>
+          <MemberLogo {...infos} />
         </div>
       ) : (
         children

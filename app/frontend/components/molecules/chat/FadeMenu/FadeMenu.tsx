@@ -4,21 +4,15 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import "@/style/FadeMenu.css";
-import {
-  useGetFadeMenuInfosMutation,
-  useLeaveChatroomMutation,
-} from "@/app/store/features/User/user.api.slice";
+import { useGetFadeMenuInfosMutation } from "@/app/store/features/User/user.api.slice";
 import { use, useEffect, useState } from "react";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
-import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { info } from "console";
-import { usePromoteUserInChatRoomMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import { useAppSelector } from "@/app/store/hooks";
 import { mySocket } from "@/app/utils/getSocket";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { quantico } from "@/models/FontModel";
-import { leaveChatroom } from "@/app/store/features/User/UserSlice";
 
 export default function FadeMenu({
   targetName,
@@ -100,13 +94,7 @@ export default function FadeMenu({
     setUserRole("ADMIN");
   };
 
-  const [leaveChannel] = useLeaveChatroomMutation();
-  const dispatch = useAppDispatch();
-
   const handleKick = () => {
-    // leave from db
-    // leaveChannel({ userId: targetId, roomId: roomOn.id });
-    // dispatch(leaveChatroom(roomOn.id));
     if (mySocket)
       mySocket.emit("LEAVE_ROOM", {
         room: roomOn.id,
@@ -115,15 +103,17 @@ export default function FadeMenu({
         leavingType: "KICKED",
       });
     else console.log("No socket");
-    // setRoomOnId("");
+  };
 
-    // console.log("IN HANDLE KICK");
-    // if (mySocket)
-    //   mySocket.emit("LEAVE_ROOM", {
-    //     room: roomOn.id,
-    //     userName: targetId,
-    //     leavingType: "KICKED",
-    //   });
+  const handleBan = () => {
+    if (mySocket)
+      mySocket.emit("LEAVE_ROOM", {
+        room: roomOn.id,
+        userName: targetName,
+        userId: targetId,
+        leavingType: "BANNED",
+      });
+    else console.log("No socket");
   };
 
   useEffect(() => {
@@ -147,8 +137,9 @@ export default function FadeMenu({
     <div className="w-[100%]">
       <Button
         className="hover:bg-[#f28eff] pl-9 w-[100%]"
-        variant={"publicChannel"}
+        variant={"chatMember"}
         size={"channel"}
+        infos={infos}
         id="fade-button"
         aria-controls={open ? "fade-menu" : undefined}
         aria-haspopup="true"
@@ -169,16 +160,33 @@ export default function FadeMenu({
         TransitionComponent={Fade}
         className={`optionmembres ml-4`}
       >
-        {active && (
+        {/* BLOCK */}
+        <CheckBoxMenuItem
+          userId={user.playerProfile.id}
+          targetId={targetId}
+          initialState={infos.isBlocked}
+          roomId={roomOn.id}
+          action="block"
+        // eslint-disable-next-line react/jsx-no-comment-textnodes
+          ></CheckBoxMenuItem>
+
+        // TODO MUTE :
+        //! il reste des problemes, le timeout qui ne fonctionne pas et le
+        //! logo qui se met a jour que si on clique sur le fade menu de la personnne
+
+        // * la restriction de message est bien effectuee, le logo change bien mais pas au bon moment
+        {/* MUTE */}
+        {infos.role !== "CREATOR" && userRole !== "MEMBER" && (
           <CheckBoxMenuItem
             userId={user.playerProfile.id}
             targetId={targetId}
-            isBlocked={infos.isBlocked}
+            initialState={infos.isMuted}
+            roomId={roomOn.id}
+            action="mute"
           ></CheckBoxMenuItem>
         )}
-
-        {active &&
-          infos.role === "MEMBER" &&
+        {/* PROMOTE IN CHANNEL */}
+        {infos.role === "MEMBER" &&
           (userRole === "CREATOR" || userRole === "ADMIN") && (
             <MenuItem
               onClick={() => {
@@ -192,8 +200,8 @@ export default function FadeMenu({
               Promote in channel
             </MenuItem>
           )}
-
-        {active && infos.role !== "CREATOR" && userRole !== "MEMBER" && (
+        {/* KICK */}
+        {infos.role !== "CREATOR" && userRole !== "MEMBER" && (
           <MenuItem
             onClick={() => {
               handleClose();
@@ -204,21 +212,18 @@ export default function FadeMenu({
             Kick
           </MenuItem>
         )}
-
-        {/* <MenuItem onClick={handleClose}>
-          Profile
-        </MenuItem> */}
-        {/* seulement si ils ne sont pas amis */}
-        {/* <MenuItem onClick={handleClose}>Add Friend</MenuItem>
-        <MenuItem onClick={handleClose}>Send message</MenuItem>
-        <MenuItem onClick={handleClose}>Invite in game</MenuItem> */}
-
-        {/* <CheckBoxMenuItem value="mute"></CheckBoxMenuItem> */}
-
-        {/* ajouter ces options pour les operateurs */}
-        {/* <MenuItem>Kick from channel</MenuItem> */}
-        {/* <MenuItem>Ban from channel</MenuItem> */}
-        {/* seulement si l'utilisateur n'est pas deja promu */}
+        {/* BAN */}
+        {infos.role === "MEMBER" && userRole !== "MEMBER" && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              handleBan();
+            }}
+            className={`${quantico.className} w-full`}
+          >
+            Ban
+          </MenuItem>
+        )}
       </Menu>
     </div>
   );
@@ -227,13 +232,26 @@ export default function FadeMenu({
 /**
  * TODO : differentes possibilites de menu
  * !    Group Room ->
- * * 1. Version membre non operateur : Profile, Add Friend, Send message, Invite in game, block
- * * 2. Version operateur : ... + mute, kick, ban, promote
- * *    - un operateur non createur du channel ne peux pas agir sur le createur
- * * 3. Si l'utilisateur clique sur son propre nom, rien ne se passe
+ * 1. Version membre non operateur :
+ * *  Profile (redirige sur le profil public de la personne)
+ * *  Invite in game (si la personne est connectee)
+ * *  Add Friend (si ils ne sont pas deja amis)
+ * *  Send message (si le chat existe deja, juste Join sinon creer le chatroom et join)
+ * //  block
+ * 2. Version operateur :
+ * *  mute (temporairement (1mn, 10mn, 1h))
+ * //  kick
+ * //  ban
+ * //  promote
+ * //    - un operateur non createur du channel ne peux pas agir sur le createur
+ * // 3. Si l'utilisateur clique sur son propre nom, rien ne se passe
  
  * !    Private Room ->
- * * 1. seulement les options suivantes : Profile, Invite in game, block
- * * 2. Si l'utilisateur clique sur son propre nom, rien ne se passe
+ * 1. seulement les options suivantes : 
+ * * Profile
+ * * Invite in game
+ * // block
+ * // 2. Si l'utilisateur clique sur son propre nom, rien ne se passe
  * 
+ * ! Invite in Channel from public Profile Page
  * */
