@@ -14,8 +14,9 @@ export class TwofaService {
         const qrCodeImage = await qrcode.toDataURL(secret.otpauth_url);
         await this.prismaService.user.update({
             where: { id: UserId },
-            data: { twoFaSecret: secret.base32.toString(),
-                    twoFa: true }
+            data: { twoFaSecret: secret.base32.toString() }
+                    // twoFa: true }
+                    // twoFa: true } faut pas le faire
         });
         return { secret: secret.base32, qrCode: qrCodeImage }
     }
@@ -31,7 +32,17 @@ export class TwofaService {
             encoding: 'base32',
             token: code,
         });
+        if (verified)
+        {
+            await this.prismaService.user.update({
+                where: { id: UserId },
+                data: { twoFa: true }
+            });
+        }
+        else
+            console.log("Wrong Code entered")
         console.log(verified);
+        return verified;
     }
 
     async disableTwoFa(UserId: string) {
@@ -45,6 +56,7 @@ export class TwofaService {
             }
         });
     }
+    
     // async turnOnTwoFactorAuthenticaton(userId: string) {
     //     await this.prismaService.user.update({
     //         where: { id: userId },

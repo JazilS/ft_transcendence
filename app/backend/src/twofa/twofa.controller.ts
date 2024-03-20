@@ -22,6 +22,6 @@ export class TwofaController {
     @UseGuards(AuthGuard)
     @Get('disable')
     async disable(@GetUser('id') UserId: string) {
-        return await this.TwofaService.disableTwoFa(UserId);
+        await this.TwofaService.disableTwoFa(UserId);
     }
 }
