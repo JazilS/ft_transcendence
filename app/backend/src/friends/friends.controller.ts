@@ -9,13 +9,13 @@ export class FriendsController {
 
     @UseGuards(AuthGuard)
     @Post('add')
-    async addFriend(@GetUser('id') userId: string, @Body('friend') friendId: string) {
-        return await this.FriendsService.addFriend(userId, friendId);
+    async addFriend(@GetUser('id') userId: string, @Body('friend') friend: string) {
+        return await this.FriendsService.addFriend(userId, friend);
     }
     
     @UseGuards(AuthGuard)
     @Post('remove')
-    async removeFriend(@GetUser('id') userId: string, @Body('friend') friendId: string) {
-        return await this.FriendsService.removeFriend(userId, friendId);
+    async removeFriend(@GetUser('id') userId: string, @Body('friend') friend: string) {
+        return await this.FriendsService.removeFriend(userId, friend);
     }
 }

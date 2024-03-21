@@ -27,6 +27,8 @@ model User {
   friends           User[]    @relation("Friends")
   friendsRelation   User[]    @relation("Friends")
 
+  chatrooms         Chatroom[]
+
   // friendsWaitList   User[]    @relation("NewFriend")
   // friendsRequest    User[]    @relation("NewFriend")
 
@@ -34,7 +36,6 @@ model User {
   // blockedBy         User[]    @relation("BlockUser")
 
   // games    Game[]
-  chatrooms Chatroom[]
 }
 
 model Message {

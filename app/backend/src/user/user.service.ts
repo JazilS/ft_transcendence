@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserData, UserInfo } from 'types/userInfo';
-// import { Profile } from './types/userTypes';
+import { UserInfo } from './types/userTypes';
+// import { UserData, UserInfo } from 'types/userInfo';
 import { User } from '@prisma/client';
 
 @Injectable()
@@ -51,12 +51,13 @@ export class UserService {
   //   });
   // }
 
-  async getUserById(userId: string) {
+  async getUserById(userId: string, select: UserInfo) {
     return await this.prismaService.user.findUnique({
       where: { id: userId, },
+      select,
     });
   }
-
+  
   async findUserById(id: string, select: UserInfo) {
     return await this.prismaService.user.findUnique({
       where: { id },
