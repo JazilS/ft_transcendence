@@ -91,15 +91,17 @@ export class GatewayGateway
         throw new Error('User not found');
       }
 
-      const userInChatroom: ChatroomUser =
-        await this.prismaService.chatroomUser.findFirst({
-          where: {
-            chatroomId: payload.message.chatId,
-            userId: payload.message.emitterId,
-          },
-        });
-      if (!userInChatroom) throw 'User not in chatroom';
-      if (userInChatroom.restriction === 'MUTED') throw 'User is muted';
+      if (payload.message.emitterId !== 'system') {
+        const userInChatroom: ChatroomUser =
+          await this.prismaService.chatroomUser.findFirst({
+            where: {
+              chatroomId: payload.message.chatId,
+              userId: payload.message.emitterId,
+            },
+          });
+        if (!userInChatroom) throw 'User not in chatroom';
+        if (userInChatroom.restriction === 'MUTED') throw 'User is muted';
+      }
 
       // create message
       const newMessage = await this.prismaService.message.create({
@@ -418,19 +420,24 @@ export class GatewayGateway
         data: { restriction: 'MUTED' },
       });
       let muteTimeLeft = parseInt(payload.muteTime);
-      this.server.to(payload.mutedUser).emit('MUTE_USER', muteTimeLeft);
+      console.log('MUTE TIME LEFT = ', muteTimeLeft);
+      this.server
+        .to(payload.roomId)
+        .emit('MUTE_USER', payload.mutedUser, muteTimeLeft);
 
       // Créer un nouvel intervalle pour cet utilisateur
       this.muteIntervals[payload.mutedUser] = setInterval(() => {
-        muteTimeLeft--;
+        muteTimeLeft -= 10;
         if (muteTimeLeft <= 0) {
           // Si le temps est écoulé, démuter l'utilisateur et effacer l'intervalle
           this.handleUnMuteUser(client, payload);
         } else {
           // Sinon, envoyer le temps restant au client
-          this.server.to(payload.mutedUser).emit('MUTE_USER', muteTimeLeft);
+          this.server
+            .to(payload.roomId)
+            .emit('MUTE_USER', payload.mutedUser, muteTimeLeft);
         }
-      }, 1000);
+      }, 10000);
     } catch (error) {
       console.error('Error muting user:', error);
     }
@@ -443,7 +450,6 @@ export class GatewayGateway
     payload: { roomId: string; mutedUser: string },
   ) {
     try {
-      console.log('MUTE_USER:', payload);
       const userToMute = await this.prismaService.chatroomUser.findFirst({
         where: { chatroomId: payload.roomId, userId: payload.mutedUser },
       });
@@ -457,11 +463,35 @@ export class GatewayGateway
       clearInterval(this.muteIntervals[payload.mutedUser]);
       delete this.muteIntervals[payload.mutedUser];
 
-      this.server.to(payload.mutedUser).emit('UNMUTE_USER');
+      this.server.to(payload.roomId).emit('MUTE_USER', payload.mutedUser, 0);
     } catch (error) {
       console.error('Error muting user:', error);
     }
   }
+
+  // @SubscribeMessage('GET_MUTE_TIME')
+  // async handleGetMuteTime(
+  //   @ConnectedSocket() client: SocketWithAuth,
+  //   @MessageBody()
+  //   payload: { roomId: string; mutedUser: string },
+  // ) {
+  //   try {
+  //     // Vérifier si l'utilisateur est actuellement mute
+  //     if (this.muteIntervals[payload.mutedUser]) {
+  //       // Si oui, obtenir le temps restant de mute
+  //       const muteTimeLeft = this.muteIntervals[payload.mutedUser].repeat;
+
+  //       // Envoyer le temps restant de mute au client
+  //       this.server.to(payload.mutedUser).emit('GET_MUTE_TIME', muteTimeLeft);
+  //     } else {
+  //       // Si non, envoyer 0 au client
+  //       this.server.to(payload.mutedUser).emit('GET_MUTE_TIME', 0);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error getting mute time:', error);
+  //   }
+  // }
+
   // createTokenMiddleware =
   //   (jwtService: JwtTokenService, logger: Logger) =>
   //   async (socket: SocketWithAuth, next) => {

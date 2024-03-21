@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { Message, Prisma, RESTRICTION, ROLE, TYPE } from '@prisma/client';
 import Messages from 'src/gateway/types/Message.types';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ChatService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly userService: UserService,
+  ) {}
 
   // CREATECHATROOM
   async createChatRoom(body: {
@@ -347,7 +351,7 @@ export class ChatService {
   }
 
   // GETPROFILESFROMROOM
-  async getProfilesFromRoom(channelId: string) {
+  async getProfilesFromRoom(channelId: string, userId: string) {
     try {
       console.log('channelId =', channelId);
       if (channelId === 'defaultChatRoom') {
@@ -375,15 +379,41 @@ export class ChatService {
           gameHistory: any[];
         };
         role: string;
-      }[] = chatroom.users.map((chatroomUser) => ({
-        userProfile: {
-          id: chatroomUser.user.id,
-          name: chatroomUser.user.name,
-          imageSrc: chatroomUser.user.avatar,
-          gameHistory: [], // A CHANGER POUR PROFILE (recuperer les games du user)
-        },
-        role: chatroomUser.role,
-      }));
+        fadeMenuInfos: {
+          isFriend: boolean;
+          isConnected: boolean;
+          isInvited: boolean;
+          isBlocked: boolean;
+          isMuted: boolean;
+          isKicked: boolean;
+          isBanned: boolean;
+          role: string;
+        };
+      }[] = await Promise.all(
+        chatroom.users.map(async (chatroomUser) => ({
+          userProfile: {
+            id: chatroomUser.user.id,
+            name: chatroomUser.user.name,
+            imageSrc: chatroomUser.user.avatar,
+            gameHistory: [], // A CHANGER POUR PROFILE (recuperer les games du user)
+          },
+          role: chatroomUser.role,
+          fadeMenuInfos: (await this.userService.getFadeMenuInfos(
+            userId,
+            chatroomUser.user.id,
+            channelId,
+          )) as {
+            isFriend: boolean;
+            isConnected: boolean;
+            isInvited: boolean;
+            isBlocked: boolean;
+            isMuted: boolean;
+            isKicked: boolean;
+            isBanned: boolean;
+            role: string;
+          },
+        })),
+      );
       return profiles;
     } catch (error) {
       console.error('Error getting profiles from room:', error);

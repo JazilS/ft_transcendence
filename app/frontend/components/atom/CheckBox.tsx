@@ -1,27 +1,34 @@
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { MenuItem } from "@mui/material";
 import { quantico } from "@/models/Font/FontModel";
 import { mySocket } from "@/app/utils/getSocket";
-import { useAppSelector } from "@/app/store/hooks";
-import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import MuteModal from "./chat/MuteModal";
+import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
+import { setUserProfiles } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 // import '../style/Checkbox.css'
 
 export default function CheckBoxMenuItem({
   userId,
   targetId,
-  initialState,
+  initialBlockedState,
+  initialMutedState,
   roomId,
   action,
 }: {
   userId: string;
   targetId: string;
-  initialState: boolean;
+  initialBlockedState: boolean;
+  initialMutedState: boolean;
   roomId: string;
   action: string;
 }) {
-  const [checked, setChecked] = useState<boolean>(initialState);
-  const [muteTimeLeft, setMuteTimeLeft] = useState<number>(0);
+  const [checked, setChecked] = useState<boolean>(initialBlockedState);
+  const [muted, setMuted] = useState<boolean>(initialMutedState);
+  const [muteTimeLeft, setMuteTimeLeft] = useState<number>();
   const [open, setOpen] = useState(false);
+  const userProfiles = useAppSelector((state) => state.chatRooms.userProfiles);
+  const dispatch = useAppDispatch();
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -38,9 +45,9 @@ export default function CheckBoxMenuItem({
     }
   };
 
-  const handleMute = (newValue: boolean, muteTime: number) => {
+  const handleMute = (muteTime: number) => {
     handleClose();
-    setChecked(newValue);
+    setMuted(true);
     console.log("muteTime = ", muteTime);
     if (userId !== "") {
       mySocket.emit("MUTE_USER", {
@@ -48,30 +55,58 @@ export default function CheckBoxMenuItem({
         mutedUser: targetId,
         muteTime: muteTime,
       });
+      const updatedProfiles = userProfiles.map((user) =>
+        user.userProfile.id === targetId
+          ? { ...user, fadeMenuInfos: { ...user.fadeMenuInfos, isMuted: true } }
+          : user
+      );
+      dispatch(setUserProfiles(updatedProfiles));
     }
   };
 
   const handleUnMute = (newValue: boolean) => {
-    setChecked(newValue);
-    if (userId !== "") {
-      mySocket.emit("UNMUTE_USER", {
-        roomId: roomId,
-        mutedUser: targetId,
-      });
-    }
+    // setChecked(newValue);
+    // if (userId !== "") {
+    setMuted(newValue);
+    setMuteTimeLeft(0);
+    mySocket.emit("UNMUTE_USER", {
+      roomId: roomId,
+      mutedUser: targetId,
+    });
+    // }
   };
 
   useEffect(() => {
-    const handleMuteUser = (timeLeft: number) => {
-      setMuteTimeLeft(timeLeft);
-    };
+    mySocket.on("MUTE_USER", (userId: string, timeLeft: number) => {
+      if (timeLeft <= 0) {
+        console.log("timeLeft RECEIVED MUTE_USER = ", timeLeft);
+        setMuted(false);
+        setMuteTimeLeft(0);
+        const updatedProfiles = userProfiles.map((user) =>
+          user.userProfile.id === targetId
+            ? {
+                ...user,
+                fadeMenuInfos: { ...user.fadeMenuInfos, isMuted: false },
+              }
+            : user
+        );
+        dispatch(setUserProfiles(updatedProfiles));
+      } else {
+        setMuted(true);
+        setMuteTimeLeft(timeLeft);
+        console.log("muteTime = ", timeLeft);
+      }
+    });
 
-    mySocket.on("MUTE_USER", handleMuteUser);
+    // mySocket.on("GET_MUTE_TIME", (data: number) => {
+    //   setMuteTimeLeft(data);
+    // });
 
     return () => {
-      mySocket.off("MUTE_USER", handleMuteUser);
+      mySocket.off("MUTE_USER");
+      // mySocket.off("GET_MUTE_TIME");
     };
-  }, []);
+  }, [dispatch, roomId, targetId, userProfiles]);
 
   return (
     <MenuItem
@@ -79,8 +114,8 @@ export default function CheckBoxMenuItem({
         if (action === "block") {
           handleBlock(!checked);
         } else if (action === "mute") {
-          if (!checked) handleOpen();
-          else handleUnMute(!checked);
+          if (!muted) handleOpen();
+          else handleUnMute(!muted);
         }
       }}
       className={`${quantico.className} w-full`}
@@ -89,7 +124,7 @@ export default function CheckBoxMenuItem({
         {action === "block" &&
           (checked ? <span>Unblock</span> : <span>Block</span>)}
         {action === "mute" &&
-          (checked ? (
+          (muted ? (
             <span>Unmute : {muteTimeLeft}s left </span>
           ) : (
             <span>Mute</span>
@@ -99,7 +134,7 @@ export default function CheckBoxMenuItem({
         open={open}
         handleClose={handleClose}
         handleMute={handleMute}
-        value={!checked}
+        value={!muted}
       ></MuteModal>
     </MenuItem>
   );

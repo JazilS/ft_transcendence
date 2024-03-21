@@ -4,93 +4,87 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import "@/style/FadeMenu.css";
-import { useGetFadeMenuInfosMutation } from "@/app/store/features/User/user.api.slice";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
-import { useAppSelector } from "@/app/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { mySocket } from "@/app/utils/getSocket";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { quantico } from "@/models/FontModel";
+import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
+import { updateRole } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 
 export default function FadeMenu({
-  targetName,
-  targetId,
+  targetProfile,
   active,
-  targetRole,
   userRole,
   setUserRole,
   setRoomOnId,
   roomOn,
 }: {
-  targetName: string;
-  targetId: string;
+  targetProfile: {
+    userProfile: PlayerProfile;
+    role: string;
+    fadeMenuInfos: FadeMenuInfos;
+  };
   active: boolean;
-  targetRole: string;
   userRole: string;
   setUserRole: React.Dispatch<React.SetStateAction<string>>;
   setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
   roomOn: ChatRoom;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [infos, setInfos] = useState<FadeMenuInfos>({
-    isBanned: false,
-    isBlocked: false,
-    isConnected: false,
-    isFriend: false,
-    isInvited: false,
-    isKicked: false,
-    isMuted: false,
-    role: "",
-  });
   const open = Boolean(anchorEl);
 
   const user = useAppSelector((state) => state.user.user);
-  const [getFadeMenuInfos] = useGetFadeMenuInfosMutation();
+  const userProfiles: {
+    userProfile: PlayerProfile;
+    role: string;
+    fadeMenuInfos: FadeMenuInfos;
+  }[] = useAppSelector((state) => state.chatRooms.userProfiles);
 
-  useEffect(() => {
-    const fetchFadeMenuInfos = async () => {
-      const response:
-        | { data: FadeMenuInfos }
-        | { error: FetchBaseQueryError | SerializedError } =
-        await getFadeMenuInfos({
-          userId: user.playerProfile.id,
-          targetId: targetId,
-          roomId: roomOn.id,
-        });
-      if ("data" in response) {
-        setInfos(response.data);
-      } else {
-        console.error(
-          "Error during API call for fade menu infos:",
-          response.error
-        );
-      }
-    };
-    fetchFadeMenuInfos();
-  }, [anchorEl, getFadeMenuInfos, roomOn.id, targetId, user]);
+  const dispatch = useAppDispatch();
+  // const [getFadeMenuInfos] = useGetFadeMenuInfosMutation();
+
+  // useEffect(() => {
+  //   const fetchFadeMenuInfos = async () => {
+  //     const response:
+  //       | { data: FadeMenuInfos }
+  //       | { error: FetchBaseQueryError | SerializedError } =
+  //       await getFadeMenuInfos({
+  //         userId: user.playerProfile.id,
+  //         targetId: targetId,
+  //         roomId: roomOn.id,
+  //       });
+  //     if ("data" in response) {
+  //       dispatch;
+  //       setInfos(response.data);
+  //     } else {
+  //       console.error(
+  //         "Error during API call for fade menu infos:",
+  //         response.error
+  //       );
+  //     }
+  //   };
+  //   fetchFadeMenuInfos();
+  // }, [anchorEl, getFadeMenuInfos, roomOn.id, targetId, user]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     console.log(
-      "targetName : ",
-      targetName,
+      "targetProfile.userProfile.name : ",
+      targetProfile.userProfile.name,
       "targetId : ",
-      targetId,
+      targetProfile.userProfile.id,
       "active : ",
       active,
       "targetRole : ",
-      targetRole,
-      "infos : ",
-      infos
+      targetProfile.role
     );
 
     if (active) setAnchorEl(event.currentTarget);
   };
 
   const handlePromote = () => {
-    console.log("IN HNADLE PROMOTE_USER");
-    mySocket.emit("PROMOTE_USER", { targetId: targetId, roomOnId: roomOn.id });
+    mySocket.emit("PROMOTE_USER", { targetId: targetProfile.userProfile.id, roomOnId: roomOn.id });
     setUserRole("ADMIN");
   };
 
@@ -98,8 +92,8 @@ export default function FadeMenu({
     if (mySocket)
       mySocket.emit("LEAVE_ROOM", {
         room: roomOn.id,
-        userName: targetName,
-        userId: targetId,
+        userName: targetProfile.userProfile.name,
+        userId: targetProfile.userProfile.id,
         leavingType: "KICKED",
       });
     else console.log("No socket");
@@ -109,8 +103,8 @@ export default function FadeMenu({
     if (mySocket)
       mySocket.emit("LEAVE_ROOM", {
         room: roomOn.id,
-        userName: targetName,
-        userId: targetId,
+        userName: targetProfile.userProfile.name,
+        userId: targetProfile.userProfile.id,
         leavingType: "BANNED",
       });
     else console.log("No socket");
@@ -121,13 +115,28 @@ export default function FadeMenu({
       mySocket.on("PROMOTE_USER", async () => {
         console.log(" i have been promoted to ADMIN");
         setUserRole("ADMIN");
-        setInfos({ ...infos, role: "ADMIN" });
+        dispatch(updateRole({targetId: targetProfile.userProfile.id, role: "ADMIN"}))
+        // setInfos({ ...infos, role: "ADMIN" });
       });
     }
     return () => {
       mySocket.off("PROMOTE_USER");
     };
   });
+
+  // useEffect(() => {
+  //   if (mySocket) {
+  //     mySocket.on("PROMOTE_USER", async () => {
+  //       console.log(" i have been promoted to ADMIN");
+  //       setUserRole("ADMIN");
+
+  //       setInfos({ ...infos, role: "ADMIN" });
+  //     });
+  //   }
+  //   return () => {
+  //     mySocket.off("PROMOTE_USER");
+  //   };
+  // });
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -139,14 +148,14 @@ export default function FadeMenu({
         className="hover:bg-[#f28eff] pl-9 w-[100%]"
         variant={"chatMember"}
         size={"channel"}
-        infos={infos}
+        infos={targetProfile.fadeMenuInfos}
         id="fade-button"
         aria-controls={open ? "fade-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        {targetName}
+        {targetProfile.userProfile.name}
       </Button>
       <Menu
         id="fade-menu"
@@ -163,35 +172,37 @@ export default function FadeMenu({
         {/* BLOCK */}
         <CheckBoxMenuItem
           userId={user.playerProfile.id}
-          targetId={targetId}
-          initialState={infos.isBlocked}
+          targetId={targetProfile.userProfile.id}
+          initialBlockedState={targetProfile.fadeMenuInfos.isBlocked}
+          initialMutedState={targetProfile.fadeMenuInfos.isMuted}
           roomId={roomOn.id}
           action="block"
-        // eslint-disable-next-line react/jsx-no-comment-textnodes
-          ></CheckBoxMenuItem>
+        ></CheckBoxMenuItem>
 
-        // TODO MUTE :
+        {/* // TODO MUTE :
+          // eslint-disable-next-line react/jsx-no-comment-textnodes
         //! il reste des problemes, le timeout qui ne fonctionne pas et le
         //! logo qui se met a jour que si on clique sur le fade menu de la personnne
 
-        // * la restriction de message est bien effectuee, le logo change bien mais pas au bon moment
+        // * la restriction de message est bien effectuee, le logo change bien mais pas au bon moment */}
         {/* MUTE */}
-        {infos.role !== "CREATOR" && userRole !== "MEMBER" && (
+        {targetProfile.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
           <CheckBoxMenuItem
             userId={user.playerProfile.id}
-            targetId={targetId}
-            initialState={infos.isMuted}
+            targetId={targetProfile.userProfile.id}
+            initialBlockedState={targetProfile.fadeMenuInfos.isBlocked}
+            initialMutedState={targetProfile.fadeMenuInfos.isMuted}
             roomId={roomOn.id}
             action="mute"
           ></CheckBoxMenuItem>
         )}
         {/* PROMOTE IN CHANNEL */}
-        {infos.role === "MEMBER" &&
+        {targetProfile.role === "MEMBER" &&
           (userRole === "CREATOR" || userRole === "ADMIN") && (
             <MenuItem
               onClick={() => {
                 console.log("userRole", userRole);
-                console.log("targetRole", targetRole);
+                console.log("targetRole", targetProfile.role);
                 handleClose();
                 handlePromote();
               }}
@@ -201,7 +212,7 @@ export default function FadeMenu({
             </MenuItem>
           )}
         {/* KICK */}
-        {infos.role !== "CREATOR" && userRole !== "MEMBER" && (
+        {targetProfile.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
           <MenuItem
             onClick={() => {
               handleClose();
@@ -213,7 +224,7 @@ export default function FadeMenu({
           </MenuItem>
         )}
         {/* BAN */}
-        {infos.role === "MEMBER" && userRole !== "MEMBER" && (
+        {targetProfile.fadeMenuInfos.role === "MEMBER" && userRole !== "MEMBER" && (
           <MenuItem
             onClick={() => {
               handleClose();

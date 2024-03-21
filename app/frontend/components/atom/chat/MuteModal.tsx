@@ -1,11 +1,12 @@
 "use client";
 
-import * as React from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import "@/app/styles.css";
 import Button from "@/components/atom/Button";
 import { quantico } from "@/models/FontModel";
+import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 
 export const style = {
   position: "absolute",
@@ -27,7 +28,7 @@ export default function MuteModal({
 }: {
   open: boolean;
   handleClose: () => void;
-  handleMute: (newValue: boolean, muteTime: number) => void;
+  handleMute: (muteTime: number) => void;
   value: boolean;
 }) {
   return (
@@ -46,7 +47,7 @@ export default function MuteModal({
                 variant={"rounded"}
                 size={"lg"}
                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                  handleMute(value, 6000);
+                  handleMute(60);
                   event.stopPropagation();
                   handleClose();
                 }}
@@ -57,7 +58,7 @@ export default function MuteModal({
                 variant={"rounded"}
                 size={"lg"}
                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                  handleMute(value, 60000);
+                  handleMute(600);
                   event.stopPropagation();
                   handleClose();
                 }}
@@ -68,7 +69,7 @@ export default function MuteModal({
                 variant={"rounded"}
                 size={"lg"}
                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                  handleMute(value, 3600000);
+                  handleMute(3600);
                   event.stopPropagation();
                   handleClose();
                 }}

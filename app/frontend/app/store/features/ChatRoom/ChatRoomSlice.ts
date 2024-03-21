@@ -7,13 +7,21 @@ import {
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { ChatRoomApiSlice } from "./ChatRoom.api.slice";
 import Messages from "@/models/ChatRoom/messages";
+import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
+import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 
 export interface ChatRoomslice {
   chatRooms: ChatRoom[];
+  userProfiles: {
+    userProfile: PlayerProfile;
+    role: string;
+    fadeMenuInfos: FadeMenuInfos;
+  }[];
 }
 
 const initialState: ChatRoomslice = {
   chatRooms: [],
+  userProfiles: [],
 };
 
 export const ChatRoomSlice = createSlice({
@@ -44,8 +52,28 @@ export const ChatRoomSlice = createSlice({
         state.chatRooms = [...state.chatRooms, action.payload];
       else console.error("state.chatRooms is not an array");
     },
+    setUserProfiles: (
+      state,
+      action: PayloadAction<
+        {
+          userProfile: PlayerProfile;
+          role: string;
+          fadeMenuInfos: FadeMenuInfos;
+        }[]
+      >
+    ) => {
+      state.userProfiles = action.payload;
+    },
+    updateRole: (state, action: PayloadAction<{ targetId: string, role: string }>) => {
+      console.log("upadeRole action.payload", action.payload);
+      state.userProfiles = state.userProfiles.map((user) =>
+        user.userProfile.id === action.payload.targetId
+          ? { ...user, role: action.payload.role }
+          : user
+      );
+    }
   },
 });
 
-export const { addRoom, newMessage, addChatroom } = ChatRoomSlice.actions;
+export const { addRoom, newMessage, addChatroom, setUserProfiles, updateRole } = ChatRoomSlice.actions;
 export default ChatRoomSlice.reducer;

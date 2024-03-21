@@ -117,8 +117,9 @@ export class ChatController {
     @Body()
     body: {
       channelId: string;
+      userId: string;
     },
   ) {
-    return this.chatService.getProfilesFromRoom(body.channelId);
+    return this.chatService.getProfilesFromRoom(body.channelId, body.userId);
   }
 }
