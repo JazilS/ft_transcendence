@@ -371,6 +371,7 @@ export class ChatService {
       if (!chatroom) {
         throw new Error('Chatroom not found');
       }
+      // console.log("USERID, TARGETID AND CHANNELID", userId, , channelId);
       const profiles: {
         userProfile: {
           id: string;

@@ -21,7 +21,22 @@ export interface ChatRoomslice {
 
 const initialState: ChatRoomslice = {
   chatRooms: [],
-  userProfiles: [],
+  userProfiles: [
+    {
+      userProfile: { id: "", name: "", imageSrc: "", gameHistory: []},
+      role: "",
+      fadeMenuInfos: {
+        isFriend: false,
+        isConnected: false,
+        isInvited: false,
+        isBlocked: false,
+        isMuted: false,
+        isKicked: false,
+        isBanned: false,
+        role: "",
+      },
+    },
+  ],
 };
 
 export const ChatRoomSlice = createSlice({
@@ -64,16 +79,20 @@ export const ChatRoomSlice = createSlice({
     ) => {
       state.userProfiles = action.payload;
     },
-    updateRole: (state, action: PayloadAction<{ targetId: string, role: string }>) => {
+    updateRole: (
+      state,
+      action: PayloadAction<{ targetId: string; role: string }>
+    ) => {
       console.log("upadeRole action.payload", action.payload);
       state.userProfiles = state.userProfiles.map((user) =>
         user.userProfile.id === action.payload.targetId
           ? { ...user, role: action.payload.role }
           : user
       );
-    }
+    },
   },
 });
 
-export const { addRoom, newMessage, addChatroom, setUserProfiles, updateRole } = ChatRoomSlice.actions;
+export const { addRoom, newMessage, addChatroom, setUserProfiles, updateRole } =
+  ChatRoomSlice.actions;
 export default ChatRoomSlice.reducer;

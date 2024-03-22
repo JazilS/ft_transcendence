@@ -56,7 +56,7 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getProfilesFromRoom: builder.mutation<{ userProfile: PlayerProfile; role: string; fadeMenuInfos: FadeMenuInfos }[], { channelId: string }>({
+    getProfilesFromRoom: builder.mutation<{ userProfile: PlayerProfile; role: string; fadeMenuInfos: FadeMenuInfos }[], { channelId: string, userId: string }>({
       query: (data) => ({
         url: "/chat/getProfilesFromRoom",
         method: "POST",

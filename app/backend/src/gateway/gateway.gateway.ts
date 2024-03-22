@@ -171,51 +171,58 @@ export class GatewayGateway
     )
       return 'Room does not exist';
 
-    // join room
-    client.join(payload.room);
+    try {
+      // join room
+      client.join(payload.room);
 
-    if (this.server.of('/').adapter.rooms) {
-      const sockets = this.server.of('/').adapter.rooms.get(payload.room);
+      if (this.server.of('/').adapter.rooms) {
+        const sockets = this.server.of('/').adapter.rooms.get(payload.room);
 
-      // Log the client's id
-      this.logger.log('Client id:', client.userId);
-      console.log(client.userId);
-      console.log('sockets in room', sockets);
+        // Log the client's id
+        this.logger.log('Client id:', client.userId);
+        console.log(client.userId);
+        console.log('sockets in room', sockets);
 
-      // send message to room
-      const userName = await this.userService.getUserNameById({
-        userId: client.userId,
-      });
-      await this.handleMessage({
-        message: {
-          id: '',
-          content: userName + ' has joined the room',
-          chatId: payload.room || '',
-          emitterId: 'system',
-          emitterName: '',
-          emitterAvatar: '/robot.png',
-        },
-      });
-
-      const userProfile = await this.userService.getProfileById(payload.userId);
-      const userRole: ChatroomUser =
-        await this.prismaService.chatroomUser.findFirst({
-          where: {
-            chatroomId: payload.room,
-            userId: payload.userId,
+        // send message to room
+        const userName = await this.userService.getUserNameById({
+          userId: client.userId,
+        });
+        await this.handleMessage({
+          message: {
+            id: '',
+            content: userName + ' has joined the room',
+            chatId: payload.room || '',
+            emitterId: 'system',
+            emitterName: '',
+            emitterAvatar: '/robot.png',
           },
         });
 
-      client.to(payload.room).emit('JOIN_ROOM', {
-        userProfile: userProfile,
-        role: userRole.role as string,
-      });
-      return userName;
-    } else {
-      this.logger.error('Rooms are not defined.');
-    }
+        const userProfile = await this.userService.getProfileById(
+          payload.userId,
+        );
+        const userRole: ChatroomUser =
+          await this.prismaService.chatroomUser.findFirst({
+            where: {
+              chatroomId: payload.room,
+              userId: payload.userId,
+            },
+          });
 
-    return 'Joined room : ' + payload.room;
+        client.to(payload.room).emit('JOIN_ROOM', {
+          userProfile: userProfile,
+          role: userRole.role as string,
+          fadeMenuInfos: this.userService.getFadeMenuInfos(
+            client.userId,
+            payload.userId,
+            payload.room,
+          ),
+        });
+        return userName;
+      }
+    } catch (error) {
+      console.error('Error joining room:', error);
+    }
   }
 
   // LEAVE_ROOM

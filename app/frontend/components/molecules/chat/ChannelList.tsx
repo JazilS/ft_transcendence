@@ -19,7 +19,7 @@ export default function ChannelBar({
   );
 
   useEffect(() => {
-    console.log("channelsIn : ", channels);
+    // console.log("channelsIn : ", channels);
   });
   return (
     <div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>

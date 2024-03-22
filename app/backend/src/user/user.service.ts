@@ -163,11 +163,14 @@ export class UserService {
   // GETFADEMENUINFOS
   async getFadeMenuInfos(userId: string, targetId: string, roomId: string) {
     try {
-      void roomId;
+      // void roomId;
       let isBlocked: boolean;
       let isMuted: boolean;
       let role: string;
 
+      if (!userId || !targetId) {
+        return { error: 'User ID and target ID are required' };
+      }
       // get user
       const user: User = await this.prismaService.user.findUnique({
         where: { id: userId },

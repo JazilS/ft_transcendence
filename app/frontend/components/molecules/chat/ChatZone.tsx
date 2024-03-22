@@ -36,7 +36,7 @@ export default function ChatZone({
 
   // fetch messages
   useEffect(() => {
-    console.log("IN USEFFECT FETCHDATA");
+    // console.log("IN USEFFECT FETCHDATA");
     async function getMessages() {
       if (roomOn?.messages === undefined || roomOn?.messages.length === 0) {
         setMessages([]);

@@ -4,7 +4,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import "@/style/FadeMenu.css";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { mySocket } from "@/app/utils/getSocket";
@@ -15,10 +15,11 @@ import { updateRole } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 
 export default function FadeMenu({
   targetProfile,
-  active,
   userRole,
   setUserRole,
-  setRoomOnId,
+  setAnchorEl,
+  anchorEl,
+  open,
   roomOn,
 }: {
   targetProfile: {
@@ -26,14 +27,15 @@ export default function FadeMenu({
     role: string;
     fadeMenuInfos: FadeMenuInfos;
   };
-  active: boolean;
   userRole: string;
   setUserRole: React.Dispatch<React.SetStateAction<string>>;
-  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
+  setAnchorEl: (value: SetStateAction<HTMLElement | null>) => void;
+  anchorEl: HTMLElement | null;
+  open: boolean;
   roomOn: ChatRoom;
 }) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  // const open = Boolean(anchorEl);
 
   const user = useAppSelector((state) => state.user.user);
   const userProfiles: {
@@ -68,23 +70,17 @@ export default function FadeMenu({
   //   fetchFadeMenuInfos();
   // }, [anchorEl, getFadeMenuInfos, roomOn.id, targetId, user]);
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    console.log(
-      "targetProfile.userProfile.name : ",
-      targetProfile.userProfile.name,
-      "targetId : ",
-      targetProfile.userProfile.id,
-      "active : ",
-      active,
-      "targetRole : ",
-      targetProfile.role
-    );
+  // const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+  //   console.log("active : ", active, "targetProfile : ", targetProfile);
 
-    if (active) setAnchorEl(event.currentTarget);
-  };
+  //   if (active) setAnchorEl(event.currentTarget);
+  // };
 
   const handlePromote = () => {
-    mySocket.emit("PROMOTE_USER", { targetId: targetProfile.userProfile.id, roomOnId: roomOn.id });
+    mySocket.emit("PROMOTE_USER", {
+      targetId: targetProfile.userProfile.id,
+      roomOnId: roomOn.id,
+    });
     setUserRole("ADMIN");
   };
 
@@ -115,7 +111,9 @@ export default function FadeMenu({
       mySocket.on("PROMOTE_USER", async () => {
         console.log(" i have been promoted to ADMIN");
         setUserRole("ADMIN");
-        dispatch(updateRole({targetId: targetProfile.userProfile.id, role: "ADMIN"}))
+        dispatch(
+          updateRole({ targetId: targetProfile.userProfile.id, role: "ADMIN" })
+        );
         // setInfos({ ...infos, role: "ADMIN" });
       });
     }
@@ -144,7 +142,7 @@ export default function FadeMenu({
 
   return (
     <div className="w-[100%]">
-      <Button
+      {/* <Button
         className="hover:bg-[#f28eff] pl-9 w-[100%]"
         variant={"chatMember"}
         size={"channel"}
@@ -156,7 +154,7 @@ export default function FadeMenu({
         onClick={handleClick}
       >
         {targetProfile.userProfile.name}
-      </Button>
+      </Button> */}
       <Menu
         id="fade-menu"
         MenuListProps={{
@@ -184,18 +182,28 @@ export default function FadeMenu({
         //! il reste des problemes, le timeout qui ne fonctionne pas et le
         //! logo qui se met a jour que si on clique sur le fade menu de la personnne
 
+
+
+        // TODO : ADAPTER TOUT LE FADEMENU
+
+
+
+
+
+
         // * la restriction de message est bien effectuee, le logo change bien mais pas au bon moment */}
         {/* MUTE */}
-        {targetProfile.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
-          <CheckBoxMenuItem
-            userId={user.playerProfile.id}
-            targetId={targetProfile.userProfile.id}
-            initialBlockedState={targetProfile.fadeMenuInfos.isBlocked}
-            initialMutedState={targetProfile.fadeMenuInfos.isMuted}
-            roomId={roomOn.id}
-            action="mute"
-          ></CheckBoxMenuItem>
-        )}
+        {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
+          userRole !== "MEMBER" && (
+            <CheckBoxMenuItem
+              userId={user.playerProfile.id}
+              targetId={targetProfile.userProfile.id}
+              initialBlockedState={targetProfile.fadeMenuInfos.isBlocked}
+              initialMutedState={targetProfile.fadeMenuInfos.isMuted}
+              roomId={roomOn.id}
+              action="mute"
+            ></CheckBoxMenuItem>
+          )}
         {/* PROMOTE IN CHANNEL */}
         {targetProfile.role === "MEMBER" &&
           (userRole === "CREATOR" || userRole === "ADMIN") && (
@@ -212,29 +220,31 @@ export default function FadeMenu({
             </MenuItem>
           )}
         {/* KICK */}
-        {targetProfile.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              handleKick();
-            }}
-            className={`${quantico.className} w-full`}
-          >
-            Kick
-          </MenuItem>
-        )}
+        {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
+          userRole !== "MEMBER" && (
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                handleKick();
+              }}
+              className={`${quantico.className} w-full`}
+            >
+              Kick
+            </MenuItem>
+          )}
         {/* BAN */}
-        {targetProfile.fadeMenuInfos.role === "MEMBER" && userRole !== "MEMBER" && (
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              handleBan();
-            }}
-            className={`${quantico.className} w-full`}
-          >
-            Ban
-          </MenuItem>
-        )}
+        {targetProfile.fadeMenuInfos.role === "MEMBER" &&
+          userRole !== "MEMBER" && (
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                handleBan();
+              }}
+              className={`${quantico.className} w-full`}
+            >
+              Ban
+            </MenuItem>
+          )}
       </Menu>
     </div>
   );
