@@ -12,6 +12,7 @@ import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { quantico } from "@/models/FontModel";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import { updateRole } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import Mute from "@/components/atom/chat/mute/mute";
 
 export default function FadeMenu({
   targetProfile,
@@ -38,11 +39,11 @@ export default function FadeMenu({
   // const open = Boolean(anchorEl);
 
   const user = useAppSelector((state) => state.user.user);
-  const userProfiles: {
-    userProfile: PlayerProfile;
-    role: string;
-    fadeMenuInfos: FadeMenuInfos;
-  }[] = useAppSelector((state) => state.chatRooms.userProfiles);
+  // const userProfiles: {
+  //   userProfile: PlayerProfile;
+  //   role: string;
+  //   fadeMenuInfos: FadeMenuInfos;
+  // }[] = useAppSelector((state) => state.chatRooms.userProfiles);
 
   const dispatch = useAppDispatch();
   // const [getFadeMenuInfos] = useGetFadeMenuInfosMutation();
@@ -136,6 +137,19 @@ export default function FadeMenu({
   //   };
   // });
 
+  // const handleMute = (muteTime: number) => {
+  //   if (userId !== "") {
+  //     mySocket.emit("MUTE_USER", {
+  //       roomId: roomOn.id,
+  //       mutedUser: targetProfile.userProfile.id,
+  //       muteTime: muteTime,
+  //     });
+  //     // dispatch(setUserProfiles(updatedProfiles));
+  //   }
+  // };
+
+
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -168,14 +182,25 @@ export default function FadeMenu({
         className={`optionmembres ml-4`}
       >
         {/* BLOCK */}
-        <CheckBoxMenuItem
+        {/* <CheckBoxMenuItem
           userId={user.playerProfile.id}
-          targetId={targetProfile.userProfile.id}
-          initialBlockedState={targetProfile.fadeMenuInfos.isBlocked}
-          initialMutedState={targetProfile.fadeMenuInfos.isMuted}
           roomId={roomOn.id}
           action="block"
-        ></CheckBoxMenuItem>
+        ></CheckBoxMenuItem> */}
+
+
+        {/* MUTE */}
+        {/* <MenuItem
+          onClick={() => {
+            console.log("userRole", userRole);
+            console.log("targetRole", targetProfile.role);
+            // handleClose();
+            handleMute();
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          Promote in channel
+        </MenuItem> */}
 
         {/* // TODO MUTE :
           // eslint-disable-next-line react/jsx-no-comment-textnodes
@@ -193,17 +218,14 @@ export default function FadeMenu({
 
         // * la restriction de message est bien effectuee, le logo change bien mais pas au bon moment */}
         {/* MUTE */}
-        {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
-          userRole !== "MEMBER" && (
-            <CheckBoxMenuItem
-              userId={user.playerProfile.id}
-              targetId={targetProfile.userProfile.id}
-              initialBlockedState={targetProfile.fadeMenuInfos.isBlocked}
-              initialMutedState={targetProfile.fadeMenuInfos.isMuted}
-              roomId={roomOn.id}
-              action="mute"
-            ></CheckBoxMenuItem>
-          )}
+        {/* {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
+          userRole !== "MEMBER" && ( */}
+        <Mute
+          userId={user.playerProfile.id}
+          targetProfile={targetProfile}
+          roomId={roomOn.id}
+        ></Mute>
+        {/* )} */}
         {/* PROMOTE IN CHANNEL */}
         {targetProfile.role === "MEMBER" &&
           (userRole === "CREATOR" || userRole === "ADMIN") && (

@@ -6,25 +6,22 @@ import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import MuteModal from "./chat/MuteModal";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import { setUserProfiles } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 // import '../style/Checkbox.css'
 
 export default function CheckBoxMenuItem({
   userId,
-  targetId,
-  initialBlockedState,
-  initialMutedState,
+  targetProfile,
   roomId,
   action,
 }: {
   userId: string;
-  targetId: string;
-  initialBlockedState: boolean;
-  initialMutedState: boolean;
+  targetProfile: ChatMemberProfile;
   roomId: string;
   action: string;
 }) {
-  const [checked, setChecked] = useState<boolean>(initialBlockedState);
-  const [muted, setMuted] = useState<boolean>(initialMutedState);
+  const [checked, setChecked] = useState<boolean>(targetProfile.fadeMenuInfos.isBlocked);
+  const [muted, setMuted] = useState<boolean>(targetProfile.fadeMenuInfos.isMuted);
   const [muteTimeLeft, setMuteTimeLeft] = useState<number>();
   const [open, setOpen] = useState(false);
   const userProfiles = useAppSelector((state) => state.chatRooms.userProfiles);
@@ -39,7 +36,7 @@ export default function CheckBoxMenuItem({
     if (userId !== "") {
       mySocket.emit("BLOCK_USER", {
         blockerId: userId,
-        blockedUserId: targetId,
+        blockedUserId: targetProfile.userProfile.id,
         value: checked,
       });
     }
@@ -52,11 +49,11 @@ export default function CheckBoxMenuItem({
     if (userId !== "") {
       mySocket.emit("MUTE_USER", {
         roomId: roomId,
-        mutedUser: targetId,
+        mutedUser: targetProfile.userProfile.id,
         muteTime: muteTime,
       });
       const updatedProfiles = userProfiles.map((user) =>
-        user.userProfile.id === targetId
+        user.userProfile.id === targetProfile.userProfile.id
           ? { ...user, fadeMenuInfos: { ...user.fadeMenuInfos, isMuted: true } }
           : user
       );
@@ -106,7 +103,7 @@ export default function CheckBoxMenuItem({
       mySocket.off("MUTE_USER");
       // mySocket.off("GET_MUTE_TIME");
     };
-  }, [dispatch, roomId, targetId, userProfiles]);
+  }, [dispatch, roomId, userProfiles]);
 
   return (
     <MenuItem

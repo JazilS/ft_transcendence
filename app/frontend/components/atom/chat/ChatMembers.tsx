@@ -109,6 +109,22 @@ export default function ChatMembers({
     };
   });
 
+  useEffect(() => {
+    if (mySocket) {
+      mySocket.on("MUTE_USER", (mutedUserId: string, muteTimeLeft: number) => {
+        const updatedProfiles: ChatMemberProfile[] = userProfiles.map((user) =>
+          user.userProfile.id === mutedUserId
+            ? {
+                ...user,
+                fadeMenuInfos: { ...user.fadeMenuInfos, isMuted: true },
+              }
+            : user
+        );
+        dispatch(setUserProfiles(updatedProfiles));
+      });
+    }
+  }, [dispatch, userProfiles]);
+
   // print updated userProfiles
   useEffect(() => {
     console.log("userProfiles updated", userProfiles);
@@ -134,7 +150,7 @@ export default function ChatMembers({
                   if (user.userProfile.id !== userId) handleClick(event);
                 }}
               >
-                {user.userProfile.name}
+                {user.userProfile.name}_{user.userProfile.id.slice(0, 3)}
               </Button>
               <FadeMenu
                 targetProfile={user}
