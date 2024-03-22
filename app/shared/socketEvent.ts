@@ -1,3 +1,4 @@
+export const PONG_ROOM_PREFIX = 'pong_';
 const pong = 'pong';
 
 export enum PongEvent {
