@@ -17,7 +17,7 @@ datasource db {
 
 model User {
   id            String        @id @default(uuid())
-  name          String?       //@uniquechat
+  name          String?       @unique //@uniquechat
   avatar        String?
   games         GameHistory[]
   chatRoomsIn   ChatroomUser[]

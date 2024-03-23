@@ -17,6 +17,7 @@ export class UserService {
         data: {
           name: 'Musashi',
           avatar: '/Musashi.jpg',
+          email: '', // to remove
         },
       });
       const user = await this.prismaService.user.findUnique({
@@ -30,6 +31,7 @@ export class UserService {
             id: 'system',
             name: '',
             avatar: '/robot.png',
+            email: '', // to remove
           },
         });
       }
@@ -286,12 +288,12 @@ export class UserService {
     });
   }
 
-  async findUserByname(name: string, select: UserInfo) {
-    return await this.prismaService.user.findUnique({
-      where: { name },
-      select,
-    });
-  }
+  // async findUserByname(name: string, select: UserInfo) {
+  //   return await this.prismaService.user.findUnique({
+  //     where: { name },
+  //     select,
+  //   });
+  // }
 
   async findManyUsers(ids: string[], select: UserInfo) {
     return await this.prismaService.user.findMany({
