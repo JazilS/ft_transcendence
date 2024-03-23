@@ -18,9 +18,9 @@ async function bootstrap() {
     credentials: true,
   });
   app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
+  // app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
   app.setGlobalPrefix('api');
   app.use(cookieParser());
-  app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
   // app.setGlobalPrefix('api');
   // logger.log(`Server is running on: ${port}`);
   await app.listen(4000);

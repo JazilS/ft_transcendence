@@ -27,7 +27,8 @@ export class AuthService {
       }
       else {
         const tmp = await this.prismaService.user.update({
-          where: { email: user.email },
+          // where: { email: user.email },
+          where: { id: user.id },
           data: { status : 'ONLINE'}
         });
         user = { ...tmp, id: tmp.id };

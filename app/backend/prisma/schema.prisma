@@ -17,7 +17,7 @@ datasource db {
 
 model User {
   id            String        @id @default(uuid())
-  name          String?       @unique //@uniquechat
+  name          String?       //@unique //@uniquechat
   avatar        String?
   games         GameHistory[]
   chatRoomsIn   ChatroomUser[]
@@ -29,7 +29,7 @@ model User {
   blockedByUsers  String[]
   messagesSend  Message[]
 
-  email             String    @unique
+  email             String    //@unique
   status            STATUS    @default(OFFLINE)
   twoFa             Boolean   @default(false)
   twoFaSecret       String?

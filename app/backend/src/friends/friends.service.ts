@@ -68,7 +68,8 @@ export class FriendsService {
 
   private async getUserInfoByName(name: string) {
     return await this.prismaService.user.findUnique({
-      where: { name: name },
+      // where: { name: name },
+      where: { id: '123' }, // to revert
       select: {
         id: true,
         name: true,
