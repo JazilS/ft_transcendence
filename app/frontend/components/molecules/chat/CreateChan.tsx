@@ -6,7 +6,11 @@ import Modal from "@mui/material/Modal";
 import "@/app/styles.css";
 import Button from "@/components/atom/Button";
 import ChannelAccesCheckBox from "@/components/atom/chat/NewChan/ChannelAccesCheckBox";
+<<<<<<< HEAD
 import TextInput from "@/components/atom/chat/NewChan/TextInput";
+=======
+import NewChanName from "@/components/atom/chat/NewChan/NewchannelName";
+>>>>>>> mounir
 import SubmitNewChan from "@/components/atom/chat/NewChan/SubmitNewChan";
 
 export const style = {
@@ -21,6 +25,7 @@ export const style = {
   p: 4,
 };
 
+<<<<<<< HEAD
 export default function CreateChanModal({setRoomOnId} : {setRoomOnId: React.Dispatch<React.SetStateAction<string>>}) {
   const [open, setOpen] = React.useState(false);
   const [channelName, setChannelName] = React.useState<string>('');
@@ -33,6 +38,14 @@ export default function CreateChanModal({setRoomOnId} : {setRoomOnId: React.Disp
     setAccess('PUBLIC')
     setPassword('')
   };
+=======
+export default function CreateChanModal() {
+  const [open, setOpen] = React.useState(false);
+  const [channelName, setChannelName] = React.useState<string>("Channel");
+  const [access, setAccess] = React.useState<string>("public");
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+>>>>>>> mounir
 
   return (
     <div>
@@ -52,6 +65,7 @@ export default function CreateChanModal({setRoomOnId} : {setRoomOnId: React.Disp
       >
         <Box sx={style}>
           <div className="flex flex-col">
+<<<<<<< HEAD
             <TextInput setText={setChannelName} nameOrPass={"Channel name"} />
             <ChannelAccesCheckBox access={access} setAccess={setAccess} />
             {access === "PROTECTED" && (
@@ -65,6 +79,17 @@ export default function CreateChanModal({setRoomOnId} : {setRoomOnId: React.Disp
               access={access}
               handleClose={handleClose}
               setRoomOnId={setRoomOnId}
+=======
+            <NewChanName
+              channelName={channelName}
+              setChannelName={setChannelName}
+            />
+            <ChannelAccesCheckBox access={access} setAccess={setAccess} />
+            <SubmitNewChan
+              channelName={channelName}
+              access={access}
+              handleClose={handleClose}
+>>>>>>> mounir
             />
           </div>
         </Box>

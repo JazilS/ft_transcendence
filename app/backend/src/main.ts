@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SocketIOAdapter } from './socket-io-adapter';
 import { ConfigService } from '@nestjs/config';
+import * as cookieParser from 'cookie-parser';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +19,10 @@ async function bootstrap() {
   });
   app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
   app.setGlobalPrefix('api');
+  app.use(cookieParser());
+  app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
+  // app.setGlobalPrefix('api');
+  // logger.log(`Server is running on: ${port}`);
   await app.listen(4000);
   // logger.log(`Server is running on: ${port}`);
 }

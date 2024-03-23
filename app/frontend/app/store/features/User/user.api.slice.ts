@@ -14,20 +14,14 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    updateUsername: builder.mutation<
-      string,
-      { userId: string; newName: string }
-    >({
+    updateUsername: builder.mutation< string, { userId: string; newName: string }>({
       query: (data) => ({
         url: "/user/updateUsername",
         method: "POST",
         body: data,
       }),
     }),
-    updateAvatar: builder.mutation<
-      string,
-      { userId: string; newAvatar: string }
-    >({
+    updateAvatar: builder.mutation<string, { userId: string; newAvatar: string }>({
       query: (data) => ({
         url: "/user/updateAvatar",
         method: "POST",

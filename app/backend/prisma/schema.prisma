@@ -27,15 +27,15 @@ model User {
   restricedInChatrooms ChatroomRestrictedUsers[]
   blockedUsers  String[]
   blockedByUsers  String[]
-  // friendsId     User[]       @relation(fields: [roomOnId], references: [id])
-  friendsId     String[]
   messagesSend  Message[]
-}
 
-// model Friends{
-//   id            String        @id @default(uuid())
-//   friendsId     User[]
-// }
+  email             String    @unique
+  status            STATUS    @default(OFFLINE)
+  twoFa             Boolean   @default(false)
+  twoFaSecret       String?
+  friends           User[]    @relation("Friends")
+  friendsRelation   User[]    @relation("Friends")
+}
 
 model Message {
   id      String @id @default(uuid())
@@ -103,4 +103,9 @@ enum RESTRICTION {
   MUTED
   BANNED
   KICKED
+}
+enum STATUS {
+  ONLINE
+  OFFLINE
+  PLAYING
 }

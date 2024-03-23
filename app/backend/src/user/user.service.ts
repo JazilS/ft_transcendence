@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { UserInfo } from './types/userTypes';
+// import { UserData, UserInfo } from 'types/userInfo';
 
 @Injectable()
 export class UserService {
@@ -226,4 +228,95 @@ export class UserService {
       return { error: 'Error getting fade menu infos' };
     }
   }
+
+  // async getUserInfo(userId: string, id: string) {
+  //   const [me, user] = await Promise.all([
+  //     this.finUserById(userId, UserData),
+  //     this.prismaService.user.findFirst({
+  //       where: {
+  //         id,
+  //       },
+  //       select: {
+  //         id: true,
+  //         name: true,
+  //         status: true,
+  //         pong: {
+  //           select: {
+  //             victory: true,
+  //             losses: true,
+  //             rating: true,
+  //           },
+  //         },
+  //       },
+  //     }),
+  //   ]);
+
+  //   if (!me || !user) {
+  //     throw new Error('User not found');
+  //   }
+  //   return user;
+  // }
+
+  // async createUser(name: string, profile: Profile, select: UserInfo) {
+  //   return await this.prismaService.user.create({
+  //     data: {
+  //       name,
+  //       profile: {
+  //         create: profile,
+  //       },
+  //       pong: {
+  //         create: {},
+  //       },
+  //     },
+  //     select,
+  //   });
+  // }
+
+  async getUserById(userId: string, select: UserInfo) {
+    return await this.prismaService.user.findUnique({
+      where: { id: userId, },
+      select,
+    });
+  }
+  
+  async findUserById(id: string, select: UserInfo) {
+    return await this.prismaService.user.findUnique({
+      where: { id },
+      select,
+    });
+  }
+
+  async findUserByname(name: string, select: UserInfo) {
+    return await this.prismaService.user.findUnique({
+      where: { name },
+      select,
+    });
+  }
+
+  async findManyUsers(ids: string[], select: UserInfo) {
+    return await this.prismaService.user.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      select,
+    });
+  }
+
+//   async UpdateUserById(id: string, data: Partial<User>) {
+//     return this.prismaService.user.update({
+//       where: { id },
+//       data,
+//       include: {
+//         profile: {
+//           select: {
+//             lastname: true,
+//             firstname: true,
+//             avatar: true,
+//           },
+//         },
+//       },
+//     });
+//   }
 }
