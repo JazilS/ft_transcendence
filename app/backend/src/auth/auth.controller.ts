@@ -22,12 +22,11 @@ export class AuthController {
     }
   }
 
-  //add guard
   @UseGuards(AuthGuard)
   @Get('logout')
   async logout(@Req() req: Request) {
     return await this.authService.logout(req);
-      //delete the cookie
+    //delete the cookie -> in the front ?
   }
 
   // @UseGuards(AuthGuard)
