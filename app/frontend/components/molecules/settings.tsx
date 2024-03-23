@@ -5,6 +5,7 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import '../../app/styles.css';
+import Link from 'next/link';
 
 export const style = {
   position: 'absolute',
@@ -23,6 +24,12 @@ export default function SettingsModal() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.reload();
+  }
+
+
   return (
     <div>
       <button onClick={handleOpen} className={`${press_Start_2P.className} text-white hover:scale-110 active:hover:disabled`}>settings</button>
@@ -33,9 +40,16 @@ export default function SettingsModal() {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-            <button className=" w-[325px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded-[50px] text-center">  
-              Enable double auth.
+          <div className='flex flex-col space-y-12'>
+            <Link href="/qrCode">
+              <button className=" w-[325px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded-[50px] text-center">  
+                Enable double auth.
+              </button>
+            </Link>
+            <button className=" w-[325px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded-[50px] text-center" onClick={handleLogout}>  
+              Logout.
             </button>
+          </div>
         </Box>
       </Modal>
     </div>

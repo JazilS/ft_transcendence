@@ -7,26 +7,46 @@ import { Provider, useSelector } from "react-redux";
 import { setAllData } from "../store/features/User/UserSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { store } from "../store/store";
-import { useRegisterMutation } from "../store/features/User/user.api.slice";
+import { useAuthQuery, useRegisterMutation } from "../store/features/User/user.api.slice";
 import { Socket, io } from "socket.io-client";
 import { connectSocket, mySocket } from "../utils/getSocket";
 import { useEffect } from "react";
 
 function LogPage() {
-  const dispatch = useAppDispatch();
-  const [register] = useRegisterMutation();
+  // const [auth] = useAuthQuery();
 
-  const handleNewUser = async () => {
-    const response = await register();
+  // const handleNewUser = async () => {
+  //   const response = useAuthQuery(null);
 
-    if ("error" in response) {
-      // Handle error here
-      console.error(response.error);
-    } else {
-      dispatch(setAllData(response.data));
-      console.log(response.data);
-    }
-  };
+  //   if ("error" in response) {
+  //     // Handle error here
+  //     console.error(response.error);
+  //   } else {
+  //     // dispatch(setAllData(response.data));
+  //     // console.log(response.data);
+  //   }
+  // };
+
+  // const authQuery = useAuthQuery({});
+  
+  // useEffect(() => {
+  //   // Effect to run when authQuery changes
+  // }, [authQuery]);
+
+
+  // const handleClick = () => {
+  //   // Call useAuthQuery when the button is clicked
+  //   const authQuery = useAuthQuery({});
+    
+  //   if ("error" in authQuery) {
+  //     console.error(authQuery.error);
+  //   } else {
+  //     // Dispatch action or perform other logic with response data
+  //     // dispatch(setAllData(authQuery.data));
+  //     // console.log(authQuery.data);
+  //   }
+  // };
+
 
   // Assuming you have a selector to get the updated state from the store
   const updatedState = useAppSelector((state) => state.user);
@@ -40,23 +60,39 @@ function LogPage() {
   const handleconnectSocket = () => {
     connectSocket();
   };
+
+  // const handleButtonClick = async () => {
+  //   const response = await fetch('https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Flogin&response_type=code');
+  //   const data = await response.json();
+  //   console.log(data);
+  //   // handleNewUser();
+  //   // handleconnectSocket();
+  // };
+
+  const handleButtonClick = () => {
+    window.location.href = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fapi%2Fauth%2Flogin&response_type=code";
+  };
+
   return (
     <div className="flex flex-col items-center justify-evenly">
       {/* <MyHeader display={false} /> */}
       <div className={` text-black text-7xl ${press_Start_2P.className}`}>
         PONG
       </div>
-      <Link href="/home">
+      {/* <Link href ="/https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Flogin&response_type=code"> */}
         <button
           className={`text-white text-xl bg-gradient-to-r from-fuchsia-900 to-indigo-900  rounded-lg p-1 pl-14 pr-14  ${quantico.className}`}
-          onClick={() => {
-            handleNewUser();
-            handleconnectSocket();
-          }}
+          onClick={handleButtonClick}
+          // onClick={() => {
+
+          //   // handleClick();
+          //   // handleNewUser();
+          //  /* handleconnectSocket(); */
+          // }}
         >
           Login with 42
         </button>
-      </Link>
+      {/* </Link> */}
     </div>
   );
 }

@@ -29,7 +29,7 @@ model User {
   blockedByUsers  String[]
   messagesSend  Message[]
 
-  email             String    //@unique
+  email             String    @unique
   status            STATUS    @default(OFFLINE)
   twoFa             Boolean   @default(false)
   twoFaSecret       String?

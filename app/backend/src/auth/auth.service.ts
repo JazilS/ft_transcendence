@@ -14,7 +14,7 @@ export class AuthService {
       const token = await this.getAccessToken(code);
       let user = await this.getUserInfo(token) as { name: any; email: any; avatar: any; id: any };
       console.log(user);
-      if (! await this.prismaService.user.findFirst({ where: { email: user.email } })) {
+      if (! await this.prismaService.user.findUnique({ where: { email: user.email } })) {
         const newUser = await this.prismaService.user.create({
           data: {
             email: user.email,
@@ -27,8 +27,8 @@ export class AuthService {
       }
       else {
         const tmp = await this.prismaService.user.update({
-          // where: { email: user.email },
-          where: { id: user.id },
+          where: { email: user.email },
+          // where: { id: user.id },
           data: { status : 'ONLINE'}
         });
         user = { ...tmp, id: tmp.id };
@@ -36,7 +36,8 @@ export class AuthService {
       const payload = { sub: user.name, id: user.id };
       const jwt = this.jwtService.sign(payload);
       res.cookie("accessToken", jwt);
-      return res.json({ access_token: jwt });
+      res.redirect("http://localhost:3000/home");
+      return { access_token: jwt };
     }
 
     async logout(@Req() req: Request) {
