@@ -13,6 +13,7 @@ import { quantico } from "@/models/FontModel";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import { updateRole } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import Mute from "@/components/atom/chat/mute/mute";
+import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 
 export default function FadeMenu({
   targetProfile,
@@ -23,11 +24,7 @@ export default function FadeMenu({
   open,
   roomOn,
 }: {
-  targetProfile: {
-    userProfile: PlayerProfile;
-    role: string;
-    fadeMenuInfos: FadeMenuInfos;
-  };
+  targetProfile: ChatMemberProfile;
   userRole: string;
   setUserRole: React.Dispatch<React.SetStateAction<string>>;
   setAnchorEl: (value: SetStateAction<HTMLElement | null>) => void;
@@ -148,8 +145,6 @@ export default function FadeMenu({
   //   }
   // };
 
-
-
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -188,7 +183,6 @@ export default function FadeMenu({
           action="block"
         ></CheckBoxMenuItem> */}
 
-
         {/* MUTE */}
         {/* <MenuItem
           onClick={() => {
@@ -220,6 +214,7 @@ export default function FadeMenu({
         {/* MUTE */}
         {/* {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
           userRole !== "MEMBER" && ( */}
+        {console.log("targetProfile BEFORE MUTE", targetProfile)}
         <Mute
           userId={user.playerProfile.id}
           targetProfile={targetProfile}
@@ -231,8 +226,8 @@ export default function FadeMenu({
           (userRole === "CREATOR" || userRole === "ADMIN") && (
             <MenuItem
               onClick={() => {
-                console.log("userRole", userRole);
-                console.log("targetRole", targetProfile.role);
+                // console.log("userRole", userRole);
+                // console.log("targetRole", targetProfile.role);
                 handleClose();
                 handlePromote();
               }}

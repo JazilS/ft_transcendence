@@ -31,20 +31,25 @@ export default function Mute({
 
   const handleMute = (muteTime: number) => {
     handleClose();
-    console.log("muteTime = ", muteTime);
+    // console.log("muteTime = ", muteTime);
+    console.log("targetProfile IN MUTE = ", targetProfile);
+    // console.log("userProfiles = ", userProfiles);
     if (userId !== "") {
-      mySocket.emit("MUTE_USER", {
+      const avion: any = {
         roomId: roomId,
         mutedUser: targetProfile.userProfile.id,
         muteTime: muteTime,
-      });
+      };
+      console.log("avion = ", avion);
+      mySocket.emit("MUTE_USER", avion);
 
-      const updatedProfiles: ChatMemberProfile[] = userProfiles.map((user) =>
-        user.userProfile.id === targetProfile.userProfile.id
-          ? { ...user, fadeMenuInfos: { ...user.fadeMenuInfos, isMuted: true } }
-          : user
-      );
-      dispatch(setUserProfiles(updatedProfiles));
+      // const updatedProfiles: ChatMemberProfile[] = userProfiles.map((user) =>
+        // user.userProfile.id === targetProfile.userProfile.id
+          // ? { ...user, fadeMenuInfos: { ...user.fadeMenuInfos, isMuted: true } }
+          // : user
+      // );
+      // console.log("updatedProfiles during mute = ", updatedProfiles);
+      // dispatch(setUserProfiles(updatedProfiles));
     }
   };
 

@@ -39,7 +39,7 @@ export default function ChatMembers({
   );
 
   // get ChatMemberProfiles from store
-  const userProfiles: ChatMemberProfile[] = useAppSelector(
+  const ChatUsers: ChatMemberProfile[] = useAppSelector(
     (state) => state.chatRooms.userProfiles
   );
 
@@ -93,11 +93,11 @@ export default function ChatMembers({
           role: string;
           fadeMenuInfos: FadeMenuInfos;
         }) => {
-          dispatch(setUserProfiles([...userProfiles, data]));
+          dispatch(setUserProfiles([...ChatUsers, data]));
         }
       );
       mySocket.on("UPDATE_CHAT_MEMBERS", async (userId: string) => {
-        const updatedProfiles: ChatMemberProfile[] = userProfiles.filter(
+        const updatedProfiles: ChatMemberProfile[] = ChatUsers.filter(
           (user) => user.userProfile.id !== userId
         );
         dispatch(setUserProfiles(updatedProfiles));
@@ -112,7 +112,7 @@ export default function ChatMembers({
   useEffect(() => {
     if (mySocket) {
       mySocket.on("MUTE_USER", (mutedUserId: string, muteTimeLeft: number) => {
-        const updatedProfiles: ChatMemberProfile[] = userProfiles.map((user) =>
+        const updatedProfiles: ChatMemberProfile[] = ChatUsers.map((user) =>
           user.userProfile.id === mutedUserId
             ? {
                 ...user,
@@ -123,19 +123,23 @@ export default function ChatMembers({
         dispatch(setUserProfiles(updatedProfiles));
       });
     }
-  }, [dispatch, userProfiles]);
+  }, [dispatch, ChatUsers]);
 
   // print updated userProfiles
   useEffect(() => {
-    console.log("userProfiles updated", userProfiles);
-  }, [userProfiles]);
+    console.log("userProfiles updated", ChatUsers);
+  }, [ChatUsers]);
+
+  const handleClickv2 = (event: React.MouseEvent<HTMLElement>) => {
+    // setAnchorEl(event.currentTarget);
+  };
 
   return (
     <div className="h-[95%] mt-9 w-[20%] bg-[#BC80D0] rounded-3xl">
       <h1 className="text-3xl pl-[18%] pb-[5%] pt-[3%] ">Chat Members</h1>
       <div className={"h-[90%] w-full scrollbar-hide_3"}>
         <ul>
-          {userProfiles.map((user: ChatMemberProfile) => (
+          {ChatUsers.map((user: ChatMemberProfile) => (
             <li key={user.userProfile.id}>
               <Button
                 className="hover:bg-[#f28eff] pl-9 w-[100%]"
@@ -161,6 +165,11 @@ export default function ChatMembers({
                 open={open}
                 roomOn={roomOn}
               />
+              <button
+                onClick={() => alert(userId + ">>>" + user.userProfile.id)}
+              >
+                test
+              </button>
             </li>
           ))}
         </ul>
@@ -168,6 +177,7 @@ export default function ChatMembers({
     </div>
   );
 }
+
 
 // export default function ChatMembers({
 //   roomOn,

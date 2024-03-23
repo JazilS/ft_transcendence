@@ -33,7 +33,7 @@ export class UserService {
       }
       return {
         playerProfile: {
-          id: user1.id,
+          id: '4dfc2a23-2a05-4b1f-a9d9-7e629c223253',
           name: user1.name,
           imageSrc: user1.avatar,
           games: [],
