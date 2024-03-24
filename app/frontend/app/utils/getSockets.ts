@@ -1,9 +1,11 @@
 import { Socket, io } from "socket.io-client";
+import { RootState, store } from "../store/store";
 
 export let mySocket: Socket;
 
 export function connectSocket() {
-  const userId = 0;
+  const state: RootState = store.getState();
+  const userId: string = state.user.user.playerProfile.id;
   mySocket = io("http://localhost:4000", {
     auth: {
       token: userId,

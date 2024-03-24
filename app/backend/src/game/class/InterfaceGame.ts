@@ -205,4 +205,8 @@ export abstract class IPongGame {
   get getPongType(): PongGameType {
     return this.pongType;
   }
+
+  get hasStarted(): boolean {
+    return this.gameStarted;
+  }
 }

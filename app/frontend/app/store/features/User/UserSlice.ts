@@ -17,7 +17,7 @@ const initialState: Userslice = {
     channelsIn: [],
     isConnected: false,
     isReadyLobby: false,
-    access_toekn: "",
+    access_token: "",
   },
 };
 export const UserSlice = createSlice({
@@ -34,11 +34,21 @@ export const UserSlice = createSlice({
       if (state.user)
         state.user.channelsIn = [...state.user.channelsIn, action.payload];
     },
-    setAccessToekn: (state, action: PayloadAction<string>) => {
-      if (state.user) state.user.access_toekn = action.payload;
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      if (state.user) state.user.access_token = action.payload;
     },
     setAllData: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
+    },
+    getChatRoomsInLocal: (state, action: PayloadAction<ChatRoom[]>) => {
+      if (state.user) state.user.channelsIn = action.payload;
+    },
+    leaveChatroom: (state, action: PayloadAction<string>) => {
+      if (state.user)
+        state.user.channelsIn = state.user.channelsIn.filter(
+          (channel) => channel.id !== action.payload
+        );
+        console.log("leaveChatroom state.user.channelsIn", state.user.channelsIn);
     },
   },
 });
@@ -48,6 +58,8 @@ export const {
   setNewNickname,
   setAllData,
   joinChannel,
-  setAccessToekn,
+  setAccessToken,
+  getChatRoomsInLocal,
+  leaveChatroom,
 } = UserSlice.actions;
 export default UserSlice.reducer;

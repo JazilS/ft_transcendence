@@ -7,6 +7,6 @@ export default interface User {
 	channelsIn: ChatRoom[];
 	isConnected: boolean;
 	isReadyLobby: boolean;
-	access_toekn: string;
+	access_token: string;
 	// Ajoutez d'autres propriétés ici si nécessaire
   }

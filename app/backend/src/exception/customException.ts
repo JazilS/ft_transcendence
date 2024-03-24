@@ -1,7 +1,6 @@
 import { WsException } from '@nestjs/websockets';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-
 export const INTERNAL_SERVER_ERROR =
   'Something went wrong, please try again later!';
 export const RESSOURCE_NOT_FOUND = 'NOT FOUND';
@@ -14,7 +13,6 @@ export class UserNotFoundException extends HttpException {
     super('User Not Found', HttpStatus.NOT_FOUND);
   }
 }
-
 
 type WsExceptionType = 'BadRequest' | 'Unauthorized' | 'Not Found' | 'Unknown';
 

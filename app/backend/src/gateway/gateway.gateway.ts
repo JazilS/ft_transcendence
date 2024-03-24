@@ -11,9 +11,19 @@ import { UserService } from 'src/user/user.service';
 import { Interval } from '@nestjs/schedule';
 import { FRAME_RATE } from '../../shared/constant';
 import { GameService } from 'src/game/game.service';
-import { GeneralEvent, PongEvent , PONG_ROOM_PREFIX } from '../../../shared/socketEvent';
-import { PongGameType, PongTypeNormal } from 'src/game/class/InterfaceGame';
-import { GameIdDto, GameInvitationDto, PongGameTypeDto } from 'src/game/dto/dto';
+import {
+  GeneralEvent,
+  PongEvent,
+  PONG_ROOM_PREFIX,
+} from '../../shared/socketEvent';
+
+import { PongTypeNormal } from 'src/game/class/InterfaceGame';
+import {
+  GameIdDto,
+  GameInvitationDto,
+  PongGameTypeDto,
+  updatePlayerPositionDto,
+} from 'src/game/dto/dto';
 import {
   WsBadRequestException,
   WsNotFoundException,
@@ -28,8 +38,8 @@ import { UserIdDto } from 'src/user/dto/dto';
 
 @WebSocketGateway()
 export class GatewayGateway {
-  pongService: any;
   constructor(
+    private readonly pongService: GameService,
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
     private readonly gameService: GameService,
@@ -235,7 +245,7 @@ export class GatewayGateway {
       message: `Game invitation succesfully sent to ${user.nickname}`,
     });
 
-      this.libService.sendToSocket(
+    this.libService.sendToSocket(
       this.server,
       id,
       PongEvent.RECEIVE_GAME_INVITATION,
@@ -248,25 +258,25 @@ export class GatewayGateway {
     );
   }
 
-    @SubscribeMessage(PongEvent.JOIN_BACK_CURRENT_GAME)
-    async joinCurrentGame(
-      @ConnectedSocket() client: SocketWithAuth,
-      @MessageBody() { gameId }: GameIdDto,
-    ) {
-      const game = this.pongService.getGameByGameId(gameId);
-  
-      if (!game) throw new WsNotFoundException('Game not found');
-  
-      if (game.endGame()) throw new WsUnknownException('Game ended');
-  
-      this.libService.emitBackToMyself(client, GeneralEvent.SUCCESS, {
-        data: {
-          gameId,
-        },
-      });
-    }
+  @SubscribeMessage(PongEvent.JOIN_BACK_CURRENT_GAME)
+  async joinCurrentGame(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody() { gameId }: GameIdDto,
+  ) {
+    const game = this.pongService.getGameById(gameId);
 
-    @SubscribeMessage(PongEvent.ACCEPT_GAME_INVITATION)
+    if (!game) throw new WsNotFoundException('Game not found');
+
+    if (game.endGame()) throw new WsUnknownException('Game ended');
+
+    this.libService.emitBackToMyself(client, GeneralEvent.SUCCESS, {
+      data: {
+        gameId,
+      },
+    });
+  }
+
+  @SubscribeMessage(PongEvent.ACCEPT_GAME_INVITATION)
   async acceptGameInvitation(
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody() { id }: UserIdDto,
@@ -315,44 +325,105 @@ export class GatewayGateway {
       );
     }
 
-    if (!invitation.hasNotExpired())
+    if (!invitation.hasExpired)
       throw new WsUnauthorizedException(
         `User invitaion has expired, invitation last at most ${GAME_INVITATION_TIME_LIMIT}`,
       );
 
-      const gameId: string = invitation.getGameId;
-      const senderSocket = this.libService.getSocket(
+    const gameId: string = invitation.getGameId;
+    const senderSocket = this.libService.getSocket(
+      this.server,
+      invitation.getSocketId,
+    );
+
+    if (!senderSocket) {
+      throw new WsUnknownException(`${user.nickname} is currently not online`);
+    }
+
+    this.pongService.addNewGameRoom({
+      gameId,
+      id,
+      userId,
+      socketId: invitation.getSocketId,
+      otherSocketId: client.id,
+      pongGameType: invitation.getPongType,
+    });
+
+    this.libService.sendToSocket(this.server, userId, GeneralEvent.SUCCESS);
+
+    await this.pongService.joinGame(
+      this.server,
+      gameId,
+      {
+        creator: { nickname: user.nickname, avatar: user.profile.avatar },
+        opponent: { nickname: me.nickname, avatar: me.profile.avatar },
+      },
+      userId,
+      id,
+      client,
+      senderSocket as SocketWithAuth,
+    );
+  }
+
+  @SubscribeMessage(PongEvent.UPDATE_PLAYER_POSITION)
+  updatePlayerPosition(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody() { gameId, keyPressed }: updatePlayerPositionDto,
+  ) {
+    const { userId } = client;
+    const [game, index] = this.pongService.getGameByIdAndReturnIndex(gameId);
+
+    if (index === -1) return;
+
+    if (!game.getPlayers.includes(userId)) {
+      throw new WsUnauthorizedException('You are not in this game');
+    }
+    this.pongService.updateGamePlayerPosition(index, userId, keyPressed);
+  }
+
+  @SubscribeMessage(PongEvent.USER_STOP_UPDATE)
+  stopUserMovement(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody() { gameId, keyPressed }: updatePlayerPositionDto,
+  ) {
+    const { userId } = client;
+    const game = this.pongService.getGameById(gameId);
+
+    if (!game) return;
+
+    if (!game.getPlayers.includes(userId)) {
+      throw new WsUnauthorizedException('You are not in this game');
+    }
+    game.stopUpdatePlayerPosition(userId, keyPressed);
+    this.pongService.updateGameById(gameId, game);
+  }
+
+  @SubscribeMessage(PongEvent.DECLINE_GAME_INVITATION)
+  async declineGameInvitation(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody() { id }: UserIdDto,
+  ) {
+    const { userId } = client;
+    const [me, user] = await Promise.all([
+      this.userService.findUserById(userId, UserData),
+      this.userService.findUserById(id, UserData),
+    ]);
+
+    if (!me || !user) throw new WsUserNotFoundException();
+
+    const gameId = this.pongService.deleteInvitation(id);
+    if (gameId) {
+      this.libService.sendToSocket(
         this.server,
-        invitation.getSocketId,
-      );
-  
-      if (!senderSocket) {
-        throw new WsUnknownException(`${user.nickname} is currently not online`);
-      }
-  
-      this.pongService.addNewGameRoom({
-        gameId,
         id,
-        userId,
-        socketId: invitation.getSocketId,
-        otherSocketId: client.id,
-        pongGameType: invitation.getPongType,
-      });
-
-      this.libService.sendToSocket(this.server, userId, GeneralEvent.SUCCESS);
-
-      await this.pongService.joinGame(
-        this.server,
-        gameId,
+        PongEvent.USER_DECLINED_INVITATION,
         {
-          creator: { nickname: user.nickname, avatar: user.profile.avatar },
-          opponent: { nickname: me.nickname, avatar: me.profile.avatar },
+          message: `${me.nickname} declined your invitation`,
+          severity: 'info',
         },
-        userId,
-        id,
-        client,
-        senderSocket as SocketWithAuth,
       );
+    }
+    this.libService.sendToSocket(this.server, userId, GeneralEvent.SUCCESS);
   }
 
   private getAllSockeIdsByKey(key: string) {

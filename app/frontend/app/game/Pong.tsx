@@ -7,19 +7,15 @@ import usePageSize from "@/app/game/utils/usePageSize";
 import {
   GAME_MARGIN,
   ASPECT_RATIO,
-  PADDLE_HALF_HEIGHT,
   PADDLE_HEIGHT,
 } from "../../shared/constant";
 import { PongEvent } from "../../shared/socketEvent";
 import { RootState, store } from "../store/store";
-import { Socket, io } from "socket.io-client";
 import { StartGameInfo } from "../../shared/types";
 import { Ball } from "./Ball";
 import { Player } from "./Player";
-import { connect } from "http2";
 import { connectSocket } from "../utils/getSockets";
 import { mySocket } from "../utils/getSockets";
-import { Provider } from "react-redux";
 import { UpdatedGameData } from "../../../shared/types";
 import { Stack, Typography } from "@mui/material";
 

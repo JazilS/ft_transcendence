@@ -6,6 +6,8 @@ COPY ./package*.json ./
 
 COPY ./prisma .
 
+# RUN ln -s ../shared ./shared
+
 RUN npm ci
 
 COPY . .

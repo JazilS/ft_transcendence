@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { IPongGame } from './class/InterfaceGame';
-import { GameInvitation } from './class/GameInvitation';
+import { IPongGame, PongTypeNormal } from './class/InterfaceGame';
+import {
+  GAME_INVITATION_TIME_LIMIT,
+  GameInvitation,
+} from './class/GameInvitation';
 import { PongGame } from './class/PongGame';
-import { UserNotFoundException } from 'src/exception/UserNotFoundExcepetion';
-import { keyPressedType } from '../../shared/constant';
+import { UserNotFoundException } from '../exception/user_exception';
+import { keyPressedType, PongGameType } from '../../shared/constant';
 import { Server } from 'socket.io';
 import { LibService } from 'src/lib/lib.service';
 import { PlayerStartGameInfo, StartGameInfo } from '../../shared/types';
 import { SocketWithAuth } from 'src/gateway/types/socket.types';
 import { WsUnknownException } from '../exception/customException';
-import { PongEvent } from '../../shared/socketEvent';
+import { PONG_ROOM_PREFIX, PongEvent } from '../../shared/socketEvent';
 import { STATUS } from '@prisma/client';
 
 @Injectable()
@@ -30,6 +33,18 @@ export class GameService {
     string,
     GameInvitation
   >();
+
+  static createGameBasedOnType(
+    gameId: string,
+    playerId: string,
+    socketId: string,
+    pongType: PongGameType,
+  ) {
+    if (pongType === PongTypeNormal)
+      return new PongGame(gameId, playerId, socketId);
+
+    // return new SpecialPongGame(gameId, playerId, socketId);
+  }
 
   static CreateGame(gameId: string, playerId: string, socketId: string) {
     return new PongGame(gameId, playerId, socketId);
@@ -67,25 +82,37 @@ export class GameService {
     return userInGame;
   }
 
-  createGameRoom(userId: string, socketId: string): string {
-    const gameId = 'pong_' + userId;
+  createGameRoom(
+    userId: string,
+    socketId: string,
+    pongGameType: PongGameType,
+  ): string {
+    const gameId = PONG_ROOM_PREFIX + userId;
 
-    this.games.push(GameService.CreateGame(gameId, userId, socketId));
+    this.games.push(
+      GameService.createGameBasedOnType(gameId, userId, socketId, pongGameType),
+    );
 
     return gameId;
   }
 
   addNewGameRoom(data: {
     gameId: string;
-    playerId: string;
-    socketId: string;
+    userId: string;
     id: string;
-    OtherSocketID: string;
+    socketId: string;
+    otherSocketId: string;
+    pongGameType: PongGameType;
   }) {
-    const { gameId, playerId, socketId, id, OtherSocketID } = data;
-    const game = GameService.CreateGame(gameId, id, socketId);
-    game.setOpponentPlayerId = playerId;
-    game.addNewSocket(OtherSocketID);
+    const { gameId, userId, id, socketId, otherSocketId, pongGameType } = data;
+    const game = GameService.createGameBasedOnType(
+      gameId,
+      id,
+      socketId,
+      pongGameType,
+    );
+    game.setOpponentPlayerId = userId;
+    game.addNewSocket(otherSocketId);
     game.startGame();
     this.games.push(game);
   }
@@ -364,6 +391,67 @@ export class GameService {
 
   hasActiveInvitation(id: string): boolean {
     const invitation = this.gameInvitations.get(id);
-    return invitation?.hasExpired() > 0 ? true : false;
+    return invitation?.hasExpired > 0 ? true : false;
+  }
+
+  checkIfUserIsAlreadyInARoom(id: string): IPongGame | undefined {
+    const game = this.games.find((game) => game.getPlayers.includes(id));
+
+    return game;
+  }
+
+  isUserInvitable(id: string): string {
+    let message: string = undefined;
+
+    this.gameInvitations.forEach((invitation) => {
+      if (invitation.getSenderId === id && invitation.hasExpired) {
+        message = `You cannot send an invition to an user that is currently sending one, please wait at max ${GAME_INVITATION_TIME_LIMIT} seconds`;
+        return;
+      } else if (invitation.getInvitedUserId === id && invitation.hasExpired) {
+        message = `That user already received an invitation please wait at max ${GAME_INVITATION_TIME_LIMIT} seconds before sending another one`;
+        return;
+      }
+    });
+
+    return message;
+  }
+
+  getInvitation(senderId: string, recipientId: string): GameInvitation {
+    const game = this.gameInvitations.get(senderId);
+
+    if (game?.getInvitedUserId === recipientId) {
+      return game;
+    }
+    return undefined;
+  }
+
+  addNewGameInvitation(
+    gameId: string,
+    socketId: string,
+    userId: string,
+    to: string,
+    pongType: PongGameType,
+  ): number {
+    const gameInvit = this.gameInvitations.get(userId);
+
+    if (gameInvit && gameInvit.getInvitedUserId !== to) {
+      const remainingTime = gameInvit.hasExpired;
+      if (remainingTime > 0) {
+        return remainingTime;
+      }
+    }
+
+    this.gameInvitations.set(
+      userId,
+      new GameInvitation(gameId, userId, to, socketId, pongType),
+    );
+
+    return 0;
+  }
+
+  deleteInvitation(id: string): string {
+    const gameId = this.gameInvitations.get(id)?.getGameId;
+    this.gameInvitations.delete(id);
+    return gameId;
   }
 }

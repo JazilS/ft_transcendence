@@ -1,17 +1,19 @@
-import User  from '../User/UserModel';
-import PlayerProfile from '../User/PlayerProfile/PlayerProfile';
+import { pongType } from "@/shared/constant";
+import { z } from "zod";
+import { BaseSchema } from "./BaseType";
 
-export interface Lobby {
-	id: string | undefined;
-	user: PlayerProfile | undefined;
-	opponent: PlayerProfile | undefined;
-	status: boolean;
-}
+export const PongSchema = z.object({
+  victory: z.number().nonnegative(),
+  losses: z.number().nonnegative(),
+  rating: z.number().nonnegative(),
+});
 
-export interface Game {
-	id : string 
-	players : PlayerProfile[]
-	winner  : string
-	board   : string
-	// a modifier
-}
+export type PongType = z.infer<typeof PongSchema>;
+
+export const PongGameTypeSchema = z.object({ pongType: z.enum(pongType) });
+
+export type PongGameType = z.infer<typeof PongGameTypeSchema>;
+
+export const GameInvitationSchema = BaseSchema.merge(PongGameTypeSchema);
+
+export type GameInvitationType = z.infer<typeof GameInvitationSchema>;
