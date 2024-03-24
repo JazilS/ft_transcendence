@@ -20,8 +20,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "class-transformer": "^0.5.1",
-    "socket.io-client": "^4.7.4",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.0",
@@ -34,17 +32,20 @@
     "@prisma/client": "^5.10.2",
     "@types/axios": "^0.14.0",
     "@types/qrcode": "^1.5.5",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
     "g": "^2.0.1",
+    "js-cookies": "^1.0.4",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "qrcode": "^1.5.3",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "socket.io-client": "^4.7.4",
     "speakeasy": "^2.0.0"
   },
   "devDependencies": {

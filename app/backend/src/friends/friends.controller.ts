@@ -12,7 +12,7 @@ export class FriendsController {
     async addFriend(@GetUser('id') userId: string, @Body('friend') friend: string) {
         return await this.FriendsService.addFriend(userId, friend);
     }
-    
+
     @UseGuards(AuthGuard)
     @Post('remove')
     async removeFriend(@GetUser('id') userId: string, @Body('friend') friend: string) {

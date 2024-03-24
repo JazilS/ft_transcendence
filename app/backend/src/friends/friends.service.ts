@@ -99,6 +99,7 @@ export class FriendsService {
 
     const user = await this.getUserInfoById(userId);
     const friend = await this.getUserInfoByName(friendname);
+    
 
     if (!user || !friend)
       return { success: false, message: 'user not found !' };

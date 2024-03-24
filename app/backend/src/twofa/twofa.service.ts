@@ -22,6 +22,7 @@ export class TwofaService {
     }
 
     async validateTwoFa(UserId: string, code: string) {
+        console.log("code: ", code);
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: UserId,
