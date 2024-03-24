@@ -20,6 +20,8 @@ export const style = {
 };
 
 export default function SettingsModal() {
+  console.log('SettingsModal is rendering'); // Ajout du console.log ici
+
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);

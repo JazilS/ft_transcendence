@@ -22,6 +22,8 @@ function ToutCon() {
 }
 
 export default function MyHeader({ display }: { display: boolean }) {
+  console.log("MyHeader is rendering"); // Ajout du console.log ici
+
   return (
     <Provider store={store}>
       <div

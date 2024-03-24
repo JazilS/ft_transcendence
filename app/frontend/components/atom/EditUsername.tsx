@@ -9,6 +9,7 @@ import { setNewNickname } from "@/app/store/features/User/UserSlice";
 import { useUpdateUsernameMutation } from "@/app/store/features/User/user.api.slice";
 
 export default function EditUsername() {
+  console.log("EditUsername is rendering"); // Ajout du console.log ici
   const [isEditing, setIsEditing] = useState(false);
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user.user.playerProfile);

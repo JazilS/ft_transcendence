@@ -6,7 +6,7 @@ import "../../style/page.css";
 import { Provider, useSelector } from "react-redux";
 import { setAllData } from "../store/features/User/UserSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { store } from "../store/store";
+import { RootState, store } from "../store/store";
 import { useAuthQuery, useRegisterMutation } from "../store/features/User/user.api.slice";
 import { Socket, io } from "socket.io-client";
 import { connectSocket, mySocket } from "../utils/getSocket";
@@ -49,7 +49,7 @@ function LogPage() {
 
 
   // Assuming you have a selector to get the updated state from the store
-  const updatedState = useAppSelector((state) => state.user);
+  const updatedState = useAppSelector((state: RootState) => state.user);
 
   useEffect(() => {
     if (updatedState) {
