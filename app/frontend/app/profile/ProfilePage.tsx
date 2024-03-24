@@ -8,6 +8,8 @@ import "../styles.css";
 import EditUsername from "@/components/atom/EditUsername";
 import User from "@/models/User/UserModel";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 export default function ProfilePage() {
   const [blur, setBlur] = useState(false);

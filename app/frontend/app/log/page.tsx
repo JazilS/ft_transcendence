@@ -1,16 +1,17 @@
 "use client";
 
 import { press_Start_2P, quantico } from "@/models/Font/FontModel";
-import Link from "next/link";
 import "../../style/page.css";
-import { Provider, useSelector } from "react-redux";
-import { setAllData } from "../store/features/User/UserSlice";
+import { Provider } from "react-redux";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { RootState, store } from "../store/store";
-import { useAuthQuery, useRegisterMutation } from "../store/features/User/user.api.slice";
-import { Socket, io } from "socket.io-client";
-import { connectSocket, mySocket } from "../utils/getSocket";
-import { useEffect } from "react";
+import { connectSocket } from "../utils/getSocket";
+import { FormEvent, useEffect, useState } from "react";
+import Image from "next/image";
+import { setAllData } from "../store/features/User/UserSlice";
+import axios from "axios";
+import Cookies from "js-cookie";
+
 
 function LogPage() {
   // const [auth] = useAuthQuery();
@@ -27,72 +28,76 @@ function LogPage() {
   //   }
   // };
 
-  // const authQuery = useAuthQuery({});
-  
-  // useEffect(() => {
-  //   // Effect to run when authQuery changes
-  // }, [authQuery]);
-
-
-  // const handleClick = () => {
-  //   // Call useAuthQuery when the button is clicked
-  //   const authQuery = useAuthQuery({});
-    
-  //   if ("error" in authQuery) {
-  //     console.error(authQuery.error);
-  //   } else {
-  //     // Dispatch action or perform other logic with response data
-  //     // dispatch(setAllData(authQuery.data));
-  //     // console.log(authQuery.data);
-  //   }
-  // };
-
-
   // Assuming you have a selector to get the updated state from the store
-  const updatedState = useAppSelector((state: RootState) => state.user);
+  // const updatedState = useAppSelector((state: RootState) => state.user);
 
-  useEffect(() => {
-    if (updatedState) {
-      connectSocket();
-    }
-  }, [updatedState]);
+  // useEffect(() => {
+  //   if (updatedState) {
+  //     connectSocket();
+  //   }
+  // }, [updatedState]);
 
-  const handleconnectSocket = () => {
-    connectSocket();
-  };
-
-  // const handleButtonClick = async () => {
-  //   const response = await fetch('https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Flogin&response_type=code');
-  //   const data = await response.json();
-  //   console.log(data);
-  //   // handleNewUser();
-  //   // handleconnectSocket();
+  // const handleconnectSocket = () => {
+  //   connectSocket();
   // };
 
-  const handleButtonClick = () => {
-    window.location.href = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fapi%2Fauth%2Flogin&response_type=code";
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+
+  // const handleSubmit = async (event: FormEvent) => {
+  //   event.preventDefault();
+  //   const response = await axios
+  //     .post(
+  //       "http://localhost:4000/api/twofa/validate",
+  //       {
+  //         secret: userCode,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${Cookies.get("accessToken")}`,
+  //         },
+  //         withCredentials: true,
+  //       }
+  //     )
+  //     .then((response: { data: { success: string } }) => {
+  //       console.log("Code verification state:", response.data);
+  //     })
+  //     .catch((error: any) => {
+  //       console.error("Error verifying code:", error);
+  //     });
+  // };
+
+  const handleButtonClick = (event: FormEvent) => {
+    setIsLoading(true);
+    window.location.href =
+      "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fapi%2Fauth%2Flogin&response_type=code";
+    // connectSocket();
   };
 
   return (
     <div className="flex flex-col items-center justify-evenly">
-      {/* <MyHeader display={false} /> */}
       <div className={` text-black text-7xl ${press_Start_2P.className}`}>
         PONG
       </div>
-      {/* <Link href ="/https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Flogin&response_type=code"> */}
+      {!isLoading ? (
         <button
           className={`text-white text-xl bg-gradient-to-r from-fuchsia-900 to-indigo-900  rounded-lg p-1 pl-14 pr-14  ${quantico.className}`}
           onClick={handleButtonClick}
-          // onClick={() => {
-
-          //   // handleClick();
-          //   // handleNewUser();
-          //  /* handleconnectSocket(); */
-          // }}
         >
           Login with 42
         </button>
-      {/* </Link> */}
+      ) : (
+        <Image
+          src="/Loading.png"
+          alt="Loading"
+          width={200}
+          height={200}
+          className="animate-pulse"
+        />
+        // <div className="text-white text-xl bg-gradient-to-r from-fuchsia-900 to-indigo-900  rounded-lg p-1 pl-14 pr-14  animate-pulse">
+        // Loading...
+        // </div>
+      )}
     </div>
   );
 }

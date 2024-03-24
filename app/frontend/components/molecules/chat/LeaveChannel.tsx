@@ -9,7 +9,7 @@ import ChannelAccesCheckBox from "@/components/atom/chat/NewChan/ChannelAccesChe
 import TextInput from "@/components/atom/chat/NewChan/TextInput";
 import SubmitNewChan from "@/components/atom/chat/NewChan/SubmitNewChan";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { quantico } from "@/models/FontModel";
+import { quantico } from "@/models/Font/FontModel";
 import { leaveChatroom } from "@/app/store/features/User/UserSlice";
 import { useLeaveChatroomMutation } from "@/app/store/features/User/user.api.slice";
 import { Socket } from "socket.io-client";

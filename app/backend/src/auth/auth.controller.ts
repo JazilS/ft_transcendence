@@ -1,9 +1,15 @@
-import { BadRequestException, Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request } from 'express';
-import { ExecutionContext } from "@nestjs/common";
 import { Response } from 'express';
-import { connected } from 'process';
 import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
@@ -16,8 +22,7 @@ export class AuthController {
 
     if (!code) {
       throw new BadRequestException('expected code');
-    }
-    else {
+    } else {
       return await this.authService.login(code, res);
     }
   }
@@ -41,10 +46,7 @@ export class AuthController {
   //   // return await this.authService.logout(req);
   //     //delete the cookie
   // }
-
 }
-
-
 
 // get the code
 //  error handling

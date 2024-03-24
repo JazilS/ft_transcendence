@@ -37,10 +37,10 @@ export class GatewayGateway
     const socketIds = this.server.of('/').adapter.rooms.get(key);
     return Array.from(socketIds).map(
       (id) => (this.server.of('/').sockets.get(id) as SocketWithAuth).userId,
-      );
-    }
-    async handleConnection(client: SocketWithAuth) {
-    console.log("USER IN HANDLE CONNECT")
+    );
+  }
+  async handleConnection(client: SocketWithAuth) {
+    console.log('USER IN HANDLE CONNECT');
     // const { sockets } = this.server.sockets;
     // const { id } = client;
 

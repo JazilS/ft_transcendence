@@ -43,9 +43,15 @@ export class UserController {
       body.roomId,
     );
   }
-//   constructor(private userService: UserService) {}
-//   @Get('userById')
-//   async getAllUsers(userId: string, id: string) {
-//     return this.userService.getUserInfo(userId, id);
-//   }
+
+  // @UseGuards(AuthGuard)
+  // @Get('getUserInfos')
+  // async getUserInfos(@Req() req: Request) {
+  //   return await this.getUserInfos(req);
+  // }
+  //   constructor(private userService: UserService) {}
+  //   @Get('userById')
+  //   async getAllUsers(userId: string, id: string) {
+  //     return this.userService.getUserInfo(userId, id);
+  //   }
 }

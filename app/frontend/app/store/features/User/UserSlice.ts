@@ -1,6 +1,9 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import User from "@/models/User/UserModel";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
+// import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 
 export interface Userslice {
   user: User;
@@ -38,6 +41,13 @@ export const UserSlice = createSlice({
       if (state.user) state.user.access_token = action.payload;
     },
     setAllData: (state, action: PayloadAction<User>) => {
+      // const jwtToken = localStorage.getItem("userId");
+      // const jwtToken = Cookies.get("userId");
+
+      // if (jwtToken) {
+      //   const userId: string = jwtDecode(jwtToken);
+      //   console.log("userId from cookie = ", userId);
+      // } else console.log("no userId found");
       state.user = action.payload;
     },
     getChatRoomsInLocal: (state, action: PayloadAction<ChatRoom[]>) => {
@@ -48,7 +58,7 @@ export const UserSlice = createSlice({
         state.user.channelsIn = state.user.channelsIn.filter(
           (channel) => channel.id !== action.payload
         );
-        console.log("leaveChatroom state.user.channelsIn", state.user.channelsIn);
+      console.log("leaveChatroom state.user.channelsIn", state.user.channelsIn);
     },
   },
 });

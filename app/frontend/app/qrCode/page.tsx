@@ -35,11 +35,12 @@
 //     );
 // }
 "use client";
-import React, { FormEvent } from "react";
+import React, { FormEvent, useRef } from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import { quantico } from "@/models/Font/FontModel";
 
 export default function TwoFAQRCodePage() {
   const [url, setUrl] = useState<string>("/Loading.png");
@@ -92,16 +93,31 @@ export default function TwoFAQRCodePage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-evenly">
-      <Image src={url} alt="QR Code" width={400} height={400} />
-      <form onSubmit={handleSubmit}>
+    <div
+      className={`flex flex-col items-center justify-evenly space-y-7 mt-[8%] ${quantico.className}`}
+    >
+      <h1 className="text-5xl mb-8">Scan this QrCode</h1>
+      <Image
+        src={url}
+        alt="QR Code"
+        width={400}
+        height={400}
+        className="rounded-3xl"
+      />
+      <form onSubmit={handleSubmit} className="">
         <input
           type="text"
           value={userCode}
           onChange={(e) => setUserCode(e.target.value)}
           placeholder="Enter your code"
+          className="bg-white rounded-full px-3 py-2"
         />
-        <button type="submit">Submit</button>
+        <button
+          type="submit"
+          className="ml-4 bg-indigo-700  text-white rounded-full px-3 py-2 active:scale-90 "
+        >
+          Submit
+        </button>
       </form>
     </div>
   );

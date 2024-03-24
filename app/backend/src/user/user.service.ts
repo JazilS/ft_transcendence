@@ -2,11 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserInfo } from './types/userTypes';
+// import { AuthService } from '../auth/auth.service'; // Import the AuthService
 // import { UserData, UserInfo } from 'types/userInfo';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    // private authService: AuthService,
+  ) {}
 
   // REGISTER
   async register() {
@@ -232,6 +236,23 @@ export class UserService {
     }
   }
 
+  // async getUserInfos(@Req() req: Request) {
+  //   try {
+  //     const token = this.authService.extractTokenFromHeader(req); // regler ca
+  //     if (!token)
+  //       throw new BadRequestException('authorization header not found');
+  //     const decoded = this.authService.jwtService.decode(token);
+  //     if (!decoded) throw new BadRequestException('invalid token');
+  //     console.log(decoded);
+  //     await this.prismaService.user.update({
+  //       where: { id: decoded.id },
+  //       data: { status: 'OFFLINE' },
+  //     });
+  //   } catch (error) {
+  //     return { error: error.message };
+  //   }
+  // }
+
   // async getUserInfo(userId: string, id: string) {
   //   const [me, user] = await Promise.all([
   //     this.finUserById(userId, UserData),
@@ -277,11 +298,11 @@ export class UserService {
 
   async getUserById(userId: string, select: UserInfo) {
     return await this.prismaService.user.findUnique({
-      where: { id: userId, },
+      where: { id: userId },
       select,
     });
   }
-  
+
   async findUserById(id: string, select: UserInfo) {
     return await this.prismaService.user.findUnique({
       where: { id },
@@ -307,19 +328,19 @@ export class UserService {
     });
   }
 
-//   async UpdateUserById(id: string, data: Partial<User>) {
-//     return this.prismaService.user.update({
-//       where: { id },
-//       data,
-//       include: {
-//         profile: {
-//           select: {
-//             lastname: true,
-//             firstname: true,
-//             avatar: true,
-//           },
-//         },
-//       },
-//     });
-//   }
+  //   async UpdateUserById(id: string, data: Partial<User>) {
+  //     return this.prismaService.user.update({
+  //       where: { id },
+  //       data,
+  //       include: {
+  //         profile: {
+  //           select: {
+  //             lastname: true,
+  //             firstname: true,
+  //             avatar: true,
+  //           },
+  //         },
+  //       },
+  //     });
+  //   }
 }

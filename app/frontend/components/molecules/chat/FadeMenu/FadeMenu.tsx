@@ -9,7 +9,7 @@ import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { mySocket } from "@/app/utils/getSocket";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
-import { quantico } from "@/models/FontModel";
+import { quantico } from "@/models/Font/FontModel";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import { updateRole } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import Mute from "@/components/atom/chat/mute/mute";

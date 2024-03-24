@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import "@/app/styles.css";
 import Button from "@/components/atom/Button";
-import { quantico } from "@/models/FontModel";
+import { quantico } from "@/models/Font/FontModel";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 
 export const style = {

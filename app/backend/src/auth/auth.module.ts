@@ -8,9 +8,10 @@ import { PassportModule } from '@nestjs/passport';
   imports: [
     PassportModule,
     JwtModule.register({
-    secret: process.env.JWT_SECRET,
-    signOptions: { expiresIn: '1h' }, // 1 hour ?
-  })],
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' }, // 1 hour ?
+    }),
+  ],
   providers: [AuthService],
   controllers: [AuthController],
   exports: [AuthService],
