@@ -21,8 +21,8 @@ export default function ChannelBar({
   // recuperer les channels de l'utilisateur pour le premier render
 
   const channels = useAppSelector((state) => state.user.user.channelsIn);
-  ConnectSocket();
-  SetUserInStorage();
+  // ConnectSocket();
+  // SetUserInStorage();
 
   const user = useAppSelector((state) => state.user.user);
 
@@ -32,9 +32,7 @@ export default function ChannelBar({
   useEffect(() => {
     if (!user) ConnectSocket();
     async function FetchChannels() {
-      const response = await getChannels({
-        userId: user.playerProfile.id,
-      });
+      const response = await getChannels({});
       if ("data" in response) {
         dispatch(getChatRoomsInLocal(response.data));
         // console.log("channelsIn : ", response.data);
@@ -44,7 +42,7 @@ export default function ChannelBar({
     }
 
     FetchChannels();
-  }, [channels, dispatch, getChannels, user]);
+  }, []);
 
   return (
     <div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>

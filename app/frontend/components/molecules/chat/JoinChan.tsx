@@ -78,7 +78,6 @@ export default function CreateChanModal({
     try {
       const response = await JoinChatRoom({
         channelId: channel.id,
-        userId: Cookies.get("id") as string,
         password: password,
       });
       if ("data" in response && response.data.error) {

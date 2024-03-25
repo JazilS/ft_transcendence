@@ -46,7 +46,6 @@ export default function ChatPage() {
         | { data: { chatroom: ChatRoom; role: string } }
         | { error: FetchBaseQueryError | SerializedError } = await getRoomById({
         channelId: roomOnId,
-        userId: userId,
       });
       if ("data" in response) {
         const responseData = response.data;

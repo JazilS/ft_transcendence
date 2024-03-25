@@ -51,12 +51,12 @@ export class GatewayGateway
     // this.logger.log(`Socket data: `, sockets);
     // this.logger.debug(`Number of connected sockets: ${sockets.size}`);
     try {
-      console.log(
-        'client.handshake.auth.token',
-        client.handshake.auth.token,
-        '\n process.env.JWT_SECRET',
-        process.env.JWT_SECRET,
-      );
+      // console.log(
+      //   'client.handshake.auth.token',
+      //   client.handshake.auth.token,
+      //   '\n process.env.JWT_SECRET',
+      //   process.env.JWT_SECRET,
+      // );
       const decodedToken = this.jwtService.decode(client.handshake.auth.token);
       const userId = decodedToken.id;
       client.userId = userId;
@@ -90,7 +90,6 @@ export class GatewayGateway
       'users in room:',
       this.getAllSockeIdsByKey(payload.message.chatId),
     );
-    console.log('Message received:', payload.message);
 
     try {
       if (!payload.message.chatId || payload.message.chatId === '')
@@ -269,6 +268,12 @@ export class GatewayGateway
     @ConnectedSocket() emitter: SocketWithAuth,
   ): Promise<string> {
     // leave socketRoom
+    if (payload.leavingType === 'LEAVING') payload.userId = emitter.userId;
+    if (!payload.room) throw 'No room provided';
+    if (!payload.userId) throw 'No userId provided';
+    if (!payload.leavingType) throw 'No leavingType provided';
+    if (payload.leavingType === 'LEAVING' && emitter.userId !== payload.userId)
+      throw 'Unauthorized';
     if (payload.leavingType === 'LEAVING') emitter.leave(payload.room);
     else {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -282,6 +287,12 @@ export class GatewayGateway
         }
       }
     }
+    const userInChatroom = await this.prismaService.chatroomUser.findFirst({
+      where: { chatroomId: payload.room, userId: payload.userId },
+    });
+    await this.prismaService.chatroomUser.delete({
+      where: { id: userInChatroom.id },
+    });
 
     // send message to all chat
     let messageContent: string;

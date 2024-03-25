@@ -21,14 +21,14 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getChatRoomsIn: builder.mutation<ChatRoom[], {userId: string}>({
+    getChatRoomsIn: builder.mutation<ChatRoom[], {}>({
       query: (data) => ({
         url: "/chat/getChatRoomsIn",
         method: "POST",
         body: data,
       }),
     }),
-    JoinChatRoom: builder.mutation<ChatRoom, { channelId: string; userId: string; password?: string }>({
+    JoinChatRoom: builder.mutation<ChatRoom, { channelId: string; password?: string }>({
       query: (data) => ({
         url: "/chat/joinChatRoom",
         method: "POST",
@@ -42,7 +42,7 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getChatRoomById: builder.mutation<{chatroom: ChatRoom, role: string} , { channelId: string, userId: string }>({
+    getChatRoomById: builder.mutation<{chatroom: ChatRoom, role: string} , { channelId: string }>({
       query: (data) => ({
         url: "/chat/getChatRoomById",
         method: "POST",

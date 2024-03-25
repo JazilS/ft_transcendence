@@ -5,10 +5,7 @@ import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import Messages from "@/models/ChatRoom/messages";
 import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
-import {
-  useAddMessageMutation,
-  useGetMessagesFromRoomMutation,
-} from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import { useGetMessagesFromRoomMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
@@ -32,7 +29,6 @@ export default function ChatZone({
   );
   const dispatch = useAppDispatch();
   const [getMessagesFromRoom] = useGetMessagesFromRoomMutation();
-  const [addMessage] = useAddMessageMutation();
 
   // fetch messages
   useEffect(() => {
@@ -47,7 +43,6 @@ export default function ChatZone({
     getMessages();
   }, [dispatch, getMessagesFromRoom, roomOn]);
 
-
   // listen for messages
   useEffect(() => {
     if (mySocket) {
@@ -58,8 +53,7 @@ export default function ChatZone({
     return () => {
       mySocket.off("MESSAGE");
     };
-  }, [addMessage, dispatch, getMessagesFromRoom, messages, roomOn?.messages]);
-
+  }, [dispatch, getMessagesFromRoom, messages, roomOn?.messages]);
 
   //emit messages
   const handleEmitMessage = (content: string) => {

@@ -53,7 +53,7 @@ export class AuthService {
     const payload = { sub: user.name, id: user.id, avatar: user.avatar };
     const jwt = this.jwtService.sign(payload);
     res.cookie('accessToken', jwt);
-    res.cookie('id', user.id);
+    // res.cookie('id', user.id);
     res.cookie('avatar', user.avatar);
     res.cookie('name', user.name);
     res.redirect('http://localhost:3000/home');
