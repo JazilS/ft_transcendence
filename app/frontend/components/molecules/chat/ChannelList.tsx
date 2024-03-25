@@ -7,20 +7,45 @@ import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import JoinChanModal from "./JoinChan";
 import CreateChanModal from "./CreateChan";
 import "@/style/ChannelList.css";
+import { useGetChatRoomsInMutation } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
+import { ConnectSocket } from "@/app/utils/getSocket";
+import { useDispatch } from "react-redux";
+import { getChatRoomsInLocal } from "@/app/store/features/User/UserSlice";
+import { SetUserInStorage } from "@/app/utils/SetUserInStorage";
 
 export default function ChannelBar({
   setRoomOnId,
 }: {
   setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
 }) {
+  // recuperer les channels de l'utilisateur pour le premier render
+
   const channels = useAppSelector((state) => state.user.user.channelsIn);
-  const userName = useAppSelector(
-    (state) => state.user.user.playerProfile.name
-  );
+  ConnectSocket();
+  SetUserInStorage();
+
+  const user = useAppSelector((state) => state.user.user);
+
+  const [getChannels] = useGetChatRoomsInMutation();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    // console.log("channelsIn : ", channels);
-  });
+    if (!user) ConnectSocket();
+    async function FetchChannels() {
+      const response = await getChannels({
+        userId: user.playerProfile.id,
+      });
+      if ("data" in response) {
+        dispatch(getChatRoomsInLocal(response.data));
+        // console.log("channelsIn : ", response.data);
+      } else {
+        console.error("Error during API call for chat rooms:", response.error);
+      }
+    }
+
+    FetchChannels();
+  }, [channels, dispatch, getChannels, user]);
+
   return (
     <div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>
       <div

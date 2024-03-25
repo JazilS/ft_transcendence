@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { quantico } from "@/models/Font/FontModel";
 import ChoseChat from "@/components/molecules/chat/ChatBar";
 import ChatMembers from "@/components/atom/chat/ChatMembers";
@@ -12,9 +12,11 @@ import User from "@/models/User/UserModel";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { mySocket } from "../utils/getSocket";
+import { ConnectSocket, mySocket } from "../utils/getSocket";
 import { useLeaveChatroomMutation } from "../store/features/User/user.api.slice";
 import { leaveChatroom } from "../store/features/User/UserSlice";
+import { RootState } from "../store/store";
+import { SetUserInStorage } from "../utils/SetUserInStorage";
 
 export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
@@ -22,9 +24,17 @@ export default function ChatPage() {
   const [role, setRole] = useState<string>("");
   const [roomOn, setRoomOn] = useState<ChatRoom | undefined>(undefined);
   const [getRoomById] = useGetChatRoomByIdMutation();
+
+  useEffect(() => {
+    ConnectSocket();
+    // SetUserInStorage();
+  }, []);
+
   const userId: string = useAppSelector(
-    (state) => state.user.user.playerProfile.id
+    (state: RootState) => state.user.user.playerProfile.id
   );
+
+  console.log("fetching room with id: ", roomOnId, " and user id: ", userId);
 
   useEffect(() => {
     const fetchRoom = async () => {

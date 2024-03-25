@@ -6,7 +6,7 @@ COPY ./package*.json ./
 
 COPY ./prisma .
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 

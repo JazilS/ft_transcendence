@@ -6,9 +6,9 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  // WsException,
 } from '@nestjs/websockets';
 import { SocketWithAuth } from './types/socket.types';
+import { JwtService } from '@nestjs/jwt';
 import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
@@ -23,6 +23,7 @@ export class GatewayGateway
   constructor(
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
+    private readonly jwtService: JwtService,
   ) {}
   private readonly logger = new Logger(GatewayGateway.name);
 
@@ -49,8 +50,19 @@ export class GatewayGateway
     // );
     // this.logger.log(`Socket data: `, sockets);
     // this.logger.debug(`Number of connected sockets: ${sockets.size}`);
-
-    client.userId = client.handshake.auth.token;
+    try {
+      console.log(
+        'client.handshake.auth.token',
+        client.handshake.auth.token,
+        '\n process.env.JWT_SECRET',
+        process.env.JWT_SECRET,
+      );
+      const decodedToken = this.jwtService.decode(client.handshake.auth.token);
+      const userId = decodedToken.id;
+      client.userId = userId;
+    } catch (error) {
+      console.error('Invalid token in gateway', error);
+    }
     client.join(client.userId);
 
     // const rooms = this.server.of('/').adapter.rooms;
@@ -84,6 +96,24 @@ export class GatewayGateway
       if (!payload.message.chatId || payload.message.chatId === '')
         throw 'No chatId provided';
 
+      if (payload.message.emitterId === 'system') {
+        if (
+          !(await this.prismaService.user.findUnique({
+            where: { id: 'system' },
+          }))
+        ) {
+          console.log('creating system user');
+          await this.prismaService.user.create({
+            data: {
+              id: 'system',
+              email: '',
+              name: '',
+              status: 'ONLINE',
+              avatar: '/robot.png',
+            },
+          });
+        }
+      }
       const userExists = await this.prismaService.user.findUnique({
         where: { id: payload.message.emitterId },
       });
@@ -91,7 +121,6 @@ export class GatewayGateway
       if (!userExists) {
         throw new Error('User not found');
       }
-
       if (payload.message.emitterId !== 'system') {
         const userInChatroom: ChatroomUser =
           await this.prismaService.chatroomUser.findFirst({
@@ -185,6 +214,7 @@ export class GatewayGateway
         console.log('sockets in room', sockets);
 
         // send message to room
+        console.log('getUsername by Id :', client.userId);
         const userName = await this.userService.getUserNameById({
           userId: client.userId,
         });
@@ -499,25 +529,4 @@ export class GatewayGateway
   //     console.error('Error getting mute time:', error);
   //   }
   // }
-
-  // createTokenMiddleware =
-  //   (jwtService: JwtTokenService, logger: Logger) =>
-  //   async (socket: SocketWithAuth, next) => {
-  //     const token: string =
-  //       socket.handshake.auth.token || socket.handshake.headers['token'];
-
-  //     logger.debug(`Validating auth token before connection: ${token}`);
-
-  //     try {
-  //       const payload: JwtPayload = await jwtService.checkToken(
-  //         token,
-  //         process.env.ACCESS_TOKEN_SECRET,
-  //       );
-  //       socket.userId = payload.userId;
-
-  //       next();
-  //     } catch (error) {
-  //       next(new WsException('TOKEN_INVALID'));
-  //     }
-  //   };
 }

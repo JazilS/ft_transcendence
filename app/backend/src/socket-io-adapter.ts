@@ -21,7 +21,7 @@ export class SocketIOAdapter extends IoAdapter {
       ],
     };
 
-    this.logger.log('Configuring ScketIO with custom CORS options', {
+    this.logger.log('Configuring SocketIO with custom CORS options', {
       cors,
     });
 
@@ -32,4 +32,25 @@ export class SocketIOAdapter extends IoAdapter {
 
     return super.createIOServer(port, optionsWithCORS);
   }
+
+  // createTokenMiddleware =
+  //   (jwtService: JwtService, logger: Logger) =>
+  //   async (socket: SocketWithAuth, next) => {
+  //     const token: string =
+  //       socket.handshake.auth.token || socket.handshake.headers['token'];
+
+  //     logger.debug(`Validating auth token before connection: ${token}`);
+
+  //     try {
+  //       const payload = await AuthService.checkToken(
+  //         token,
+  //         process.env.JWT_SECRET,
+  //       );
+  //       socket.userId = payload.userId;
+
+  //       next();
+  //     } catch (error) {
+  //       next(new WsException('TOKEN_INVALID'));
+  //     }
+  // };
 }

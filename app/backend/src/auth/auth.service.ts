@@ -50,9 +50,12 @@ export class AuthService {
       });
       user = { ...tmp, id: tmp.id };
     }
-    const payload = { sub: user.name, id: user.id };
+    const payload = { sub: user.name, id: user.id, avatar: user.avatar };
     const jwt = this.jwtService.sign(payload);
     res.cookie('accessToken', jwt);
+    res.cookie('id', user.id);
+    res.cookie('avatar', user.avatar);
+    res.cookie('name', user.name);
     res.redirect('http://localhost:3000/home');
     return { access_token: jwt };
   }

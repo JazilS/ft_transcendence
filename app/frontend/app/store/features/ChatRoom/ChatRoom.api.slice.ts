@@ -21,7 +21,7 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getChatRoomsIn: builder.mutation<ChatRoom[], { userId: string }>({
+    getChatRoomsIn: builder.mutation<ChatRoom[], {userId: string}>({
       query: (data) => ({
         url: "/chat/getChatRoomsIn",
         method: "POST",

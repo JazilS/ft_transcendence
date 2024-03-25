@@ -14,8 +14,10 @@ import {
 } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { joinChannel } from "@/app/store/features/User/UserSlice";
-import { connectSocket, mySocket } from "@/app/utils/getSocket";
+import { ConnectSocket, mySocket } from "@/app/utils/getSocket";
 import { addChatroom } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import { RootState } from "@/app/store/store";
+import Cookies from "js-cookie";
 
 export const style = {
   position: "absolute",
@@ -29,7 +31,11 @@ export const style = {
   p: 4,
 };
 
-export default function CreateChanModal({setRoomOnId}: {setRoomOnId: React.Dispatch<React.SetStateAction<string>>}) {
+export default function CreateChanModal({
+  setRoomOnId,
+}: {
+  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const [open, setOpen] = useState(false);
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [Error, setError] = useState<string>("");
@@ -41,7 +47,9 @@ export default function CreateChanModal({setRoomOnId}: {setRoomOnId: React.Dispa
   const [setRoomOn] = useSetRoomOnMutation();
   const dispatch = useAppDispatch();
 
-  const userId = useAppSelector((state) => state.user.user.playerProfile.id);
+  const userId = useAppSelector(
+    (state: RootState) => state.user.user.playerProfile.id
+  );
 
   const handleClose = () => {
     setOpen(false);
@@ -70,7 +78,7 @@ export default function CreateChanModal({setRoomOnId}: {setRoomOnId: React.Dispa
     try {
       const response = await JoinChatRoom({
         channelId: channel.id,
-        userId: userId,
+        userId: Cookies.get("id") as string,
         password: password,
       });
       if ("data" in response && response.data.error) {
@@ -81,7 +89,7 @@ export default function CreateChanModal({setRoomOnId}: {setRoomOnId: React.Dispa
         dispatch(joinChannel(response.data));
         dispatch(addChatroom(response.data));
         setRoomOnId(response.data.id);
-        mySocket.emit('JOIN_ROOM', { room: response.data.id, userId: userId});
+        mySocket.emit("JOIN_ROOM", { room: response.data.id, userId: userId });
         handleClose();
       }
     } catch (error) {
