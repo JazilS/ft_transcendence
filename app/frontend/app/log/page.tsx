@@ -70,6 +70,7 @@ function LogPage() {
   const handleButtonClick = (event: FormEvent) => {
     setIsLoading(true);
     window.location.href =
+      // `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.UID}&redirect_uri=${process.env.REDIRECT_URI}&response_type=code`;
       "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fapi%2Fauth%2Flogin&response_type=code";
     // connectSocket();
   };

@@ -69,6 +69,7 @@ export class AuthService {
         where: { id: decoded.id },
         data: { status: 'OFFLINE' },
       });
+      return { data: 'logout successful' };
     } catch (error) {
       return { error: error.message };
     }

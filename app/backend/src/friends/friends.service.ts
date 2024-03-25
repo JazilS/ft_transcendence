@@ -48,6 +48,8 @@ export class FriendsService {
       select: {
         id: true,
         name: true,
+        blockedByUsers: true,
+        blockedUsers: true,
         friends: {
           select: {
             name: true,
@@ -107,12 +109,20 @@ export class FriendsService {
       return { success: false, message: "you can't add yourself dude!" };
 
     const areFriend = this.isInList(user.friends, friend.name);
+    const isBlocked = user.blockedByUsers.includes(friend.name);
+    
     if (areFriend)
       return {
         sucess: false,
         message: `${friend.name} is already your friend !`,
       };
 
+    if (isBlocked)
+      return {
+        sucess: false,
+        message: `you can't add ${friend.name} as friend, you are blocked by him !`,
+      };
+      
     await this.linkFriend(user, friend.id);
     await this.linkFriend(friend, userId);
 
