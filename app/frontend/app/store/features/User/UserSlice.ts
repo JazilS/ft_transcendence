@@ -50,6 +50,16 @@ export const UserSlice = createSlice({
       // } else console.log("no userId found");
       state.user = action.payload;
     },
+    setUserProfile: (
+      state,
+      action: PayloadAction<{ id: string; name: string; avatar: string }>
+    ) => {
+      if (state.user) {
+        state.user.playerProfile.id = action.payload.id;
+        state.user.playerProfile.name = action.payload.name;
+        state.user.playerProfile.imageSrc = action.payload.avatar;
+      }
+    },
     getChatRoomsInLocal: (state, action: PayloadAction<ChatRoom[]>) => {
       if (state.user) state.user.channelsIn = action.payload;
     },
@@ -71,5 +81,6 @@ export const {
   setAccessToken,
   getChatRoomsInLocal,
   leaveChatroom,
+  setUserProfile,
 } = UserSlice.actions;
 export default UserSlice.reducer;

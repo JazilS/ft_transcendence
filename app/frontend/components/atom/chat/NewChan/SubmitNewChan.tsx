@@ -14,6 +14,7 @@ import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
 import { mySocket } from "@/app/utils/getSocket";
+import { SetUserInStorage } from "@/app/utils/SetUserInStorage";
 
 export default function SubmitNewChan({
   access,
@@ -31,11 +32,12 @@ export default function SubmitNewChan({
   const dispatch = useAppDispatch();
   const [createChatRoom] = useCreateChatRoomMutation();
   const [setRoomOn] = useSetRoomOnMutation();
+  SetUserInStorage();
   const user = useAppSelector((state: RootState) => state.user.user);
   const [error, setError] = useState<string>("false");
 
   const handleSubmitNewChan = async () => {
-    console.log('password : ', password);
+    console.log("password : ", password);
     const channelObject: createChatRoomForm = {
       name: channelName,
       type: access,
@@ -52,10 +54,15 @@ export default function SubmitNewChan({
           setError(response.data.error as string);
         } else {
           const responseData: ChatRoom = response.data;
+          console.log("room created : ", responseData);
           dispatch(addRoom(responseData));
           dispatch(joinChannel(responseData));
           setRoomOnId(responseData.id);
-          mySocket.emit('JOIN_ROOM', { room: responseData.id, userId: user.playerProfile.id });
+          console.log("user id FOR JOIN ROOM: ", user.playerProfile.id);
+          mySocket.emit("JOIN_ROOM", {
+            room: responseData.id,
+            userId: user.playerProfile.id,
+          });
           handleClose();
         }
       }

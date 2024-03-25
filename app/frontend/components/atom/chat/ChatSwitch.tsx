@@ -14,21 +14,19 @@ export default function SwitchChat({
   );
   const [getChatRoomsInFromAPI] = useGetChatRoomsInMutation();
   const dispatch = useAppDispatch();
-  
+
   const handleSetIsChan = async (value: boolean) => {
     if (value) {
-    const response = await getChatRoomsInFromAPI({userId: userId});
-    if ("data" in response) {
-      dispatch(getChatRoomsInLocal(response.data));
-      console.log("ChatRoomsIn = ", response);
-      setIsChan(value);
-    }
-    else {
-      console.error("Error during API call for chat rooms:", response.error);
-    }
-  }
-    else
-      setIsChan(value);
+      console.log("fetching chat rooms in for user id: ", userId);
+      const response = await getChatRoomsInFromAPI({ userId: userId });
+      if ("data" in response) {
+        dispatch(getChatRoomsInLocal(response.data));
+        console.log("ChatRoomsIn = ", response);
+        setIsChan(value);
+      } else {
+        console.error("Error during API call for chat rooms:", response.error);
+      }
+    } else setIsChan(value);
   };
 
   return (

@@ -1,9 +1,19 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  Headers,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private jwtService: JwtService,
+  ) {}
   @Post('/createChatRoom')
   async createChatRoom(
     @Body()
@@ -33,20 +43,56 @@ export class ChatController {
     }
     return this.chatService.getChatRoomsIn(body.userId);
   }
+
+  // @Post('/joinChatRoom')
+  // async joinChatRoom(
+  //   @Body()
+  //   body: {
+  //     channelId: string;
+  //     userId: string;
+  //     password?: string;
+  //   },
+  //   @Headers('Authorization') token: string,
+  // ) {
+  //   // decode the token
+  //   // if the token is valid, then join the chat room
+  //   console.log('hello world', body);
+  //   if (!body.channelId || !body.userId) {
+  //     throw new BadRequestException('channelId and userId are required');
+  //   }
+  //   return this.chatService.joinChatRoom(body);
+  // }
+
   @Post('/joinChatRoom')
   async joinChatRoom(
     @Body()
     body: {
       channelId: string;
-      userId: string;
       password?: string;
     },
+    @Headers('authorization') authorization: string,
   ) {
-    if (!body.channelId || !body.userId) {
-      throw new BadRequestException('channelId and userId are required');
+    // Remove 'Bearer ' from the start of the token
+    const token = authorization.replace('Bearer ', '');
+
+    try {
+      // Replace 'your_secret_key' with the secret key you used to sign the token
+      const decodedToken = this.jwtService.decode(token);
+      const userId = decodedToken.id;
+
+      console.log('Decoded user ID:', userId);
+
+      console.log('DECODED TOKEN', decodedToken);
+      if (!body.channelId) {
+        throw new BadRequestException('channelId and userId are required');
+      }
+      return this.chatService.joinChatRoom(body, userId);
+    } catch (error) {
+      console.error('Invalid token');
+      throw new BadRequestException('Invalid token');
     }
-    return this.chatService.joinChatRoom(body);
   }
+
   // @Post('/setRoomOn')
   // async setRoomOn(
   //   @Body()

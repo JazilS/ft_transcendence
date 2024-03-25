@@ -1,1 +1,12 @@
-node_modules
+node_modulesfunction ToutCon() {
+//   const user = useAppSelector((state) => state.user.user);
+
+//   return (
+//     <>
+//       <p className="text-white">
+//         mon id est
+//         {user.playerProfile.id}
+//       </p>
+//     </>
+//   );
+// }

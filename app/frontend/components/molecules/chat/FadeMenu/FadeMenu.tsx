@@ -1,5 +1,5 @@
 import Button from "../../../atom/Button";
-import CheckBoxMenuItem from "../../../atom/CheckBox";
+// import CheckBoxMenuItem from "../../../atom/CheckBox";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
@@ -214,7 +214,7 @@ export default function FadeMenu({
         {/* MUTE */}
         {/* {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
           userRole !== "MEMBER" && ( */}
-        {console.log("targetProfile BEFORE MUTE", targetProfile)}
+        {/* {console.log("targetProfile BEFORE MUTE", targetProfile)} */}
         <Mute
           userId={user.playerProfile.id}
           targetProfile={targetProfile}

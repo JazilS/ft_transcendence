@@ -125,11 +125,13 @@ export class ChatService {
   }
 
   // JOINCHATROOM
-  async joinChatRoom(body: {
-    channelId: string;
-    userId: string;
-    password?: string;
-  }) {
+  async joinChatRoom(
+    body: {
+      channelId: string;
+      password?: string;
+    },
+    userId: string,
+  ) {
     try {
       const chatroom = await this.prismaService.chatroom.findUnique({
         where: { id: body.channelId },
@@ -148,13 +150,13 @@ export class ChatService {
 
       // Check if user is already in chatroom
       const userInChatroom = chatroom.users.find(
-        (chatroomUser) => chatroomUser.userId === body.userId,
+        (chatroomUser) => chatroomUser.userId === userId,
       );
       if (userInChatroom) throw new Error('User is already in the chatroom');
 
       // check if user is Banned from room
       const user = await this.prismaService.user.findUnique({
-        where: { id: body.userId },
+        where: { id: userId },
       });
       if (user.bannedFromRooms.includes(body.channelId))
         throw new Error('You are banned from the chatroom');
@@ -170,7 +172,7 @@ export class ChatService {
           },
           user: {
             connect: {
-              id: body.userId,
+              id: userId,
             },
           },
         },
