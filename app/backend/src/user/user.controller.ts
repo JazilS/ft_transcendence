@@ -1,9 +1,20 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Headers,
+} from '@nestjs/common';
 import { UserService } from './user.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('user')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+  ) {}
   @Get('register')
   async register() {
     return this.userService.register();
@@ -44,6 +55,22 @@ export class UserController {
     );
   }
 
+  @Get('getConnectedUser')
+  async getConnectedUser(@Headers('authorization') authorization: string) {
+    const token: string = authorization.replace('Bearer ', '');
+    console.log('getting into controller');
+
+    try {
+      const decodedToken = this.jwtService.decode(token);
+      const userId = decodedToken.id;
+
+      console.log('Decoded user ID in getConnectedUser:', userId);
+      return this.userService.getConnectedUser(userId, token);
+    } catch (error) {
+      console.error('Invalid token');
+      throw new BadRequestException('Invalid token');
+    }
+  }
   // @UseGuards(AuthGuard)
   // @Get('getUserInfos')
   // async getUserInfos(@Req() req: Request) {

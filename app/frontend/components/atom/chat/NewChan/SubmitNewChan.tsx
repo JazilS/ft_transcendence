@@ -14,7 +14,7 @@ import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
 import { mySocket } from "@/app/utils/getSocket";
-import { SetUserInStorage } from "@/app/utils/SetUserInStorage";
+// import { SetUserInStorage } from "@/app/utils/SetUserInStorage";
 
 export default function SubmitNewChan({
   access,
@@ -32,7 +32,7 @@ export default function SubmitNewChan({
   const dispatch = useAppDispatch();
   const [createChatRoom] = useCreateChatRoomMutation();
   const [setRoomOn] = useSetRoomOnMutation();
-  SetUserInStorage();
+  // SetUserInStorage();
   const user = useAppSelector((state: RootState) => state.user.user);
   const [error, setError] = useState<string>("false");
 

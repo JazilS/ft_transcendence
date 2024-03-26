@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserInfo } from './types/userTypes';
+// import { ChatService } from 'src/chat/chat.service';
 // import { AuthService } from '../auth/auth.service'; // Import the AuthService
 // import { UserData, UserInfo } from 'types/userInfo';
 
@@ -9,6 +10,7 @@ import { UserInfo } from './types/userTypes';
 export class UserService {
   constructor(
     private readonly prismaService: PrismaService,
+    // private chatService: ChatService,
     // private authService: AuthService,
   ) {}
 
@@ -233,6 +235,43 @@ export class UserService {
     } catch (error) {
       console.error('Error getting fade menu infos:', error);
       return { error: 'Error getting fade menu infos' };
+    }
+  }
+
+  // GETCONNECTEDUSER
+  async getConnectedUser(userId: string, token: string) {
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      console.log(
+        'Connected user:',
+        user.id,
+        user.name,
+        user.avatar,
+        user.status === 'ONLINE' ? true : false,
+        false,
+        token,
+      );
+      return {
+        playerProfile: {
+          id: user.id,
+          name: user.name,
+          imageSrc: user.avatar,
+          games: [],
+        },
+        // channelsIn: this.chatService.getChatRoomsIn(userId),
+        channelsIn: [],
+        isConnected: user.status === 'ONLINE' ? true : false,
+        isReadyLobby: false,
+        access_token: token,
+      };
+    } catch (error) {
+      console.log(error);
+      return 'Error getting connected user';
     }
   }
 

@@ -39,7 +39,6 @@ export function ConnectSocket() {
   } catch (err) {
     console.log(err);
   }
-
   return mySocket;
 }
 

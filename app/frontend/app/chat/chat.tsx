@@ -13,10 +13,16 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { ConnectSocket, mySocket } from "../utils/getSocket";
-import { useLeaveChatroomMutation } from "../store/features/User/user.api.slice";
-import { leaveChatroom } from "../store/features/User/UserSlice";
+import {
+  useGetConnectedUserQuery,
+  useLeaveChatroomMutation,
+} from "../store/features/User/user.api.slice";
+import { leaveChatroom, setAllData } from "../store/features/User/UserSlice";
 import { RootState } from "../store/store";
-import { SetUserInStorage } from "../utils/SetUserInStorage";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { UserProfile } from "@/models/ProfilePageModel";
+// import { SetUserInStorage } from "../utils/SetUserInStorage";
 
 export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
@@ -24,17 +30,32 @@ export default function ChatPage() {
   const [role, setRole] = useState<string>("");
   const [roomOn, setRoomOn] = useState<ChatRoom | undefined>(undefined);
   const [getRoomById] = useGetChatRoomByIdMutation();
-
+  const dispatch = useAppDispatch();
+  const response = useGetConnectedUserQuery({});
+  useEffect(() => {
+    let user: User;
+    if (response.data) {
+      user = response.data as User;
+      console.log("user : ", user);
+      dispatch(setAllData(user));
+    }
+  }, [response.data, dispatch]);
   useEffect(() => {
     ConnectSocket();
     // SetUserInStorage();
   }, []);
 
-  const userId: string = useAppSelector(
-    (state: RootState) => state.user.user.playerProfile.id
-  );
+  const user: User = useAppSelector((state: RootState) => state.user.user);
+  // const userId: string = useAppSelector(
+  //   (state: RootState) => state.user.user.playerProfile.id
+  // );
 
-  console.log("fetching room with id: ", roomOnId, " and user id: ", userId);
+  console.log(
+    "fetching room with id: ",
+    roomOnId,
+    " and user id: ",
+    user.playerProfile?.id
+  );
 
   useEffect(() => {
     const fetchRoom = async () => {
@@ -59,14 +80,13 @@ export default function ChatPage() {
 
     fetchRoom();
     console.log("roomOnId : ", roomOnId);
-  }, [getRoomById, roomOnId, userId]);
+  }, [getRoomById, roomOnId, user]);
 
-  const dispatch = useAppDispatch();
   const [leaveChannel] = useLeaveChatroomMutation();
   useEffect(() => {
     if (mySocket) {
       mySocket.on("LEAVING_ROOM", async (userName: string) => {
-        leaveChannel({ userId: userId, roomId: roomOnId });
+        leaveChannel({ userId: user.playerProfile.id, roomId: roomOnId });
         dispatch(leaveChatroom(roomOnId));
         setRoomOnId("");
       });

@@ -4,11 +4,11 @@ import {
   Controller,
   Post,
   Headers,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtService } from '@nestjs/jwt';
-import { AuthGuard } from 'src/auth/auth.guard';
+// import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('chat')
 export class ChatController {

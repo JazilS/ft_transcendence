@@ -2,26 +2,32 @@ import User from "@/models/User/UserModel";
 import { apiSlice } from "../../api/apiSlice";
 import { get } from "http";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
-import { leaveChatroom } from "./UserSlice";
+import { leaveChatroom, setAllData } from "./UserSlice";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
+import { UserProfile } from "@/models/ProfilePageModel";
 
 export const UserApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation<User, void>({
-      query: (data) => ({
+      query: () => ({
         url: "/user/register",
         method: "GET",
-        body: data,
       }),
     }),
-    updateUsername: builder.mutation< string, { userId: string; newName: string }>({
+    updateUsername: builder.mutation<
+      string,
+      { userId: string; newName: string }
+    >({
       query: (data) => ({
         url: "/user/updateUsername",
         method: "POST",
         body: data,
       }),
     }),
-    updateAvatar: builder.mutation<string, { userId: string; newAvatar: string }>({
+    updateAvatar: builder.mutation<
+      string,
+      { userId: string; newAvatar: string }
+    >({
       query: (data) => ({
         url: "/user/updateAvatar",
         method: "POST",
@@ -42,14 +48,17 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    leaveChatroom: builder.mutation<void, { userId: string, roomId: string }>({
+    leaveChatroom: builder.mutation<void, { userId: string; roomId: string }>({
       query: (data) => ({
         url: "/user/leaveChatroom",
         method: "POST",
         body: data,
       }),
     }),
-    getFadeMenuInfos: builder.mutation< FadeMenuInfos, {userId: string; targetId: string; roomId: string}>({
+    getFadeMenuInfos: builder.mutation<
+      FadeMenuInfos,
+      { userId: string; targetId: string; roomId: string }
+    >({
       query: (data) => ({
         url: "/user/getFadeMenuInfos",
         method: "POST",
@@ -57,9 +66,15 @@ export const UserApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     // url: "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Flogin&response_type=code",
-    auth: builder.query< JSON, {}>({
+    auth: builder.query<JSON, {}>({
       query: (data) => ({
         url: `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.UID}&redirect_uri=${process.env.REDIRECT_URI}&response_type=code`,
+        method: "GET",
+      }),
+    }),
+    getConnectedUser: builder.query<User, {}>({
+      query: () => ({
+        url: "/user/getConnectedUser",
         method: "GET",
       }),
     }),
@@ -74,5 +89,5 @@ export const {
   useGetProfileByIdMutation,
   useLeaveChatroomMutation,
   useGetFadeMenuInfosMutation,
-  useAuthQuery,
+  useGetConnectedUserQuery,
 } = UserApiSlice;
