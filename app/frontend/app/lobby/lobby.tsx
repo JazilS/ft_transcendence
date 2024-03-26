@@ -43,7 +43,6 @@ function Player({ user, test }: { user: PlayerProfile; test: boolean }) {
     id: "000",
     name: "???",
     imageSrc: "/DefaultAvatar.png",
-    gameHistory: undefined,
   };
 
   return (

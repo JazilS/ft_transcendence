@@ -15,7 +15,6 @@ const initialState: Userslice = {
       id: "",
       name: undefined,
       imageSrc: undefined,
-      gameHistory: undefined,
     },
     channelsIn: [],
     isConnected: false,

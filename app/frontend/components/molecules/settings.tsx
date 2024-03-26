@@ -8,6 +8,7 @@ import { useState } from "react";
 import { press_Start_2P } from "@/models/Font/FontModel";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { disConnectSocket, mySocket } from "@/app/utils/getSocket";
 
 export const style = {
   position: "absolute",
@@ -46,6 +47,9 @@ export default function SettingsModal() {
       console.error("Error logging out:", error);
     });
     Cookies.remove("accessToken");
+    Cookies.remove("name");
+    Cookies.remove("avatar");
+    disConnectSocket();
     setOpen(false); 
   };
 

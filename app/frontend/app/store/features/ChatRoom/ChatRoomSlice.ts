@@ -9,6 +9,7 @@ import { ChatRoomApiSlice } from "./ChatRoom.api.slice";
 import Messages from "@/models/ChatRoom/messages";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
+import RoomData from "@/models/ChatRoom/RoomData";
 
 export interface ChatRoomslice {
   chatRooms: ChatRoom[];
@@ -17,13 +18,15 @@ export interface ChatRoomslice {
     role: string;
     fadeMenuInfos: FadeMenuInfos;
   }[];
+  roomOn: RoomData;
+  roomOnId: string;
 }
 
 const initialState: ChatRoomslice = {
   chatRooms: [],
   userProfiles: [
     {
-      userProfile: { id: "", name: "", imageSrc: "", gameHistory: []},
+      userProfile: { id: "", name: "", imageSrc: ""},
       role: "",
       fadeMenuInfos: {
         isFriend: false,
@@ -37,6 +40,13 @@ const initialState: ChatRoomslice = {
       },
     },
   ],
+  roomOn: {
+    roomInfos: { id: "", name: "Not in a channel", roomType: "" },
+    users: [],
+    messages: [],
+    password: "",
+  },
+  roomOnId: "",
 };
 
 export const ChatRoomSlice = createSlice({
@@ -50,16 +60,17 @@ export const ChatRoomSlice = createSlice({
       else console.error("state.chatRooms is not an array");
     },
     newMessage: (state, action: PayloadAction<Messages>) => {
-      console.log("newMessage action.payload", action.payload);
-      if (Array.isArray(state.chatRooms)) {
-        const newChatRooms: ChatRoom[] = state.chatRooms.map((chatRoom) => {
-          if (chatRoom.id === action.payload.chatId) {
-            chatRoom.messages = [...chatRoom.messages, action.payload];
-          }
-          return chatRoom;
-        });
-        state.chatRooms = newChatRooms;
-      } else console.error("state.chatRooms is not an array");
+      state.roomOn.messages = [...state.roomOn.messages, action.payload];
+      // console.log("newMessage action.payload", action.payload);
+      // if (Array.isArray(state.chatRooms)) {
+      //   const newChatRooms: ChatRoom[] = state.chatRooms.map((chatRoom) => {
+      //     if (chatRoom.id === action.payload.chatId) {
+      //       chatRoom.messages = [...chatRoom.messages, action.payload];
+      //     }
+      //     return chatRoom;
+      //   });
+      //   state.chatRooms = newChatRooms;
+      // } else console.error("state.chatRooms is not an array");
     },
     addChatroom: (state, action: PayloadAction<ChatRoom>) => {
       console.log("addChatroom action.payload", action.payload);
@@ -90,9 +101,23 @@ export const ChatRoomSlice = createSlice({
           : user
       );
     },
+    setRoomOn: (state, action: PayloadAction<RoomData>) => {
+      console.log("setRoomOn action.payload", action.payload);
+      state.roomOn = action.payload;
+    },
+    setRoomOnId: (state, action: PayloadAction<string>) => {
+      state.roomOnId = action.payload;
+    },
   },
 });
 
-export const { addRoom, newMessage, addChatroom, setUserProfiles, updateRole } =
-  ChatRoomSlice.actions;
+export const {
+  addRoom,
+  newMessage,
+  addChatroom,
+  setUserProfiles,
+  updateRole,
+  setRoomOn,
+  setRoomOnId,
+} = ChatRoomSlice.actions;
 export default ChatRoomSlice.reducer;

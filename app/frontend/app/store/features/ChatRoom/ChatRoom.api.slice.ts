@@ -4,6 +4,7 @@ import createChatRoomForm from "@/models/ChatRoom/CreateChatRoomForm";
 import Messages from "@/models/ChatRoom/messages";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
+import RoomData from "@/models/ChatRoom/RoomData";
 
 export const ChatRoomApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -42,7 +43,7 @@ export const ChatRoomApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getChatRoomById: builder.mutation<{chatroom: ChatRoom, role: string} , { channelId: string }>({
+    getChatRoomById: builder.mutation<{chatroom: RoomData}, { channelId: string }>({
       query: (data) => ({
         url: "/chat/getChatRoomById",
         method: "POST",

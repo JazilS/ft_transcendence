@@ -275,6 +275,42 @@ export class UserService {
     }
   }
 
+  // GETCHATMEMBERPROFILE
+  async getChatMemberProfile(userId: string, targetId: string, roomId: string) {
+    try {
+      const chatroomUser = await this.prismaService.chatroomUser.findFirst({
+        where: {
+          userId: targetId,
+          chatroomId: roomId,
+        },
+      });
+      if (!chatroomUser) {
+        throw new Error('Chatroom user not found');
+      }
+      const user = await this.prismaService.user.findUnique({
+        where: { id: targetId },
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      const userProfile = {
+        id: user.id,
+        name: user.name,
+        imageSrc: user.avatar,
+        games: [],
+      };
+      const role = chatroomUser.role as string;
+      const fadeMenuInfos = await this.getFadeMenuInfos(
+        userId,
+        targetId,
+        roomId,
+      );
+      return { userProfile, role, fadeMenuInfos };
+    } catch (error) {
+      console.error('Error getting chat member profile:', error);
+      throw new Error('error getin chat member profile');
+    }
+  }
   // async getUserInfos(@Req() req: Request) {
   //   try {
   //     const token = this.authService.extractTokenFromHeader(req); // regler ca

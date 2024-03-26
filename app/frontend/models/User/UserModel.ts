@@ -1,4 +1,3 @@
-import GameHistory from '../GameHistory/gameHistory';
 import ChatRoom from '../ChatRoom/ChatRoomModel';
 import PlayerProfile from './PlayerProfile/PlayerProfile';
 

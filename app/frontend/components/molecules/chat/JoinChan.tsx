@@ -15,7 +15,7 @@ import {
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { joinChannel } from "@/app/store/features/User/UserSlice";
 import { ConnectSocket, mySocket } from "@/app/utils/getSocket";
-import { addChatroom } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import { addChatroom, setRoomOnId } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import { RootState } from "@/app/store/store";
 import Cookies from "js-cookie";
 
@@ -31,11 +31,7 @@ export const style = {
   p: 4,
 };
 
-export default function CreateChanModal({
-  setRoomOnId,
-}: {
-  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
-}) {
+export default function CreateChanModal() {
   const [open, setOpen] = useState(false);
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [Error, setError] = useState<string>("");
@@ -44,7 +40,6 @@ export default function CreateChanModal({
 
   const [getPublicChatRooms] = useGetPublicChatRoomsMutation();
   const [JoinChatRoom] = useJoinChatRoomMutation();
-  const [setRoomOn] = useSetRoomOnMutation();
   const dispatch = useAppDispatch();
 
   const userId = useAppSelector(
@@ -87,7 +82,7 @@ export default function CreateChanModal({
         console.log("Joined channel:", response.data);
         dispatch(joinChannel(response.data));
         dispatch(addChatroom(response.data));
-        setRoomOnId(response.data.id);
+        dispatch(setRoomOnId(response.data.id));
         mySocket.emit("JOIN_ROOM", { room: response.data.id, userId: userId });
         handleClose();
       }

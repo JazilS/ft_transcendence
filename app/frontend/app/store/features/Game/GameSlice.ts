@@ -15,7 +15,6 @@ const initialState: GameSlice = {
       id: "Temp_Kojiro",
       name: "Kojiro",
       imageSrc: "/Kojiro.jpg",
-      gameHistory: undefined,
     },
     status: true,
   },

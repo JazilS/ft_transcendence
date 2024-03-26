@@ -36,6 +36,7 @@ export class GatewayGateway
 
   private getAllUserIdsByKey(key: string): string[] {
     const socketIds = this.server.of('/').adapter.rooms.get(key);
+    if (!socketIds) return [];
     return Array.from(socketIds).map(
       (id) => (this.server.of('/').sockets.get(id) as SocketWithAuth).userId,
     );
@@ -65,15 +66,15 @@ export class GatewayGateway
     }
     client.join(client.userId);
 
-    // const rooms = this.server.of('/').adapter.rooms;
-    // console.log({ rooms });
-    // const room = this.server.of('/').adapter.rooms.get(client.userId);
-    // this.logger.log('Room:', room);
+    const rooms = this.server.of('/').adapter.rooms;
+    console.log({ rooms });
+    const room = this.server.of('/').adapter.rooms.get(client.userId);
+    console.log('Room:', room);
   }
 
   async handleDisconnect(client: SocketWithAuth) {
+    console.log('client disconnected', client.userId);
     client.disconnect();
-    console.log('client disconnected');
   }
 
   // MESSAGE
@@ -84,13 +85,10 @@ export class GatewayGateway
     payload: {
       message: Messages;
     },
-    // @ConnectedSocket() client: SocketWithAuth,
+    @ConnectedSocket() client: SocketWithAuth,
   ) {
-    console.log(
-      'users in room:',
-      this.getAllSockeIdsByKey(payload.message.chatId),
-    );
-
+    if (payload.message.emitterId !== 'system' && !client.userId)
+      throw 'Unauthorized';
     try {
       if (!payload.message.chatId || payload.message.chatId === '')
         throw 'No chatId provided';
@@ -156,15 +154,24 @@ export class GatewayGateway
       const usersInRoom: string[] = this.getAllUserIdsByKey(
         payload.message.chatId,
       );
-
+      console.log('usersInRoom:', usersInRoom);
       // Get all users who blocked the emitter
       const blockedByUserIds: string[] = emitter.blockedByUsers.map(
         (user) => user,
       );
 
+      console.log('Message sent: ', {
+        id: newMessage.id,
+        content: newMessage.content,
+        chatId: newMessage.chatId,
+        emitterId: newMessage.emitterId,
+        emitterName: payload.message.emitterName,
+        emitterAvatar: payload.message.emitterAvatar,
+      });
       usersInRoom.forEach((userId) => {
         // If the user has not blocked the emitter, send them the message
         if (!blockedByUserIds.includes(userId)) {
+          console.log('Sending message to:', userId);
           this.server.to(userId).emit('MESSAGE', {
             id: newMessage.id,
             content: newMessage.content,
@@ -174,14 +181,6 @@ export class GatewayGateway
             emitterAvatar: payload.message.emitterAvatar,
           });
         }
-      });
-      console.log('Message sent: ', {
-        id: newMessage.id,
-        content: newMessage.content,
-        chatId: newMessage.chatId,
-        emitterId: newMessage.emitterId,
-        emitterName: payload.message.emitterName,
-        emitterAvatar: payload.message.emitterAvatar,
       });
     } catch (error) {
       console.error('Error sending message:', error);
@@ -217,16 +216,19 @@ export class GatewayGateway
         const userName = await this.userService.getUserNameById({
           userId: client.userId,
         });
-        await this.handleMessage({
-          message: {
-            id: '',
-            content: userName + ' has joined the room',
-            chatId: payload.room || '',
-            emitterId: 'system',
-            emitterName: '',
-            emitterAvatar: '/robot.png',
+        await this.handleMessage(
+          {
+            message: {
+              id: '',
+              content: userName + ' has joined the room',
+              chatId: payload.room || '',
+              emitterId: 'system',
+              emitterName: '',
+              emitterAvatar: '/robot.png',
+            },
           },
-        });
+          client,
+        );
 
         const userProfile = await this.userService.getProfileById(
           payload.userId,
@@ -314,16 +316,19 @@ export class GatewayGateway
       });
     }
 
-    await this.handleMessage({
-      message: {
-        id: '',
-        content: messageContent,
-        chatId: payload.room || '',
-        emitterId: 'system',
-        emitterName: '',
-        emitterAvatar: '/robot.png',
+    await this.handleMessage(
+      {
+        message: {
+          id: '',
+          content: messageContent,
+          chatId: payload.room || '',
+          emitterId: 'system',
+          emitterName: '',
+          emitterAvatar: '/robot.png',
+        },
       },
-    });
+      emitter,
+    );
 
     // Get all clients in the room
     const clientsInRoom = await this.server.in(payload.room).fetchSockets();

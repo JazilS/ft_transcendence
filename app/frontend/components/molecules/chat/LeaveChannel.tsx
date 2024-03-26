@@ -13,6 +13,7 @@ import { quantico } from "@/models/Font/FontModel";
 import { leaveChatroom } from "@/app/store/features/User/UserSlice";
 import { useLeaveChatroomMutation } from "@/app/store/features/User/user.api.slice";
 import { Socket } from "socket.io-client";
+import { setRoomOnId } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 
 export const style = {
   position: "absolute",
@@ -31,13 +32,11 @@ export default function LeaveChannel({
   userName,
   userId,
   mySocket,
-  setRoomOnId,
 }: {
   roomOnId: string;
   userName: string;
   userId: string;
   mySocket: Socket;
-  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -58,7 +57,7 @@ export default function LeaveChannel({
         leavingType: "LEAVING",
       });
     else console.log("No socket");
-    setRoomOnId("");
+    dispatch(setRoomOnId(""));
   };
 
   return (

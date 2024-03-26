@@ -1,18 +1,15 @@
 import { useAppSelector } from "@/app/store/hooks";
 import Messages from "@/models/ChatRoom/messages";
-import React, { useEffect, useRef } from "react";
+import React, { use, useEffect, useRef } from "react";
 import AvatarNameRow from "./AvatarNameRow";
 import PlayerAvatar from "../PlayerAvatar";
 import "@/style/DisplayMessages.css";
 
-export default function MessagesDisplay({
-  roomOnId,
-  messages,
-}: {
-  roomOnId: string | undefined;
-  messages: Messages[] | undefined;
-}) {
+export default function MessagesDisplay() {
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const messages: Messages[] = useAppSelector(
+    (state) => state.chatRooms.roomOn.messages
+  );
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -20,6 +17,9 @@ export default function MessagesDisplay({
 
   useEffect(scrollToBottom, [messages]);
 
+  useEffect(() => {
+  console.log("messages in roomOn = ", messages);
+  }, [messages]);
   return (
     <div className="h-[88%] w-full flex flex-col p-3 bg-gradient-to-b from-white/10 to-transparent rounded-lg scrollbar-hide_2">
       {messages?.map((message: Messages, index) => (

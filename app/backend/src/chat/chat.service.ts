@@ -300,19 +300,60 @@ export class ChatService {
           },
         },
       });
-      const user = await this.prismaService.chatroomUser.findFirst({
-        where: { chatroomId: channelId, userId: userId },
-      });
+      // Get the profiles of all users
+      // const users: {
+      //   userProfile: {
+      //     id: string;
+      //     name: string | undefined;
+      //     imageSrc: string | undefined;
+      //   };
+      //   role: string;
+      //   fadeMenuInfos: {
+      //     isFriend: boolean;
+      //     isConnected: boolean;
+      //     isInvited: boolean;
+      //     isBlocked: boolean;
+      //     isMuted: boolean;
+      //     isKicked: boolean;
+      //     isBanned: boolean;
+      //     role: string;
+      //   };
+      // }[] = await Promise.all(
+      //   chatroom.users.map((user) =>
+      //     this.userService.getChatMemberProfile(userId, user.userId, channelId),
+      //   ),
+      // );
+
       const messages = await this.getMessagesFromRoom(channelId);
+
       return {
         chatroom: {
-          id: chatroom.id,
-          name: chatroom.name,
-          roomType: chatroom.chatroomType,
-          users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
+          roomInfos: {
+            id: chatroom.id,
+            name: chatroom.name,
+            roomType: chatroom.chatroomType,
+          },
+          users: await Promise.all(
+            chatroom.users.map((user) =>
+              this.userService.getChatMemberProfile(
+                userId,
+                user.userId,
+                channelId,
+              ),
+            ),
+          ),
           messages: messages,
+          password: chatroom.password,
+
+          // chatroom: {
+          //   id: chatroom.id,
+          //   name: chatroom.name,
+          //   roomType: chatroom.chatroomType,
+          //   users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
+          //   messages: messages,
+          // },
+          // role: user.role as string,
         },
-        role: user.role as string,
       };
     } catch (error) {
       console.error('Error getting chatroom by id:', error);
@@ -379,7 +420,6 @@ export class ChatService {
           id: string;
           name: string;
           imageSrc: string;
-          gameHistory: any[];
         };
         role: string;
         fadeMenuInfos: {
@@ -398,7 +438,6 @@ export class ChatService {
             id: chatroomUser.user.id,
             name: chatroomUser.user.name,
             imageSrc: chatroomUser.user.avatar,
-            gameHistory: [], // A CHANGER POUR PROFILE (recuperer les games du user)
           },
           role: chatroomUser.role,
           fadeMenuInfos: (await this.userService.getFadeMenuInfos(

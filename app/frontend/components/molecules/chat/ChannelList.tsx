@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Button from "../../atom/Button";
-import { useAppSelector } from "@/app/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import JoinChanModal from "./JoinChan";
 import CreateChanModal from "./CreateChan";
@@ -11,31 +11,24 @@ import { useGetChatRoomsInMutation } from "@/app/store/features/ChatRoom/ChatRoo
 import { ConnectSocket } from "@/app/utils/getSocket";
 import { useDispatch } from "react-redux";
 import { getChatRoomsInLocal } from "@/app/store/features/User/UserSlice";
-import { SetUserInStorage } from "@/app/utils/SetUserInStorage";
+import { setRoomOnId } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import { RootState } from "@/app/store/store";
+// import { SetUserInStorage } from "@/app/utils/SetUserInStorage";
 
-export default function ChannelBar({
-  setRoomOnId,
-}: {
-  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
-}) {
+export default function ChannelBar() {
   // recuperer les channels de l'utilisateur pour le premier render
-
-  const channels = useAppSelector((state) => state.user.user.channelsIn);
-  // ConnectSocket();
-  // SetUserInStorage();
-
-  const user = useAppSelector((state) => state.user.user);
-
+  const channels = useAppSelector(
+    (state: RootState) => state.user.user.channelsIn
+  );
   const [getChannels] = useGetChatRoomsInMutation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (!user) ConnectSocket();
     async function FetchChannels() {
       const response = await getChannels({});
       if ("data" in response) {
         dispatch(getChatRoomsInLocal(response.data));
-        // console.log("channelsIn : ", response.data);
+        console.log("channelsIn : ", response.data);
       } else {
         console.error("Error during API call for chat rooms:", response.error);
       }
@@ -50,8 +43,8 @@ export default function ChannelBar({
         className={`h-full w-full flex flex-col space-y-2 items-start rounded-3xl bg-[#9EB7F6]`}
       >
         <div className="flex flex-row items-center w-full justify-end space-x-2 p-2">
-          <CreateChanModal setRoomOnId={setRoomOnId} />
-          <JoinChanModal setRoomOnId={setRoomOnId} />
+          <CreateChanModal />
+          <JoinChanModal />
         </div>
         <div className="w-full h-[91%] scrollbar-hide">
           {channels.length === 0 ? (
@@ -65,7 +58,7 @@ export default function ChannelBar({
                     variant={"publicChannel"}
                     size={"channel"}
                     onClick={() => {
-                      setRoomOnId(channel.id);
+                      dispatch(setRoomOnId(channel.id));
                     }}
                   >
                     <h1 className="pl-8">{channel.name}</h1>

@@ -1,7 +1,7 @@
 import { quantico } from "@/models/Font/FontModel";
 import Button from "../../Button";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { addRoom } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import { addRoom, setRoomOnId } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import { joinChannel } from "@/app/store/features/User/UserSlice";
 import {
   useCreateChatRoomMutation,
@@ -21,18 +21,14 @@ export default function SubmitNewChan({
   password,
   channelName,
   handleClose,
-  setRoomOnId,
 }: {
   access: string;
   password: string;
   channelName: string;
   handleClose: () => void;
-  setRoomOnId: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const dispatch = useAppDispatch();
   const [createChatRoom] = useCreateChatRoomMutation();
-  const [setRoomOn] = useSetRoomOnMutation();
-  // SetUserInStorage();
   const user = useAppSelector((state: RootState) => state.user.user);
   const [error, setError] = useState<string>("false");
 
@@ -56,7 +52,7 @@ export default function SubmitNewChan({
           console.log("room created : ", responseData);
           dispatch(addRoom(responseData));
           dispatch(joinChannel(responseData));
-          setRoomOnId(responseData.id);
+          dispatch(setRoomOnId(responseData.id));
           console.log("user id FOR JOIN ROOM: ", user.playerProfile.id);
           mySocket.emit("JOIN_ROOM", {
             room: responseData.id,

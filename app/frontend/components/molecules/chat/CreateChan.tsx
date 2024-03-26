@@ -21,7 +21,7 @@ export const style = {
   p: 4,
 };
 
-export default function CreateChanModal({setRoomOnId} : {setRoomOnId: React.Dispatch<React.SetStateAction<string>>}) {
+export default function CreateChanModal() {
   const [open, setOpen] = React.useState(false);
   const [channelName, setChannelName] = React.useState<string>('');
   const [access, setAccess] = React.useState<string>("PUBLIC");
@@ -64,7 +64,6 @@ export default function CreateChanModal({setRoomOnId} : {setRoomOnId: React.Disp
               password={password}
               access={access}
               handleClose={handleClose}
-              setRoomOnId={setRoomOnId}
             />
           </div>
         </Box>
