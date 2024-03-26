@@ -12,21 +12,27 @@ import { newMessage } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 export default function ChatZone() {
   const [content, setContent] = useState<string>("");
   const dispatch = useAppDispatch();
-  const roomOnId: string = useAppSelector((state: RootState) => state.chatRooms.roomOnId);
-  const roomOn: RoomData = useAppSelector((state: RootState) => state.chatRooms.roomOn);
+  const roomOnId: string = useAppSelector(
+    (state: RootState) => state.chatRooms.roomOnId
+  );
+  const roomOn: RoomData = useAppSelector(
+    (state: RootState) => state.chatRooms.roomOn
+  );
   const user: PlayerProfile = useAppSelector(
     (state: RootState) => state.user.user.playerProfile
   );
-
-  console.log("roomOn ion chatZone:", roomOn);
 
   // listen for messages
   useEffect(() => {
     if (mySocket) {
       mySocket.on("MESSAGE", async (data: Messages) => {
+        console.log("Received message:", data);
         dispatch(newMessage(data));
       });
     }
+    //  else {
+    // console.error("Socket is not connected.");
+    // }
     return () => {
       mySocket.off("MESSAGE");
     };
@@ -74,7 +80,7 @@ export default function ChatZone() {
       ) : (
         <h1 className="text-4xl text-white">Not in a Chatroom</h1>
       )}
-      <MessagesDisplay/>
+      <MessagesDisplay messages={roomOn.messages} />
       <input
         type="text"
         value={content}

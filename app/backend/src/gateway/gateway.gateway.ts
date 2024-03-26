@@ -61,6 +61,7 @@ export class GatewayGateway
       const decodedToken = this.jwtService.decode(client.handshake.auth.token);
       const userId = decodedToken.id;
       client.userId = userId;
+      console.log('client.userId:', client.userId);
     } catch (error) {
       console.error('Invalid token in gateway', error);
     }
