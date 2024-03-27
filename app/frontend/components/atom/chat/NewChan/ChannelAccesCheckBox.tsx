@@ -8,6 +8,7 @@ export default function ChannelAccesCheckBox({
   access: string;
   setAccess: (value: string) => void;
 }) {
+  console.log("roomOn.roomInfos.roomType:", access);
   return (
     <div className="mt-5">
       <h1 className={`text-xl text-left mb-3 ${quantico.className}`}>
@@ -24,17 +25,6 @@ export default function ChannelAccesCheckBox({
             id="PUBLIC"
             name="access"
             value="PUBLIC"
-            onChange={(event) => setAccess(event.target.value)}
-          />
-        </div>
-        <div className="space-x-3">
-          <span>Private :</span>
-          <input
-            checked={access === "PRIVATE"}
-            type="radio"
-            id="PRIVATE"
-            name="access"
-            value="PRIVATE"
             onChange={(event) => setAccess(event.target.value)}
           />
         </div>

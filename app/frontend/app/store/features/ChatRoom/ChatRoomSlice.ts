@@ -10,6 +10,7 @@ import Messages from "@/models/ChatRoom/messages";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import RoomData from "@/models/ChatRoom/RoomData";
+import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 
 export interface ChatRoomslice {
   chatRooms: ChatRoom[];
@@ -26,7 +27,7 @@ const initialState: ChatRoomslice = {
   chatRooms: [],
   userProfiles: [
     {
-      userProfile: { id: "", name: "", imageSrc: ""},
+      userProfile: { id: "", name: "", imageSrc: "" },
       role: "",
       fadeMenuInfos: {
         isFriend: false,
@@ -78,17 +79,8 @@ export const ChatRoomSlice = createSlice({
         state.chatRooms = [...state.chatRooms, action.payload];
       else console.error("state.chatRooms is not an array");
     },
-    setUserProfiles: (
-      state,
-      action: PayloadAction<
-        {
-          userProfile: PlayerProfile;
-          role: string;
-          fadeMenuInfos: FadeMenuInfos;
-        }[]
-      >
-    ) => {
-      state.userProfiles = action.payload;
+    setUserProfiles: (state, action: PayloadAction<ChatMemberProfile[]>) => {
+      state.roomOn.users = action.payload;
     },
     updateRole: (
       state,

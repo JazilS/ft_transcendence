@@ -8,6 +8,10 @@ import Button from "@/components/atom/Button";
 import ChannelAccesCheckBox from "@/components/atom/chat/NewChan/ChannelAccesCheckBox";
 import TextInput from "@/components/atom/chat/NewChan/TextInput";
 import SubmitNewChan from "@/components/atom/chat/NewChan/SubmitNewChan";
+import RoomData from "@/models/ChatRoom/RoomData";
+import { useAppSelector } from "@/app/store/hooks";
+import { mySocket } from "@/app/utils/getSocket";
+import { useEffect } from "react";
 
 export const style = {
   position: "absolute",
@@ -21,18 +25,41 @@ export const style = {
   p: 4,
 };
 
-export default function CreateChanModal() {
+export default function EditRoom() {
   const [open, setOpen] = React.useState(false);
-  const [channelName, setChannelName] = React.useState<string>("");
-  const [access, setAccess] = React.useState<string>("PUBLIC");
-  const [password, setPassword] = React.useState<string>("");
+
+  const roomOn: RoomData = useAppSelector((state) => state.chatRooms.roomOn);
+
+  const [channelName, setChannelName] = React.useState(roomOn.roomInfos.name);
+  const [access, setAccess] = React.useState(roomOn.roomInfos.roomType);
+  const [password, setPassword] = React.useState(roomOn.password);
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    setChannelName("");
-    setAccess("PUBLIC");
-    setPassword("");
+    // setChannelName(channelName);
+    // setAccess(access);
+    // setPassword(password);
+    const newRoom: RoomData = {
+      roomInfos: {
+        id: roomOn.roomInfos.id,
+        name: channelName,
+        roomType: access,
+      },
+      users: roomOn.users,
+      messages: roomOn.messages,
+      password: password,
+    };
+    if (mySocket) {
+      mySocket.emit("UPDATE_ROOM", { room: roomOn, newRoom: newRoom });
+    } else {
+      console.error("Socket is not connected.");
+    }
   };
+  useEffect(() => {
+    setChannelName(roomOn.roomInfos.name);
+    setAccess(roomOn.roomInfos.roomType);
+    setPassword(roomOn.password);
+  }, [roomOn]);
 
   return (
     <div>
@@ -42,7 +69,7 @@ export default function CreateChanModal() {
         size={"h_7_w_16"}
         onClick={handleOpen}
       >
-        New
+        Edit
       </Button>
       <Modal
         open={open}
@@ -59,12 +86,14 @@ export default function CreateChanModal() {
                 <TextInput setText={setPassword} nameOrPass={"Password"} />
               </div>
             )}
-            <SubmitNewChan
-              channelName={channelName}
-              password={password}
-              access={access}
-              handleClose={handleClose}
-            />
+            <Button
+              variant={"rounded"}
+              size={"h_7_w_16"}
+              onClick={handleClose}
+              className="mt-10"
+            >
+              Submit
+            </Button>
           </div>
         </Box>
       </Modal>

@@ -14,7 +14,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
 import Messages from './types/Message.types';
 import { UserService } from 'src/user/user.service';
-import { ChatroomUser, User } from '@prisma/client';
+import { ChatroomUser, TYPE, User } from '@prisma/client';
+import RoomData from './types/RoomData.types';
 
 @WebSocketGateway()
 export class GatewayGateway
@@ -478,6 +479,37 @@ export class GatewayGateway
       this.server.to(payload.targetId).emit('PROMOTE_USER');
     } catch (error) {
       console.error('Error promoting user:', error);
+    }
+  }
+
+  @SubscribeMessage('UPDATE_ROOM')
+  async handleUpdateRoom(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody()
+    payload: { room: RoomData; newRoom: RoomData },
+  ) {
+    try {
+      console.log('UPDATE_ROOM:', payload);
+      const nameExists = await this.prismaService.chatroom.findFirst({
+        where: { name: payload.newRoom.roomInfos.name },
+      });
+      if (nameExists) {
+        console.log('nameExists:', nameExists);
+        throw 'Room name already exists';
+      }
+      await this.prismaService.chatroom.update({
+        where: { id: payload.room.roomInfos.id },
+        data: {
+          name: payload.newRoom.roomInfos.name,
+          chatroomType: payload.newRoom.roomInfos.roomType as TYPE,
+          password: payload.newRoom.password,
+        },
+      });
+      this.server
+        .to(payload.room.roomInfos.id)
+        .emit('UPDATE_ROOM', payload.newRoom);
+    } catch (error) {
+      console.error('Error updating room:', error);
     }
   }
 

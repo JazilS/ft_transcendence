@@ -31,14 +31,19 @@ import {
   newMessage,
   setRoomOn,
   setRoomOnId,
+  setUserProfiles,
 } from "../store/features/ChatRoom/ChatRoomSlice";
 import Messages from "@/models/ChatRoom/messages";
+import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 
 export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
   const [getRoomById] = useGetChatRoomByIdMutation();
   const dispatch = useAppDispatch();
   const user: User = useAppSelector((state: RootState) => state.user.user);
+  const roomOn: RoomData = useAppSelector(
+    (state: RootState) => state.chatRooms.roomOn
+  );
   const roomOnId: string = useAppSelector(
     (state: RootState) => state.chatRooms.roomOnId
   );
@@ -55,7 +60,7 @@ export default function ChatPage() {
       dispatch(setAllData(user));
     }
   }, [response.data, dispatch]);
-  
+
   // fetch room
   useEffect(() => {
     const fetchRoom = async () => {
@@ -109,30 +114,46 @@ export default function ChatPage() {
           }
         }
       );
+      mySocket.on("MESSAGE", async (data: Messages) => {
+        console.log("Received message:", data);
+        if (data.chatId === roomOnId) {
+          dispatch(newMessage(data));
+        }
+      });
+      mySocket.on("UPDATE_ROOM", async (newRoom: RoomData) => {
+        try {
+          console.log("Room Updated:", newRoom);
+          dispatch(setRoomOnId(newRoom.roomInfos.id));
+          // if (newRoom.roomInfos.id === roomOnId) {
+          dispatch(setRoomOn(newRoom));
+          // }
+        } catch (error) {
+          console.error("Error during room update:", error);
+        }
+      });
+      if (roomOn != undefined) {
+        mySocket.on("JOIN_ROOM", async (data: ChatMemberProfile) => {
+          console.log("JOINGIN ROOM USERS UPDATE :", [...roomOn.users, data]);
+          dispatch(setUserProfiles([...roomOn.users, data]));
+        });
+        mySocket.on("UPDATE_CHAT_MEMBERS", async (userId: string) => {
+          const updatedProfiles: ChatMemberProfile[] = roomOn.users.filter(
+            (user) => user.userProfile.id !== userId
+          );
+          console.log("UPDATED PROFILES AFTER LEAVING:", updatedProfiles);
+          dispatch(setUserProfiles(updatedProfiles));
+        });
+      }
     }
     return () => {
       mySocket.off("LEAVING_ROOM");
+      mySocket.off("UPDATE_ROOM");
+      mySocket.off("MESSAGE");
+      mySocket.off("JOIN_ROOM");
+      mySocket.off("UPDATE_CHAT_MEMBERS");
     };
-  });
+  }, [dispatch, roomOn, roomOn.users, roomOnId, user.playerProfile.id]);
 
-    // listen for messages
-    useEffect(() => {
-      // ConnectSocket();
-      if (mySocket) {
-        mySocket.on("MESSAGE", async (data: Messages) => {
-          console.log("Received message:", data);
-          if (data.chatId === roomOnId) {
-          dispatch(newMessage(data));
-          }
-        });
-      } else {
-        console.error("Socket is not connected.");
-      }
-      return () => {
-        mySocket.off("MESSAGE");
-      };
-    }, [dispatch, roomOnId]);
-  
   return (
     <div className="h-full">
       <div className="flex justify-center h-[95%] ">
@@ -141,7 +162,7 @@ export default function ChatPage() {
         >
           <ChoseChat isChan={isChan} setIsChan={setIsChan} />
           <ChatZone />
-          {/* <ChatMembers /> */}
+          <ChatMembers />
         </div>
       </div>
     </div>

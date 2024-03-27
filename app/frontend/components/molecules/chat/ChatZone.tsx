@@ -8,6 +8,7 @@ import LeaveChannel from "./LeaveChannel";
 import { RootState } from "@/app/store/store";
 import RoomData from "@/models/ChatRoom/RoomData";
 import { newMessage } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import EditRoom from "./EditRoom/EditRoom";
 
 export default function ChatZone() {
   const [content, setContent] = useState<string>("");
@@ -21,7 +22,6 @@ export default function ChatZone() {
   const user: PlayerProfile = useAppSelector(
     (state: RootState) => state.user.user.playerProfile
   );
-
 
   useEffect(() => {
     console.log("roomOn changed:", roomOn);
@@ -54,13 +54,17 @@ export default function ChatZone() {
       {roomOnId !== "" ? (
         <div className="flex flex-row justify-between items-center w-full">
           <div></div> {/* Div vide pour prendre de l'espace */}
-          <h1 className="text-4xl text-white">{roomOn.roomInfos.name}</h1>
-          <LeaveChannel
-            roomOnId={roomOn.roomInfos.id}
-            userName={user.name as string}
-            userId={user.id}
-            mySocket={mySocket}
-          />
+          <h1 className="text-4xl ml-14 text-white">{roomOn.roomInfos.name}</h1>
+          <div className="flex flex-row space-x-3">
+            {roomOn.users.find((u) => u.userProfile.id === user.id)?.role !==
+              "MEMBER" && <EditRoom />}
+            <LeaveChannel
+              roomOnId={roomOn.roomInfos.id}
+              userName={user.name as string}
+              userId={user.id}
+              mySocket={mySocket}
+            />
+          </div>
         </div>
       ) : (
         <h1 className="text-4xl text-white">Not in a Chatroom</h1>
