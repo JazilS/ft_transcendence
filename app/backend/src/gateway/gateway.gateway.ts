@@ -52,12 +52,6 @@ export class GatewayGateway
     // this.logger.log(`Socket data: `, sockets);
     // this.logger.debug(`Number of connected sockets: ${sockets.size}`);
     try {
-      // console.log(
-      //   'client.handshake.auth.token',
-      //   client.handshake.auth.token,
-      //   '\n process.env.JWT_SECRET',
-      //   process.env.JWT_SECRET,
-      // );
       const decodedToken = this.jwtService.decode(client.handshake.auth.token);
       const userId = decodedToken.id;
       client.userId = userId;
@@ -66,11 +60,16 @@ export class GatewayGateway
       console.error('Invalid token in gateway', error);
     }
     client.join(client.userId);
-
-    const rooms = this.server.of('/').adapter.rooms;
-    console.log({ rooms });
-    const room = this.server.of('/').adapter.rooms.get(client.userId);
-    console.log('Room:', room);
+    // const { sockets } = this.server.sockets;
+    // console.log('All connected sockets:');
+    // for (const id in sockets) {
+    // const socket = sockets[id] as SocketWithAuth;
+    // console.log(`Socket ID: ${id}, User ID: ${socket.userId}`);
+    // }
+    // const rooms = this.server.of('/').adapter.rooms;
+    // console.log({ rooms });
+    // const room = this.server.of('/').adapter.rooms.get(client.userId);
+    // console.log('Room:', room);
   }
 
   async handleDisconnect(client: SocketWithAuth) {
@@ -88,6 +87,10 @@ export class GatewayGateway
     },
     @ConnectedSocket() client: SocketWithAuth,
   ) {
+    console.log(
+      'users in room:',
+      this.getAllUserIdsByKey(payload.message.chatId),
+    );
     if (payload.message.emitterId !== 'system' && !client.userId)
       throw 'Unauthorized';
     try {
@@ -189,6 +192,28 @@ export class GatewayGateway
   }
 
   // JOIN_ROOM
+
+  @SubscribeMessage('JOIN_SOCKET_ROOM')
+  handleJoinSocketRoom(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody() payload: { room: string },
+  ) {
+    console.log('JOIN_SOCKET_ROOM', payload);
+    const room = payload.room;
+    let isAlreadyInRoom: boolean = false;
+
+    const roomSet = this.server.of('/').adapter.rooms.get(room);
+    if (roomSet) {
+      roomSet.forEach((id) => {
+        if (id === client.id) isAlreadyInRoom = true;
+      });
+    }
+
+    if (!isAlreadyInRoom) {
+      client.join(room);
+    }
+  }
+
   @SubscribeMessage('JOIN_ROOM')
   async handleJoinRoom(
     @ConnectedSocket() client: SocketWithAuth,

@@ -7,7 +7,10 @@ import ChatMembers from "@/components/atom/chat/ChatMembers";
 import ChatZone from "@/components/molecules/chat/ChatZone";
 import "../styles.css";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
-import { useGetChatRoomByIdMutation } from "../store/features/ChatRoom/ChatRoom.api.slice";
+import {
+  useGetChatRoomByIdMutation,
+  useGetChatRoomsInMutation,
+} from "../store/features/ChatRoom/ChatRoom.api.slice";
 import User from "@/models/User/UserModel";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
@@ -17,13 +20,19 @@ import {
   useGetConnectedUserQuery,
   useLeaveChatroomMutation,
 } from "../store/features/User/user.api.slice";
-import { leaveChatroom, setAllData } from "../store/features/User/UserSlice";
+import {
+  getChatRoomsInLocal,
+  leaveChatroom,
+  setAllData,
+} from "../store/features/User/UserSlice";
 import { RootState } from "../store/store";
 import RoomData from "@/models/ChatRoom/RoomData";
 import {
+  newMessage,
   setRoomOn,
   setRoomOnId,
 } from "../store/features/ChatRoom/ChatRoomSlice";
+import Messages from "@/models/ChatRoom/messages";
 
 export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
@@ -33,6 +42,7 @@ export default function ChatPage() {
   const roomOnId: string = useAppSelector(
     (state: RootState) => state.chatRooms.roomOnId
   );
+  const [getChannels] = useGetChatRoomsInMutation();
   const response = useGetConnectedUserQuery({});
 
   // fetch user
@@ -45,7 +55,7 @@ export default function ChatPage() {
       dispatch(setAllData(user));
     }
   }, [response.data, dispatch]);
-
+  
   // fetch room
   useEffect(() => {
     const fetchRoom = async () => {
@@ -54,19 +64,34 @@ export default function ChatPage() {
         | { error: FetchBaseQueryError | SerializedError } = await getRoomById({
         channelId: roomOnId,
       });
-        if ("data" in response) {
+      if ("data" in response) {
         console.log("response fetching room : ", response.data);
         dispatch(setRoomOn(response.data.chatroom as RoomData));
       } else if ("error" in response) {
         console.error("Error fetching actual room:", response.error);
       }
     };
+    async function FetchChannels() {
+      const response = await getChannels({});
+      if ("data" in response) {
+        dispatch(getChatRoomsInLocal(response.data));
+        response.data.map((channel: ChatRoom) => {
+          mySocket.emit("JOIN_SOCKET_ROOM", {
+            room: channel.id,
+          });
+        });
+        console.log("channelsIn : ", response.data);
+      } else {
+        console.error("Error during API call for chat rooms:", response.error);
+      }
+    }
 
     if (roomOnId !== "") {
       fetchRoom();
       console.log("fetching roomOnId : ", roomOnId);
     }
-  }, [dispatch, getRoomById, roomOnId]);
+    FetchChannels();
+  }, [dispatch, getChannels, getRoomById, roomOnId]);
 
   // listen on leaving channel
   useEffect(() => {
@@ -90,6 +115,24 @@ export default function ChatPage() {
     };
   });
 
+    // listen for messages
+    useEffect(() => {
+      // ConnectSocket();
+      if (mySocket) {
+        mySocket.on("MESSAGE", async (data: Messages) => {
+          console.log("Received message:", data);
+          if (data.chatId === roomOnId) {
+          dispatch(newMessage(data));
+          }
+        });
+      } else {
+        console.error("Socket is not connected.");
+      }
+      return () => {
+        mySocket.off("MESSAGE");
+      };
+    }, [dispatch, roomOnId]);
+  
   return (
     <div className="h-full">
       <div className="flex justify-center h-[95%] ">

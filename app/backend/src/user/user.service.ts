@@ -247,15 +247,6 @@ export class UserService {
       if (!user) {
         throw new Error('User not found');
       }
-      console.log(
-        'Connected user:',
-        user.id,
-        user.name,
-        user.avatar,
-        user.status === 'ONLINE' ? true : false,
-        false,
-        token,
-      );
       return {
         playerProfile: {
           id: user.id,

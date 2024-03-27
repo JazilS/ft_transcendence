@@ -289,6 +289,9 @@ export class ChatService {
   // GETCHATROOMBYID
   async getChatRoomById(channelId: string, userId: string) {
     try {
+      if (!channelId || channelId === '' || channelId === undefined) {
+        return null;
+      }
       const chatroom = await this.prismaService.chatroom.findUnique({
         where: { id: channelId },
         include: {

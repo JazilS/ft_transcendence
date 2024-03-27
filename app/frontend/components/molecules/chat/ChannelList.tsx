@@ -20,22 +20,8 @@ export default function ChannelBar() {
   const channels = useAppSelector(
     (state: RootState) => state.user.user.channelsIn
   );
-  const [getChannels] = useGetChatRoomsInMutation();
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    async function FetchChannels() {
-      const response = await getChannels({});
-      if ("data" in response) {
-        dispatch(getChatRoomsInLocal(response.data));
-        console.log("channelsIn : ", response.data);
-      } else {
-        console.error("Error during API call for chat rooms:", response.error);
-      }
-    }
-
-    FetchChannels();
-  }, [dispatch, getChannels]);
+  
 
   return (
     <div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>

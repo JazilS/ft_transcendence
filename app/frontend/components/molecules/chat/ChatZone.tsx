@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { mySocket } from "@/app/utils/getSocket";
+import { ConnectSocket, mySocket } from "@/app/utils/getSocket";
 import MessagesDisplay from "@/components/atom/chat/MessagesDisplay";
 import Messages from "@/models/ChatRoom/messages";
 import { useEffect, useState } from "react";
@@ -22,21 +22,6 @@ export default function ChatZone() {
     (state: RootState) => state.user.user.playerProfile
   );
 
-  // listen for messages
-  useEffect(() => {
-    if (mySocket) {
-      mySocket.on("MESSAGE", async (data: Messages) => {
-        console.log("Received message:", data);
-        dispatch(newMessage(data));
-      });
-    }
-    //  else {
-    // console.error("Socket is not connected.");
-    // }
-    return () => {
-      mySocket.off("MESSAGE");
-    };
-  }, [dispatch]);
 
   useEffect(() => {
     console.log("roomOn changed:", roomOn);

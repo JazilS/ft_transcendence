@@ -35,7 +35,6 @@ export class ChatController {
       const decodedToken = this.jwtService.decode(token);
       const userId = decodedToken.id;
 
-      console.log('Decoded user ID in createChatroom:', userId);
       body.creatorId = userId;
       return this.chatService.createChatRoom(body);
     } catch (error) {
@@ -61,9 +60,6 @@ export class ChatController {
       const decodedToken = this.jwtService.decode(token);
       const userId = decodedToken.id;
 
-      console.log('Decoded user ID in getpublicChatrooms:', userId);
-
-      // console.log('DECODED TOKEN', decodedToken);
       return this.chatService.getChatRoomsIn(userId);
     } catch (error) {
       console.error('Invalid token');
@@ -88,7 +84,6 @@ export class ChatController {
       // Replace 'your_secret_key' with the secret key you used to sign the token
       const decodedToken = this.jwtService.decode(token);
       const userId = decodedToken.id;
-      console.log('Decoded user ID in joinChatRoom:', userId);
       if (!body.channelId) {
         throw new BadRequestException('channelId and userId are required');
       }
@@ -117,10 +112,6 @@ export class ChatController {
       // Replace 'your_secret_key' with the secret key you used to sign the token
       const decodedToken = this.jwtService.decode(token);
       const userId = decodedToken.id;
-      console.log('Decoded user ID in joinChatRoom:', userId);
-      if (!body.channelId) {
-        throw new BadRequestException('channelId is required');
-      }
       return this.chatService.getChatRoomById(body.channelId, userId);
     } catch (error) {
       console.error('Invalid token');
