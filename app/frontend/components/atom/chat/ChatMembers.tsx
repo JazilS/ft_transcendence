@@ -21,60 +21,44 @@ export default function ChatMembers() {
   const roomOn: RoomData = useAppSelector((state) => state.chatRooms.roomOn);
   const user: User = useAppSelector((state: RootState) => state.user.user);
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
   const dispatch = useAppDispatch();
 
-  // listen for new and leaving members
-  // useEffect(() => {
-  //   if (mySocket) {
-  //     mySocket.on("JOIN_ROOM", async (data: ChatMemberProfile) => {
-  //       console.log("JOINGIN ROOM USERS UPDATE :", [...roomOn.users, data]);
-  //       dispatch(setUserProfiles([...roomOn.users, data]));
-  //     });
-  //     mySocket.on("UPDATE_CHAT_MEMBERS", async (userId: string) => {
-  //       const updatedProfiles: ChatMemberProfile[] = roomOn.users.filter(
-  //         (user) => user.userProfile.id !== userId
-  //       );
-  //       console.log("UPDATED PROFILES AFTER LEAVING:", updatedProfiles);
-  //       dispatch(setUserProfiles(updatedProfiles));
-  //     });
-  //   }
-  //   return () => {
-  //     mySocket.off("JOIN_ROOM");
-  //     mySocket.off("UPDATE_CHAT_MEMBERS");
-  //   };
-  // });
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    console.log("handleClick !");
+    setAnchorEl(event.currentTarget);
+  };
 
   return (
     <div className="h-[95%] mt-9 w-[20%] bg-[#BC80D0] rounded-3xl">
       <h1 className="text-3xl pl-[18%] pb-[5%] pt-[3%] ">Chat Members</h1>
       <div className={"h-[90%] w-full scrollbar-hide_3"}>
         <ul>
-          {roomOn.users.map((user: ChatMemberProfile) => (
-            <li key={user.userProfile.id}>
+          {roomOn.users.map((roomUser: ChatMemberProfile) => (
+            <li key={roomUser.userProfile.id}>
               <Button
                 className="hover:bg-[#f28eff] pl-9 w-[100%]"
                 variant={"chatMember"}
                 size={"channel"}
-                infos={user.fadeMenuInfos}
+                infos={roomUser.fadeMenuInfos}
                 id="fade-button"
-                // aria-controls={open ? "fade-menu" : undefined}
-                // aria-haspopup="true"
-                // aria-expanded={open ? "true" : undefined}
-                // onClick={(event: React.MouseEvent<HTMLElement>) => {
-                  // if (user.userProfile.id !== userId) handleClick(event);
-                // }}
+                aria-controls={open ? "fade-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                onClick={(event: React.MouseEvent<HTMLElement>) => {
+                  if (roomUser.userProfile.id !== user.playerProfile.id)
+                    handleClick(event);
+                }}
               >
-                {user.userProfile.name}
+                {roomUser.userProfile.name}
               </Button>
-              {/* <FadeMenu
-                targetProfile={user}
-                userRole={role}
-                setUserRole={setUserRole}
-                setAnchorEl={setAnchorEl}
+              <FadeMenu
                 anchorEl={anchorEl}
+                setAnchorEl={setAnchorEl}
                 open={open}
-                roomOn={roomOn}
-              /> */}
+              />
             </li>
           ))}
         </ul>

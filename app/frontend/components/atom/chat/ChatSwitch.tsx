@@ -18,7 +18,7 @@ export default function SwitchChat({
   const handleSetIsChan = async (value: boolean) => {
     if (value) {
       console.log("fetching chat rooms in for user id: ", userId);
-      const response = await getChatRoomsInFromAPI({ userId: userId });
+      const response = await getChatRoomsInFromAPI({});
       if ("data" in response) {
         dispatch(getChatRoomsInLocal(response.data));
         console.log("ChatRoomsIn = ", response);

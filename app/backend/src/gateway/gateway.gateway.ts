@@ -53,6 +53,10 @@ export class GatewayGateway
     // this.logger.log(`Socket data: `, sockets);
     // this.logger.debug(`Number of connected sockets: ${sockets.size}`);
     try {
+      // if (client.handshake.auth.token) {
+      // client.disconnect(true);
+      // return;
+      // }
       const decodedToken = this.jwtService.decode(client.handshake.auth.token);
       const userId = decodedToken.id;
       client.userId = userId;
@@ -316,9 +320,12 @@ export class GatewayGateway
         }
       }
     }
+    console.log('userId = ', payload.userId);
+    console.log('room = ', payload.room);
     const userInChatroom = await this.prismaService.chatroomUser.findFirst({
       where: { chatroomId: payload.room, userId: payload.userId },
     });
+    console.log('userInchatroom : ', userInChatroom);
     await this.prismaService.chatroomUser.delete({
       where: { id: userInChatroom.id },
     });

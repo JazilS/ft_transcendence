@@ -52,7 +52,7 @@ export default function ChatPage() {
 
   // fetch user
   useEffect(() => {
-    ConnectSocket();
+    if (!mySocket) ConnectSocket();
     let user: User;
     if (response.data) {
       user = response.data as User;
@@ -93,7 +93,17 @@ export default function ChatPage() {
 
     if (roomOnId !== "") {
       fetchRoom();
+      // tout mettre a vide ?
       console.log("fetching roomOnId : ", roomOnId);
+    } else {
+      dispatch(
+        setRoomOn({
+          roomInfos: { id: "", name: "Not in a channel", roomType: "" },
+          users: [],
+          messages: [],
+          password: "",
+        })
+      );
     }
     FetchChannels();
   }, [dispatch, getChannels, getRoomById, roomOnId]);
@@ -122,11 +132,13 @@ export default function ChatPage() {
       });
       mySocket.on("UPDATE_ROOM", async (newRoom: RoomData) => {
         try {
-          console.log("Room Updated:", newRoom);
-          dispatch(setRoomOnId(newRoom.roomInfos.id));
-          // if (newRoom.roomInfos.id === roomOnId) {
-          dispatch(setRoomOn(newRoom));
-          // }
+          if (roomOnId === newRoom.roomInfos.id) {
+            console.log("Room Updated:", newRoom);
+            dispatch(setRoomOnId(newRoom.roomInfos.id));
+            // if (newRoom.roomInfos.id === roomOnId) {
+            dispatch(setRoomOn(newRoom));
+            // }
+          }
         } catch (error) {
           console.error("Error during room update:", error);
         }

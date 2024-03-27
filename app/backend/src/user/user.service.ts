@@ -125,7 +125,6 @@ export class UserService {
         id: user.id,
         name: user.name,
         imageSrc: user.avatar,
-        games: [], //! A CHANGER POUR PROFILE (recuperer les games du user)
       };
     } catch (error) {
       console.log(error);
@@ -136,18 +135,16 @@ export class UserService {
   // LEAVECHATROOM
   async leaveChatroom(body: { userId: string; roomId: string }) {
     try {
-      const chatroomUser = await this.prismaService.chatroomUser.findFirst({
+      const usersInRoom = await this.prismaService.chatroom.findFirst({
         where: {
-          userId: body.userId,
-          chatroomId: body.roomId,
+          id: body.roomId,
         },
         include: {
-          chatroom: {
-            include: {
-              users: true,
-            },
-          },
+          users: true,
         },
+      });
+      const chatroomUser = await this.prismaService.chatroomUser.findFirst({
+        where: { userId: body.userId, chatroomId: body.roomId },
       });
 
       if (chatroomUser) {
@@ -156,7 +153,7 @@ export class UserService {
             id: chatroomUser.id,
           },
         });
-        if (chatroomUser.chatroom.users.length === 0) {
+        if (usersInRoom.users.length === 0) {
           await this.prismaService.chatroom.delete({
             where: {
               id: chatroomUser.chatroomId,

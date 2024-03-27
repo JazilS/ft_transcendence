@@ -21,7 +21,6 @@ export default function ChannelBar() {
     (state: RootState) => state.user.user.channelsIn
   );
   const dispatch = useAppDispatch();
-  
 
   return (
     <div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>

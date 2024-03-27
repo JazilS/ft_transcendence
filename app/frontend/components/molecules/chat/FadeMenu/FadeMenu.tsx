@@ -4,7 +4,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import "@/style/FadeMenu.css";
-import { SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { mySocket } from "@/app/utils/getSocket";
@@ -16,109 +16,62 @@ import Mute from "@/components/atom/chat/mute/mute";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 
 export default function FadeMenu({
-  targetProfile,
-  userRole,
-  setUserRole,
-  setAnchorEl,
   anchorEl,
+  setAnchorEl,
   open,
-  roomOn,
 }: {
-  targetProfile: ChatMemberProfile;
-  userRole: string;
-  setUserRole: React.Dispatch<React.SetStateAction<string>>;
-  setAnchorEl: (value: SetStateAction<HTMLElement | null>) => void;
   anchorEl: HTMLElement | null;
+  setAnchorEl: Dispatch<SetStateAction<HTMLElement | null>>;
   open: boolean;
-  roomOn: ChatRoom;
 }) {
-  // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  // const open = Boolean(anchorEl);
-
   const user = useAppSelector((state) => state.user.user);
-  // const userProfiles: {
-  //   userProfile: PlayerProfile;
-  //   role: string;
-  //   fadeMenuInfos: FadeMenuInfos;
-  // }[] = useAppSelector((state) => state.chatRooms.userProfiles);
-
   const dispatch = useAppDispatch();
-  // const [getFadeMenuInfos] = useGetFadeMenuInfosMutation();
 
-  // useEffect(() => {
-  //   const fetchFadeMenuInfos = async () => {
-  //     const response:
-  //       | { data: FadeMenuInfos }
-  //       | { error: FetchBaseQueryError | SerializedError } =
-  //       await getFadeMenuInfos({
-  //         userId: user.playerProfile.id,
-  //         targetId: targetId,
-  //         roomId: roomOn.id,
-  //       });
-  //     if ("data" in response) {
-  //       dispatch;
-  //       setInfos(response.data);
-  //     } else {
-  //       console.error(
-  //         "Error during API call for fade menu infos:",
-  //         response.error
-  //       );
-  //     }
-  //   };
-  //   fetchFadeMenuInfos();
-  // }, [anchorEl, getFadeMenuInfos, roomOn.id, targetId, user]);
-
-  // const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-  //   console.log("active : ", active, "targetProfile : ", targetProfile);
-
-  //   if (active) setAnchorEl(event.currentTarget);
+  // const handlePromote = () => {
+  //   mySocket.emit("PROMOTE_USER", {
+  //     targetId: targetProfile.userProfile.id,
+  //     roomOnId: roomOn.id,
+  //   });
+  //   setUserRole("ADMIN");
   // };
 
-  const handlePromote = () => {
-    mySocket.emit("PROMOTE_USER", {
-      targetId: targetProfile.userProfile.id,
-      roomOnId: roomOn.id,
-    });
-    setUserRole("ADMIN");
-  };
+  // const handleKick = () => {
+  //   if (mySocket)
+  //     mySocket.emit("LEAVE_ROOM", {
+  //       room: roomOn.id,
+  //       userName: targetProfile.userProfile.name,
+  //       userId: targetProfile.userProfile.id,
+  //       leavingType: "KICKED",
+  //     });
+  //   else console.log("No socket");
+  // };
 
-  const handleKick = () => {
-    if (mySocket)
-      mySocket.emit("LEAVE_ROOM", {
-        room: roomOn.id,
-        userName: targetProfile.userProfile.name,
-        userId: targetProfile.userProfile.id,
-        leavingType: "KICKED",
-      });
-    else console.log("No socket");
-  };
+  // const handleBan = () => {
+  //   if (mySocket)
+  //     mySocket.emit("LEAVE_ROOM", {
+  //       room: roomOn.id,
+  //       userName: targetProfile.userProfile.name,
+  //       userId: targetProfile.userProfile.id,
+  //       leavingType: "BANNED",
+  //     });
+  //   else console.log("No socket");
+  // };
 
-  const handleBan = () => {
-    if (mySocket)
-      mySocket.emit("LEAVE_ROOM", {
-        room: roomOn.id,
-        userName: targetProfile.userProfile.name,
-        userId: targetProfile.userProfile.id,
-        leavingType: "BANNED",
-      });
-    else console.log("No socket");
-  };
-
-  useEffect(() => {
-    if (mySocket) {
-      mySocket.on("PROMOTE_USER", async () => {
-        console.log(" i have been promoted to ADMIN");
-        setUserRole("ADMIN");
-        dispatch(
-          updateRole({ targetId: targetProfile.userProfile.id, role: "ADMIN" })
-        );
-        // setInfos({ ...infos, role: "ADMIN" });
-      });
-    }
-    return () => {
-      mySocket.off("PROMOTE_USER");
-    };
-  });
+  // useEffect(() => {
+  //   if (mySocket) {
+  //     mySocket.on("PROMOTE_USER", async () => {
+  //       console.log(" i have been promoted to ADMIN");
+  //       setUserRole("ADMIN");
+  //       dispatch(
+  //         updateRole({ targetId: targetProfile.userProfile.id, role: "ADMIN" })
+  //       );
+  //       // setInfos({ ...infos, role: "ADMIN" });
+  //     });
+  //   }
+  //   return () => {
+  //     mySocket.off("PROMOTE_USER");
+  //   };
+  // });
 
   // useEffect(() => {
   //   if (mySocket) {
@@ -134,16 +87,16 @@ export default function FadeMenu({
   //   };
   // });
 
-  // const handleMute = (muteTime: number) => {
-  //   if (userId !== "") {
-  //     mySocket.emit("MUTE_USER", {
-  //       roomId: roomOn.id,
-  //       mutedUser: targetProfile.userProfile.id,
-  //       muteTime: muteTime,
-  //     });
-  //     // dispatch(setUserProfiles(updatedProfiles));
-  //   }
-  // };
+  const handleMute = (muteTime: number) => {
+    // if (userId !== "") {
+    //   mySocket.emit("MUTE_USER", {
+    //     roomId: roomOn.id,
+    //     mutedUser: targetProfile.userProfile.id,
+    //     muteTime: muteTime,
+    //   });
+    //   // dispatch(setUserProfiles(updatedProfiles));
+    // }
+  };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -186,8 +139,6 @@ export default function FadeMenu({
         {/* MUTE */}
         {/* <MenuItem
           onClick={() => {
-            console.log("userRole", userRole);
-            console.log("targetRole", targetProfile.role);
             // handleClose();
             handleMute();
           }}
@@ -215,14 +166,14 @@ export default function FadeMenu({
         {/* {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
           userRole !== "MEMBER" && ( */}
         {/* {console.log("targetProfile BEFORE MUTE", targetProfile)} */}
-        <Mute
+        {/* <Mute
           userId={user.playerProfile.id}
           targetProfile={targetProfile}
           roomId={roomOn.id}
-        ></Mute>
+        ></Mute> */}
         {/* )} */}
         {/* PROMOTE IN CHANNEL */}
-        {targetProfile.role === "MEMBER" &&
+        {/* {targetProfile.role === "MEMBER" &&
           (userRole === "CREATOR" || userRole === "ADMIN") && (
             <MenuItem
               onClick={() => {
@@ -237,7 +188,7 @@ export default function FadeMenu({
             </MenuItem>
           )}
         {/* KICK */}
-        {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
+        {/* {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
           userRole !== "MEMBER" && (
             <MenuItem
               onClick={() => {
@@ -248,9 +199,9 @@ export default function FadeMenu({
             >
               Kick
             </MenuItem>
-          )}
+          )} */}
         {/* BAN */}
-        {targetProfile.fadeMenuInfos.role === "MEMBER" &&
+        {/* {targetProfile.fadeMenuInfos.role === "MEMBER" &&
           userRole !== "MEMBER" && (
             <MenuItem
               onClick={() => {
@@ -261,7 +212,7 @@ export default function FadeMenu({
             >
               Ban
             </MenuItem>
-          )}
+          )}*/}
       </Menu>
     </div>
   );
