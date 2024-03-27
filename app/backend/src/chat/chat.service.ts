@@ -303,31 +303,8 @@ export class ChatService {
           },
         },
       });
-      // Get the profiles of all users
-      // const users: {
-      //   userProfile: {
-      //     id: string;
-      //     name: string | undefined;
-      //     imageSrc: string | undefined;
-      //   };
-      //   role: string;
-      //   fadeMenuInfos: {
-      //     isFriend: boolean;
-      //     isConnected: boolean;
-      //     isInvited: boolean;
-      //     isBlocked: boolean;
-      //     isMuted: boolean;
-      //     isKicked: boolean;
-      //     isBanned: boolean;
-      //     role: string;
-      //   };
-      // }[] = await Promise.all(
-      //   chatroom.users.map((user) =>
-      //     this.userService.getChatMemberProfile(userId, user.userId, channelId),
-      //   ),
-      // );
 
-      const messages = await this.getMessagesFromRoom(channelId);
+      const messages = await this.getMessagesFromRoom(channelId, userId);
 
       return {
         chatroom: {
@@ -365,7 +342,7 @@ export class ChatService {
   }
 
   // GETMESSAGESFROMROOM
-  async getMessagesFromRoom(roomId: string) {
+  async getMessagesFromRoom(roomId: string, userId: string) {
     try {
       if (!roomId || roomId === '' || roomId === undefined) {
         return null;
@@ -380,15 +357,19 @@ export class ChatService {
           },
         },
       });
-      const messages: Messages[] = room.messages.map((message) => ({
-        id: message.id,
-        content: message.content,
-        chatId: message.chatId,
-        emitterId: message.emitterId,
-        emitterName: message.emitter.name, // Access the name from the emitter object
-        emitterAvatar: message.emitter.avatar, // Access the avatar from the emitter object
-      }));
-      // console.log('Messages from room:', messages);
+      const user = await this.prismaService.user.findUnique({
+        where: { id: userId },
+      });
+      const messages: Messages[] = room.messages
+        .filter((message) => !user.blockedUsers.includes(message.emitterId)) // Filter out messages from blocked users
+        .map((message) => ({
+          id: message.id,
+          content: message.content,
+          chatId: message.chatId,
+          emitterId: message.emitterId,
+          emitterName: message.emitter.name, // Access the name from the emitter object
+          emitterAvatar: message.emitter.avatar, // Access the avatar from the emitter object
+        }));
       return messages;
     } catch (error) {
       console.error('Error getting messages from room:', error);

@@ -386,11 +386,13 @@ export class GatewayGateway
       return;
     }
     if (payload.leavingType === 'KICKED' || payload.leavingType === 'BANNED')
-      this.server.to(payload.userId).emit('LEAVING_ROOM', payload.userName);
+      this.server
+        .to(payload.userId)
+        .emit('LEAVE_ROOM', payload.userId, payload.leavingType);
     this.server
       .to(payload.room)
       .emit('UPDATE_CHAT_MEMBERS', payload.userId, payload.room);
-    // this.server.to(payload.room).emit('LEAVE_ROOM', payload.userName);
+
     return 'Left room : ' + payload.room;
   }
 
@@ -474,6 +476,7 @@ export class GatewayGateway
     }
   }
 
+  // PROMOTE_USER
   @SubscribeMessage('PROMOTE_USER')
   async handlePromoteUser(
     @ConnectedSocket() client: SocketWithAuth,
@@ -489,7 +492,7 @@ export class GatewayGateway
         where: { id: userToPromote.id },
         data: { role: 'ADMIN' },
       });
-      this.server.to(payload.targetId).emit('PROMOTE_USER');
+      this.server.to(payload.roomOnId).emit('PROMOTE_USER');
     } catch (error) {
       console.error('Error promoting user:', error);
     }

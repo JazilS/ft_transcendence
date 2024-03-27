@@ -113,19 +113,15 @@ export default function ChatPage() {
   // listen on socket
   useEffect(() => {
     if (mySocket) {
-      mySocket.on(
-        "LEAVING_ROOM",
-        async (userId: string, leavingType: string) => {
-          if (
-            userId === user.playerProfile.id &&
-            (leavingType === "KICKED" || leavingType === "BANNED")
-          ) {
-            dispatch(leaveChatroom(roomOnId));
-            dispatch(setRoomOnId(""));
-            // dispatch(userLeavingChatroom(roomOnId));
-          }
+      mySocket.on("LEAVE_ROOM", async (userId: string, leavingType: string) => {
+        if (
+          userId === user.playerProfile.id &&
+          (leavingType === "KICKED" || leavingType === "BANNED")
+        ) {
+          dispatch(leaveChatroom(roomOnId));
+          dispatch(setRoomOnId(""));
         }
-      );
+      });
       mySocket.on("MESSAGE", async (data: Messages) => {
         console.log("Received message:", data);
         if (data.chatId === roomOnId) {
@@ -205,17 +201,41 @@ export default function ChatPage() {
             }
           }
         );
+        mySocket.on(
+          "PROMOTE_USER",
+          async (targetId: string, roomId: string) => {
+            if (roomOn.roomInfos.id === roomId) {
+              const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
+                (user: ChatMemberProfile) => {
+                  if (user.userProfile.id === targetId) {
+                    return {
+                      ...user,
+                      fadeMenuInfos: {
+                        ...user.fadeMenuInfos,
+                        role: "ADMIN",
+                      },
+                    };
+                  } else {
+                    return user;
+                  }
+                }
+              );
+              dispatch(updateUsers(updatedUsers));
+            }
+          }
+        );
       }
     }
-    
+
     return () => {
-      mySocket.off("LEAVING_ROOM");
+      mySocket.off("LEAVE_ROOM");
+      mySocket.off("UPDATE_CHAT_MEMBERS");
       mySocket.off("UPDATE_ROOM");
       mySocket.off("MESSAGE");
       mySocket.off("JOIN_ROOM");
-      mySocket.off("UPDATE_CHAT_MEMBERS");
       mySocket.off("MUTE_USER");
       mySocket.off("UNMUTE_USER");
+      mySocket.off("PROMOTE_USER");
     };
   }, [dispatch, roomOn, roomOn.users, roomOnId, user.playerProfile.id]);
 

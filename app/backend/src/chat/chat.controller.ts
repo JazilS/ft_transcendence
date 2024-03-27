@@ -161,8 +161,21 @@ export class ChatController {
     body: {
       roomId: string;
     },
+    @Headers('authorization') authorization: string,
   ) {
-    return this.chatService.getMessagesFromRoom(body.roomId);
+    try {
+      const token = authorization.replace('Bearer ', '');
+
+      if (!body.roomId) {
+        throw new BadRequestException('channelId is required');
+      }
+      const decodedToken = this.jwtService.decode(token);
+      const userId = decodedToken.id;
+      return this.chatService.getMessagesFromRoom(body.roomId, userId);
+    } catch (error) {
+      console.error('Invalid token');
+      throw new BadRequestException('Invalid token');
+    }
   }
 
   // a revoir quand je vais faire chatmembers

@@ -11,7 +11,10 @@ import { mySocket } from "@/app/utils/getSocket";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { quantico } from "@/models/Font/FontModel";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
-import { updateRole, updateUsers } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import {
+  updateRole,
+  updateUsers,
+} from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import Mute from "@/components/atom/chat/mute/mute";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 
@@ -29,36 +32,6 @@ export default function FadeMenu({
   const user = useAppSelector((state) => state.user.user);
   const roomOn = useAppSelector((state) => state.chatRooms.roomOn);
   const dispatch = useAppDispatch();
-
-  // const handlePromote = () => {
-  //   mySocket.emit("PROMOTE_USER", {
-  //     targetId: targetProfile.userProfile.id,
-  //     roomOnId: roomOn.id,
-  //   });
-  //   setUserRole("ADMIN");
-  // };
-
-  // const handleKick = () => {
-  //   if (mySocket)
-  //     mySocket.emit("LEAVE_ROOM", {
-  //       room: roomOn.id,
-  //       userName: targetProfile.userProfile.name,
-  //       userId: targetProfile.userProfile.id,
-  //       leavingType: "KICKED",
-  //     });
-  //   else console.log("No socket");
-  // };
-
-  // const handleBan = () => {
-  //   if (mySocket)
-  //     mySocket.emit("LEAVE_ROOM", {
-  //       room: roomOn.id,
-  //       userName: targetProfile.userProfile.name,
-  //       userId: targetProfile.userProfile.id,
-  //       leavingType: "BANNED",
-  //     });
-  //   else console.log("No socket");
-  // };
 
   // useEffect(() => {
   //   if (mySocket) {
@@ -90,17 +63,47 @@ export default function FadeMenu({
   //   };
   // });
 
+  const handlePromote = () => {
+    mySocket.emit("PROMOTE_USER", {
+      targetId: target?.userProfile.id,
+      roomOnId: roomOn.roomInfos.id,
+    });
+  };
+
+  const handleBan = () => {
+    if (mySocket)
+      mySocket.emit("LEAVE_ROOM", {
+        room: roomOn.roomInfos.id,
+        userName: target?.userProfile.name,
+        userId: target?.userProfile.id,
+        leavingType: "BANNED",
+      });
+    else console.log("No socket");
+  };
+
+  const handleKick = () => {
+    if (mySocket)
+      mySocket.emit("LEAVE_ROOM", {
+        room: roomOn.roomInfos.id,
+        userName: target?.userProfile.name,
+        userId: target?.userProfile.id,
+        leavingType: "KICKED",
+      });
+    else console.log("No socket");
+  };
+
   const handleBlock = (newValue: boolean) => {
     handleClose();
     if (user.playerProfile.id !== "") {
       mySocket.emit("BLOCK_USER", {
         blockerId: user.playerProfile.id,
         blockedUserId: target?.userProfile.id,
-        value: newValue,
+        value: !newValue,
       });
       const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
         (user: ChatMemberProfile) => {
           if (user.userProfile.id === target?.userProfile.id) {
+            console.log("PPPPPPPPPPPPPPPPPPPPPPPPP", newValue);
             return {
               ...user,
               fadeMenuInfos: {
@@ -175,19 +178,51 @@ export default function FadeMenu({
         <MenuItem
           onClick={() => {
             console.log("target = ", target);
-            if (target?.fadeMenuInfos.isBlocked === false) handleBlock(false);
-            else if (target?.fadeMenuInfos.isBlocked === true) handleBlock(true);
+            if (target?.fadeMenuInfos.isBlocked === false) handleBlock(true);
+            else if (target?.fadeMenuInfos.isBlocked === true)
+              handleBlock(false);
             else console.log("PROBLEM WITH BLOCK MENU ITEM ----------");
           }}
           className={`${quantico.className} w-full`}
         >
-          {target?.fadeMenuInfos.isMuted ? "Unblock" : "Block"}
+          {target?.fadeMenuInfos.isBlocked ? "Unblock" : "Block"}
         </MenuItem>
-        {/* <CheckBoxMenuItem
-          userId={user.playerProfile.id}
-          roomId={roomOn.id}
-          action="block"
-        ></CheckBoxMenuItem> */}
+
+        {/* KICK */}
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handleKick();
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          Kick
+        </MenuItem>
+
+        {/* BAN */}
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handleBan();
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          Ban
+        </MenuItem>
+
+        {/* PROMOTE IN CHANNEL */}
+        {/* {targetProfile.role === "MEMBER" &&
+          (userRole === "CREATOR" || userRole === "ADMIN") && ( */}
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handlePromote();
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          Promote
+        </MenuItem>
+        {/* )} */}
 
         {/* // TODO MUTE :
           // eslint-disable-next-line react/jsx-no-comment-textnodes
@@ -229,19 +264,6 @@ export default function FadeMenu({
               Promote in channel
             </MenuItem>
           )}
-        {/* KICK */}
-        {/* {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
-          userRole !== "MEMBER" && (
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                handleKick();
-              }}
-              className={`${quantico.className} w-full`}
-            >
-              Kick
-            </MenuItem>
-          )} */}
         {/* BAN */}
         {/* {targetProfile.fadeMenuInfos.role === "MEMBER" &&
           userRole !== "MEMBER" && (
