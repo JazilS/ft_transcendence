@@ -17,11 +17,6 @@ export default function MessagesDisplay({messages}: {messages: Messages[]}) {
 
   useEffect(scrollToBottom, [messages]);
 
-  useEffect(() => {
-  console.log("messages in roomOn = ", messages);
-  }, [messages]);
-
-
   return (
     <div className="h-[88%] w-full flex flex-col p-3 bg-gradient-to-b from-white/10 to-transparent rounded-lg scrollbar-hide_2">
       {messages?.map((message: Messages, index) => (
@@ -40,33 +35,4 @@ export default function MessagesDisplay({messages}: {messages: Messages[]}) {
     </div>
   );
 }
-
 // TODO regler le probleme d'affichage quand le message est trop long
-
-// export default function MessagesDisplay({
-//   roomOnId,
-//   messages,
-// }: {
-//   roomOnId: string | undefined;
-//   messages: Messages[] | undefined;
-// }) {
-//   console.log("messages in roomOn = ", messages, "rommOnId = ", roomOnId);
-//   return (
-//     <div className="h-[88%] w-full flex flex-col p-3 overflow-y-auto bg-gradient-to-b from-white/10 rounded-lg to-transparent">
-//       {messages?.map(
-//         (message: Messages, index) => (
-//           console.log("emitter = ", message.emitterId),
-//           (
-//             <div
-//               key={index}
-//               className=" text-white text-lg text-left break-words flex flex-row p-0.5"
-//             >
-//               <AvatarNameRow userId={message.emitterId} />
-//               {message.content}
-//             </div>
-//           )
-//         )
-//       )}
-//     </div>
-//   );
-// }

@@ -1,7 +1,7 @@
 import Messages from "./messages";
 
 export default interface ChatRoom {
-  error: any;
+  error?: any;
   id: string;
   name: string;
   roomType: string;

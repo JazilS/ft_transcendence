@@ -9,6 +9,7 @@ import { RootState } from "@/app/store/store";
 import RoomData from "@/models/ChatRoom/RoomData";
 import { newMessage } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import EditRoom from "./EditRoom/EditRoom";
+import { quantico } from "@/models/Font/FontModel";
 
 export default function ChatZone() {
   const [content, setContent] = useState<string>("");
@@ -70,21 +71,30 @@ export default function ChatZone() {
         <h1 className="text-4xl text-white">Not in a Chatroom</h1>
       )}
       <MessagesDisplay messages={roomOn.messages} />
-      <input
-        type="text"
-        value={content}
-        placeholder="chat"
-        className="w-[85%] h-10 mt-7 p-2 rounded-3xl text-lg bg-white bg-opacity-80 placeholder:text-gray-700 placeholder:text-lg indent-2"
-        onChange={(e) => setContent((e.target as HTMLInputElement).value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            if (content !== "") {
-              handleEmitMessage(content);
-              setContent("");
-            }
+      {roomOn.users.find(
+        (roomUser) =>
+          roomUser.userProfile.id === user.id && roomUser.fadeMenuInfos.isMuted
+      ) ? (
+        <span
+          className={`text-red-500 ${quantico.className} text-xl text-center p-`}
+        >
+          You are muted !
+        </span>
+      ) : <input
+      type="text"
+      value={content}
+      placeholder="chat"
+      className="w-[85%] h-10 mt-7 p-2 rounded-3xl text-lg bg-white bg-opacity-80 placeholder:text-gray-700 placeholder:text-lg indent-2"
+      onChange={(e) => setContent((e.target as HTMLInputElement).value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          if (content !== "") {
+            handleEmitMessage(content);
+            setContent("");
           }
-        }}
-      />
+        }
+      }}
+    />}
     </div>
   );
 }

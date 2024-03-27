@@ -11,7 +11,7 @@ import { mySocket } from "@/app/utils/getSocket";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { quantico } from "@/models/Font/FontModel";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
-import { updateRole } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import { updateRole, updateUsers } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import Mute from "@/components/atom/chat/mute/mute";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 
@@ -19,12 +19,15 @@ export default function FadeMenu({
   anchorEl,
   setAnchorEl,
   open,
+  target,
 }: {
   anchorEl: HTMLElement | null;
   setAnchorEl: Dispatch<SetStateAction<HTMLElement | null>>;
   open: boolean;
+  target: ChatMemberProfile | undefined;
 }) {
   const user = useAppSelector((state) => state.user.user);
+  const roomOn = useAppSelector((state) => state.chatRooms.roomOn);
   const dispatch = useAppDispatch();
 
   // const handlePromote = () => {
@@ -87,15 +90,54 @@ export default function FadeMenu({
   //   };
   // });
 
-  const handleMute = (muteTime: number) => {
-    // if (userId !== "") {
-    //   mySocket.emit("MUTE_USER", {
-    //     roomId: roomOn.id,
-    //     mutedUser: targetProfile.userProfile.id,
-    //     muteTime: muteTime,
-    //   });
-    //   // dispatch(setUserProfiles(updatedProfiles));
-    // }
+  const handleBlock = (newValue: boolean) => {
+    handleClose();
+    if (user.playerProfile.id !== "") {
+      mySocket.emit("BLOCK_USER", {
+        blockerId: user.playerProfile.id,
+        blockedUserId: target?.userProfile.id,
+        value: newValue,
+      });
+      const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
+        (user: ChatMemberProfile) => {
+          if (user.userProfile.id === target?.userProfile.id) {
+            return {
+              ...user,
+              fadeMenuInfos: {
+                ...user.fadeMenuInfos,
+                isBlocked: newValue,
+              },
+            };
+          } else {
+            return user;
+          }
+        }
+      );
+      dispatch(updateUsers(updatedUsers));
+    }
+  };
+
+  const handleMute = () => {
+    if (user.playerProfile.id !== "") {
+      mySocket.emit("MUTE_USER", {
+        roomId: roomOn.roomInfos.id,
+        mutedUser: target?.userProfile.id,
+        muterId: user.playerProfile.id,
+      });
+      handleClose();
+      // dispatch(setUserProfiles(updatedProfiles));
+    }
+  };
+
+  const handleUnMute = () => {
+    if (user.playerProfile.id !== "") {
+      mySocket.emit("UNMUTE_USER", {
+        roomId: roomOn.roomInfos.id,
+        mutedUser: target?.userProfile.id,
+        muterId: user.playerProfile.id,
+      });
+    }
+    handleClose();
   };
 
   const handleClose = () => {
@@ -104,19 +146,6 @@ export default function FadeMenu({
 
   return (
     <div className="w-[100%]">
-      {/* <Button
-        className="hover:bg-[#f28eff] pl-9 w-[100%]"
-        variant={"chatMember"}
-        size={"channel"}
-        infos={targetProfile.fadeMenuInfos}
-        id="fade-button"
-        aria-controls={open ? "fade-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        onClick={handleClick}
-      >
-        {targetProfile.userProfile.name}
-      </Button> */}
       <Menu
         id="fade-menu"
         MenuListProps={{
@@ -129,23 +158,36 @@ export default function FadeMenu({
         TransitionComponent={Fade}
         className={`optionmembres ml-4`}
       >
+        {/* MUTE */}
+        <MenuItem
+          onClick={() => {
+            console.log("target = ", target);
+            if (target?.fadeMenuInfos.isMuted === false) handleMute();
+            else if (target?.fadeMenuInfos.isMuted === true) handleUnMute();
+            else console.log("PROBLEM WITH MUTE MENU ITEM ----------");
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          {target?.fadeMenuInfos.isMuted ? "Unmute" : "Mute"}
+        </MenuItem>
+
         {/* BLOCK */}
+        <MenuItem
+          onClick={() => {
+            console.log("target = ", target);
+            if (target?.fadeMenuInfos.isBlocked === false) handleBlock(false);
+            else if (target?.fadeMenuInfos.isBlocked === true) handleBlock(true);
+            else console.log("PROBLEM WITH BLOCK MENU ITEM ----------");
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          {target?.fadeMenuInfos.isMuted ? "Unblock" : "Block"}
+        </MenuItem>
         {/* <CheckBoxMenuItem
           userId={user.playerProfile.id}
           roomId={roomOn.id}
           action="block"
         ></CheckBoxMenuItem> */}
-
-        {/* MUTE */}
-        {/* <MenuItem
-          onClick={() => {
-            // handleClose();
-            handleMute();
-          }}
-          className={`${quantico.className} w-full`}
-        >
-          Promote in channel
-        </MenuItem> */}
 
         {/* // TODO MUTE :
           // eslint-disable-next-line react/jsx-no-comment-textnodes

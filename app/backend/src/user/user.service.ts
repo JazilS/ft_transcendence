@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserInfo } from './types/userTypes';
-// import { ChatService } from 'src/chat/chat.service';
 // import { AuthService } from '../auth/auth.service'; // Import the AuthService
 // import { UserData, UserInfo } from 'types/userInfo';
 
@@ -10,7 +9,6 @@ import { UserInfo } from './types/userTypes';
 export class UserService {
   constructor(
     private readonly prismaService: PrismaService,
-    // private chatService: ChatService,
     // private authService: AuthService,
   ) {}
 
@@ -191,7 +189,7 @@ export class UserService {
       // check if user is blocked
       if (user.blockedUsers.find((id) => id === targetId)) {
         isBlocked = true;
-      }
+      } else isBlocked = false;
 
       // get chatroomUser
       const chatroomUser = await this.prismaService.chatroomUser.findFirst({
@@ -216,7 +214,7 @@ export class UserService {
       // check if user is muted
       if (chatroomUser.restriction === 'MUTED') {
         isMuted = true;
-      }
+      } else isMuted = false;
       if (chatroomUser.role) role = chatroomUser.role as string;
       else role = '';
       return {
@@ -232,6 +230,40 @@ export class UserService {
     } catch (error) {
       console.error('Error getting fade menu infos:', error);
       return { error: 'Error getting fade menu infos' };
+    }
+  }
+
+  // GETCHATROOMSIN
+  async getChatRoomsIn(userId: string) {
+    try {
+      const userWithChatrooms = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        include: {
+          chatRoomsIn: {
+            include: {
+              chatroom: {
+                include: {
+                  users: true, // Include users in each chatroom
+                  messages: true, // Include messages in each chatroom
+                },
+              },
+            },
+          },
+        },
+      });
+      const chatrooms = userWithChatrooms.chatRoomsIn.map(
+        (chatroomUser) => chatroomUser.chatroom,
+      );
+      return chatrooms.map((chatroom) => ({
+        id: chatroom.id,
+        name: chatroom.name,
+        roomType: chatroom.chatroomType,
+        users: chatroom.users.map((user) => user.id), // Map to user IDs
+        messages: chatroom.messages, // Include messages
+      }));
+    } catch (error) {
+      console.error('Error getting chatrooms for user:', error);
+      return { error: 'Error getting chatrooms for user' };
     }
   }
 
@@ -251,8 +283,8 @@ export class UserService {
           imageSrc: user.avatar,
           games: [],
         },
-        // channelsIn: this.chatService.getChatRoomsIn(userId),
-        channelsIn: [],
+        channelsIn: await this.getChatRoomsIn(userId),
+        // channelsIn: ,
         isConnected: user.status === 'ONLINE' ? true : false,
         isReadyLobby: false,
         access_token: token,
@@ -292,6 +324,10 @@ export class UserService {
         userId,
         targetId,
         roomId,
+      );
+      console.log(
+        'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWww',
+        fadeMenuInfos,
       );
       return { userProfile, role, fadeMenuInfos };
     } catch (error) {

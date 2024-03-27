@@ -20,14 +20,13 @@ import User from "@/models/User/UserModel";
 export default function ChatMembers() {
   const roomOn: RoomData = useAppSelector((state) => state.chatRooms.roomOn);
   const user: User = useAppSelector((state: RootState) => state.user.user);
-
+  const [target, setTarget] = useState<ChatMemberProfile>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
   const dispatch = useAppDispatch();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    console.log("handleClick !");
     setAnchorEl(event.currentTarget);
   };
 
@@ -48,8 +47,11 @@ export default function ChatMembers() {
                 aria-haspopup="true"
                 aria-expanded={open ? "true" : undefined}
                 onClick={(event: React.MouseEvent<HTMLElement>) => {
-                  if (roomUser.userProfile.id !== user.playerProfile.id)
+                  if (roomUser.userProfile.id !== user.playerProfile.id) {
+                    console.log(roomUser);
+                    setTarget(roomUser);
                     handleClick(event);
+                  }
                 }}
               >
                 {roomUser.userProfile.name}
@@ -58,6 +60,7 @@ export default function ChatMembers() {
                 anchorEl={anchorEl}
                 setAnchorEl={setAnchorEl}
                 open={open}
+                target={target}
               />
             </li>
           ))}

@@ -11,7 +11,7 @@ import { SocketWithAuth } from './types/socket.types';
 import { JwtService } from '@nestjs/jwt';
 import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Logger } from '@nestjs/common';
+import { Logger, UnauthorizedException } from '@nestjs/common';
 import Messages from './types/Message.types';
 import { UserService } from 'src/user/user.service';
 import { ChatroomUser, TYPE, User } from '@prisma/client';
@@ -203,7 +203,6 @@ export class GatewayGateway
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody() payload: { room: string },
   ) {
-    console.log('JOIN_SOCKET_ROOM', payload);
     const room = payload.room;
     let isAlreadyInRoom: boolean = false;
 
@@ -215,6 +214,7 @@ export class GatewayGateway
     }
 
     if (!isAlreadyInRoom) {
+      console.log('JOIN_SOCKET_ROOM', room);
       client.join(room);
     }
   }
@@ -272,15 +272,19 @@ export class GatewayGateway
             },
           });
 
-        client.to(payload.room).emit('JOIN_ROOM', {
-          userProfile: userProfile,
-          role: userRole.role as string,
-          fadeMenuInfos: this.userService.getFadeMenuInfos(
-            client.userId,
-            payload.userId,
-            payload.room,
-          ),
-        });
+        client.to(payload.room).emit(
+          'JOIN_ROOM',
+          {
+            userProfile: userProfile,
+            role: userRole.role as string,
+            fadeMenuInfos: this.userService.getFadeMenuInfos(
+              client.userId,
+              payload.userId,
+              payload.room,
+            ),
+          },
+          payload.room,
+        );
         return userName;
       }
     } catch (error) {
@@ -383,7 +387,9 @@ export class GatewayGateway
     }
     if (payload.leavingType === 'KICKED' || payload.leavingType === 'BANNED')
       this.server.to(payload.userId).emit('LEAVING_ROOM', payload.userName);
-    this.server.to(payload.room).emit('UPDATE_CHAT_MEMBERS', payload.userId);
+    this.server
+      .to(payload.room)
+      .emit('UPDATE_CHAT_MEMBERS', payload.userId, payload.room);
     // this.server.to(payload.room).emit('LEAVE_ROOM', payload.userName);
     return 'Left room : ' + payload.room;
   }
@@ -520,15 +526,14 @@ export class GatewayGateway
     }
   }
 
-  private muteIntervals: { [key: string]: NodeJS.Timeout } = {};
-
   @SubscribeMessage('MUTE_USER')
   async handleMuteUser(
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody()
-    payload: { roomId: string; mutedUser: string; muteTime: string },
+    payload: { roomId: string; mutedUser: string; muterId: string },
   ) {
     try {
+      if (payload.muterId !== client.userId) throw UnauthorizedException;
       console.log('MUTE_USER:', payload);
       const userToMute = await this.prismaService.chatroomUser.findFirst({
         where: { chatroomId: payload.roomId, userId: payload.mutedUser },
@@ -538,25 +543,9 @@ export class GatewayGateway
         where: { id: userToMute.id },
         data: { restriction: 'MUTED' },
       });
-      let muteTimeLeft = parseInt(payload.muteTime);
-      console.log('MUTE TIME LEFT = ', muteTimeLeft);
       this.server
         .to(payload.roomId)
-        .emit('MUTE_USER', payload.mutedUser, muteTimeLeft);
-
-      // Créer un nouvel intervalle pour cet utilisateur
-      this.muteIntervals[payload.mutedUser] = setInterval(() => {
-        muteTimeLeft -= 10;
-        if (muteTimeLeft <= 0) {
-          // Si le temps est écoulé, démuter l'utilisateur et effacer l'intervalle
-          this.handleUnMuteUser(client, payload);
-        } else {
-          // Sinon, envoyer le temps restant au client
-          this.server
-            .to(payload.roomId)
-            .emit('MUTE_USER', payload.mutedUser, muteTimeLeft);
-        }
-      }, 10000);
+        .emit('MUTE_USER', payload.roomId, payload.mutedUser);
     } catch (error) {
       console.error('Error muting user:', error);
     }
@@ -566,9 +555,10 @@ export class GatewayGateway
   async handleUnMuteUser(
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody()
-    payload: { roomId: string; mutedUser: string },
+    payload: { roomId: string; mutedUser: string; muterId: string },
   ) {
     try {
+      if (payload.muterId !== client.userId) throw UnauthorizedException;
       const userToMute = await this.prismaService.chatroomUser.findFirst({
         where: { chatroomId: payload.roomId, userId: payload.mutedUser },
       });
@@ -577,12 +567,9 @@ export class GatewayGateway
         where: { id: userToMute.id },
         data: { restriction: 'NONE' },
       });
-
-      // Effacer l'intervalle pour cet utilisateur
-      clearInterval(this.muteIntervals[payload.mutedUser]);
-      delete this.muteIntervals[payload.mutedUser];
-
-      this.server.to(payload.roomId).emit('MUTE_USER', payload.mutedUser, 0);
+      this.server
+        .to(payload.roomId)
+        .emit('UNMUTE_USER', payload.roomId, payload.mutedUser);
     } catch (error) {
       console.error('Error muting user:', error);
     }

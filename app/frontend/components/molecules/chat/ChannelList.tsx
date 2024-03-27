@@ -22,6 +22,10 @@ export default function ChannelBar() {
   );
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    console.log('channels changed :', channels);
+  }, [channels])
+
   return (
     <div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>
       <div
@@ -36,7 +40,7 @@ export default function ChannelBar() {
             <h1 className="text-center">No Channel Joined yet</h1>
           ) : (
             <ul>
-              {channels!.map((channel: ChatRoom) => (
+              {channels.map((channel: ChatRoom) => (
                 <li key={channel.id}>
                   <Button
                     className="hover:bg-[#6E82B6] active:bg-[#596a94]"

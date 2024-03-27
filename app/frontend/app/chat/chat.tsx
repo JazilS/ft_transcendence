@@ -32,6 +32,7 @@ import {
   setRoomOn,
   setRoomOnId,
   setUserProfiles,
+  updateUsers,
 } from "../store/features/ChatRoom/ChatRoomSlice";
 import Messages from "@/models/ChatRoom/messages";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
@@ -61,6 +62,23 @@ export default function ChatPage() {
     }
   }, [response.data, dispatch]);
 
+  useEffect(() => {
+    async function FetchChannels() {
+      const response = await getChannels({});
+      if ("data" in response) {
+        dispatch(getChatRoomsInLocal(response.data));
+        response.data.map((channel: ChatRoom) => {
+          mySocket.emit("JOIN_SOCKET_ROOM", {
+            room: channel.id,
+          });
+        });
+      } else {
+        console.error("Error during API call for chat rooms:", response.error);
+      }
+    }
+    FetchChannels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // fetch room
   useEffect(() => {
     const fetchRoom = async () => {
@@ -76,39 +94,23 @@ export default function ChatPage() {
         console.error("Error fetching actual room:", response.error);
       }
     };
-    async function FetchChannels() {
-      const response = await getChannels({});
-      if ("data" in response) {
-        dispatch(getChatRoomsInLocal(response.data));
-        response.data.map((channel: ChatRoom) => {
-          mySocket.emit("JOIN_SOCKET_ROOM", {
-            room: channel.id,
-          });
-        });
-        console.log("channelsIn : ", response.data);
-      } else {
-        console.error("Error during API call for chat rooms:", response.error);
-      }
-    }
 
     if (roomOnId !== "") {
       fetchRoom();
-      // tout mettre a vide ?
       console.log("fetching roomOnId : ", roomOnId);
     } else {
       dispatch(
         setRoomOn({
-          roomInfos: { id: "", name: "Not in a channel", roomType: "" },
+          roomInfos: { id: "", name: "Not in a Room", roomType: "" },
           users: [],
           messages: [],
           password: "",
         })
       );
     }
-    FetchChannels();
   }, [dispatch, getChannels, getRoomById, roomOnId]);
 
-  // listen on leaving channel
+  // listen on socket
   useEffect(() => {
     if (mySocket) {
       mySocket.on(
@@ -133,7 +135,6 @@ export default function ChatPage() {
       mySocket.on("UPDATE_ROOM", async (newRoom: RoomData) => {
         try {
           if (roomOnId === newRoom.roomInfos.id) {
-            console.log("Room Updated:", newRoom);
             dispatch(setRoomOnId(newRoom.roomInfos.id));
             // if (newRoom.roomInfos.id === roomOnId) {
             dispatch(setRoomOn(newRoom));
@@ -143,26 +144,78 @@ export default function ChatPage() {
           console.error("Error during room update:", error);
         }
       });
-      if (roomOn != undefined) {
-        mySocket.on("JOIN_ROOM", async (data: ChatMemberProfile) => {
-          console.log("JOINGIN ROOM USERS UPDATE :", [...roomOn.users, data]);
-          dispatch(setUserProfiles([...roomOn.users, data]));
-        });
-        mySocket.on("UPDATE_CHAT_MEMBERS", async (userId: string) => {
-          const updatedProfiles: ChatMemberProfile[] = roomOn.users.filter(
-            (user) => user.userProfile.id !== userId
+      mySocket.on("MUTE_USER", async (roomId: string, mutedId: string) => {
+        if (roomOnId === roomId) {
+          const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
+            (user: ChatMemberProfile) => {
+              if (user.userProfile.id === mutedId) {
+                return {
+                  ...user,
+                  fadeMenuInfos: {
+                    ...user.fadeMenuInfos,
+                    isMuted: true,
+                  },
+                };
+              } else {
+                return user;
+              }
+            }
           );
-          console.log("UPDATED PROFILES AFTER LEAVING:", updatedProfiles);
-          dispatch(setUserProfiles(updatedProfiles));
-        });
+          console.log("Updated Users after  MUTE ===", updatedUsers);
+          dispatch(updateUsers(updatedUsers));
+        }
+      });
+      mySocket.on("UNMUTE_USER", async (roomId: string, mutedId: string) => {
+        if (roomOnId === roomId) {
+          const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
+            (user: ChatMemberProfile) => {
+              if (user.userProfile.id === mutedId) {
+                return {
+                  ...user,
+                  fadeMenuInfos: {
+                    ...user.fadeMenuInfos,
+                    isMuted: false,
+                  },
+                };
+              } else {
+                return user;
+              }
+            }
+          );
+          console.log("Updated Users after  UNMUTE ===", updatedUsers);
+          dispatch(updateUsers(updatedUsers));
+        }
+      });
+      if (roomOn != undefined) {
+        mySocket.on(
+          "JOIN_ROOM",
+          async (data: ChatMemberProfile, roomId: string) => {
+            if (roomOn.roomInfos.id === roomId)
+              dispatch(setUserProfiles([...roomOn.users, data]));
+          }
+        );
+        mySocket.on(
+          "UPDATE_CHAT_MEMBERS",
+          async (userId: string, roomId: string) => {
+            if (roomOn.roomInfos.id === roomId) {
+              const updatedProfiles: ChatMemberProfile[] = roomOn.users.filter(
+                (user) => user.userProfile.id !== userId
+              );
+              dispatch(setUserProfiles(updatedProfiles));
+            }
+          }
+        );
       }
     }
+    
     return () => {
       mySocket.off("LEAVING_ROOM");
       mySocket.off("UPDATE_ROOM");
       mySocket.off("MESSAGE");
       mySocket.off("JOIN_ROOM");
       mySocket.off("UPDATE_CHAT_MEMBERS");
+      mySocket.off("MUTE_USER");
+      mySocket.off("UNMUTE_USER");
     };
   }, [dispatch, roomOn, roomOn.users, roomOnId, user.playerProfile.id]);
 

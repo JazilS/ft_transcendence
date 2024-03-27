@@ -100,6 +100,9 @@ export const ChatRoomSlice = createSlice({
     setRoomOnId: (state, action: PayloadAction<string>) => {
       state.roomOnId = action.payload;
     },
+    updateUsers: (state, action: PayloadAction<ChatMemberProfile[]>) => {
+      state.roomOn.users = action.payload;
+    }
   },
 });
 
@@ -111,5 +114,6 @@ export const {
   updateRole,
   setRoomOn,
   setRoomOnId,
+  updateUsers,
 } = ChatRoomSlice.actions;
 export default ChatRoomSlice.reducer;
