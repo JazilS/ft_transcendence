@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserInfo } from './types/userTypes';
 // import { AuthService } from '../auth/auth.service'; // Import the AuthService
@@ -209,6 +208,7 @@ export class UserService {
 
       // check if user is friend
       if (user.friends.find((u) => u.id === targetId)) {
+        console.log('is friend');
         isFriend = true;
       } else isFriend = false;
 
