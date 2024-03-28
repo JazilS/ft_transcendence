@@ -204,12 +204,15 @@ export default function ChatPage() {
         mySocket.on(
           "PROMOTE_USER",
           async (targetId: string, roomId: string) => {
+            console.log("PROMOTE_USER TargetId", targetId);
             if (roomOn.roomInfos.id === roomId) {
               const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
                 (user: ChatMemberProfile) => {
                   if (user.userProfile.id === targetId) {
+                    console.log("PROMOTE_USER", user);
                     return {
                       ...user,
+                      role: "ADMIN",
                       fadeMenuInfos: {
                         ...user.fadeMenuInfos,
                         role: "ADMIN",

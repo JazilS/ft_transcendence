@@ -5,7 +5,11 @@ import AvatarNameRow from "./AvatarNameRow";
 import PlayerAvatar from "../PlayerAvatar";
 import "@/style/DisplayMessages.css";
 
-export default function MessagesDisplay({messages}: {messages: Messages[]}) {
+export default function MessagesDisplay({
+  messages,
+}: {
+  messages: Messages[];
+}) {
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   // const messages: Messages[] = useAppSelector(
   //   (state) => state.chatRooms.roomOn.messages
@@ -22,17 +26,41 @@ export default function MessagesDisplay({messages}: {messages: Messages[]}) {
       {messages?.map((message: Messages, index) => (
         <div
           key={index}
-          className={`text-white text-lg text-left break-words flex flex-row p-0.5 space-x-1 ${
+          className={`text-white text-lg items-start text-left break-words flex flex-row p-0.5 space-x-1 ${
             message.emitterId === "system" ? "text-opacity-50" : null
           }`}
         >
-          <PlayerAvatar src={message.emitterAvatar} width={30} height={30} />
-          <span>{message.emitterName}: </span>
-          <div className="word-wrap: break-word;">{message.content}</div>
+          <div>
+            <PlayerAvatar src={message.emitterAvatar} width={30} height={30} />
+          </div>
+          <div className="flex flex-row items-center">
+            <span>{message.emitterName}: </span>
+            <div className="flex-grow word-wrap: break-word;">{message.content}</div>
+          </div>
         </div>
       ))}
       <div ref={messagesEndRef} />
     </div>
   );
+
+  // return (
+  //   <div className="h-[88%] w-full flex flex-col p-3 bg-gradient-to-b from-white/10 to-transparent rounded-lg scrollbar-hide_2">
+  //     {messages?.map((message: Messages, index) => (
+  //       <div
+  //         key={index}
+  //         className={`text-white text-lg items-start text-left break-words flex flex-row p-0.5 space-x-1 ${
+  //           message.emitterId === "system" ? "text-opacity-50" : null
+  //         }`}
+  //       >
+  //         <div>
+  //           <PlayerAvatar src={message.emitterAvatar} width={30} height={30} />
+  //         </div>
+  //         <span>{message.emitterName}: </span>
+  //         <div className=" word-wrap: break-word;">{message.content}</div>
+  //       </div>
+  //     ))}
+  //     <div ref={messagesEndRef} />
+  //   </div>
+  // );
 }
 // TODO regler le probleme d'affichage quand le message est trop long

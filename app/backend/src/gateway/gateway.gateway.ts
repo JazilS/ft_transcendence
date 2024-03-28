@@ -470,6 +470,7 @@ export class GatewayGateway
       };
 
       // send message to blocked user
+      // this.handleMessage({ message: blockedMessage }, client);
       this.server.to(payload.blockedUserId).emit('MESSAGE', blockedMessage);
     } catch (error) {
       console.error('Error blocking user:', error);
@@ -492,7 +493,9 @@ export class GatewayGateway
         where: { id: userToPromote.id },
         data: { role: 'ADMIN' },
       });
-      this.server.to(payload.roomOnId).emit('PROMOTE_USER');
+      this.server
+        .to(payload.roomOnId)
+        .emit('PROMOTE_USER', payload.targetId, payload.roomOnId);
     } catch (error) {
       console.error('Error promoting user:', error);
     }

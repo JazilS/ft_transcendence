@@ -31,39 +31,13 @@ export default function FadeMenu({
 }) {
   const user = useAppSelector((state) => state.user.user);
   const roomOn = useAppSelector((state) => state.chatRooms.roomOn);
+  const userRole = roomOn.users.find(
+    (user: ChatMemberProfile) => user.userProfile.id === user.userProfile.id
+  )?.role;
   const dispatch = useAppDispatch();
 
-  // useEffect(() => {
-  //   if (mySocket) {
-  //     mySocket.on("PROMOTE_USER", async () => {
-  //       console.log(" i have been promoted to ADMIN");
-  //       setUserRole("ADMIN");
-  //       dispatch(
-  //         updateRole({ targetId: targetProfile.userProfile.id, role: "ADMIN" })
-  //       );
-  //       // setInfos({ ...infos, role: "ADMIN" });
-  //     });
-  //   }
-  //   return () => {
-  //     mySocket.off("PROMOTE_USER");
-  //   };
-  // });
-
-  // useEffect(() => {
-  //   if (mySocket) {
-  //     mySocket.on("PROMOTE_USER", async () => {
-  //       console.log(" i have been promoted to ADMIN");
-  //       setUserRole("ADMIN");
-
-  //       setInfos({ ...infos, role: "ADMIN" });
-  //     });
-  //   }
-  //   return () => {
-  //     mySocket.off("PROMOTE_USER");
-  //   };
-  // });
-
   const handlePromote = () => {
+    handleClose();
     mySocket.emit("PROMOTE_USER", {
       targetId: target?.userProfile.id,
       roomOnId: roomOn.roomInfos.id,
@@ -71,6 +45,7 @@ export default function FadeMenu({
   };
 
   const handleBan = () => {
+    handleClose();
     if (mySocket)
       mySocket.emit("LEAVE_ROOM", {
         room: roomOn.roomInfos.id,
@@ -82,6 +57,7 @@ export default function FadeMenu({
   };
 
   const handleKick = () => {
+    handleClose();
     if (mySocket)
       mySocket.emit("LEAVE_ROOM", {
         room: roomOn.roomInfos.id,
@@ -162,18 +138,19 @@ export default function FadeMenu({
         className={`optionmembres ml-4`}
       >
         {/* MUTE */}
-        <MenuItem
-          onClick={() => {
-            console.log("target = ", target);
-            if (target?.fadeMenuInfos.isMuted === false) handleMute();
-            else if (target?.fadeMenuInfos.isMuted === true) handleUnMute();
-            else console.log("PROBLEM WITH MUTE MENU ITEM ----------");
-          }}
-          className={`${quantico.className} w-full`}
-        >
-          {target?.fadeMenuInfos.isMuted ? "Unmute" : "Mute"}
-        </MenuItem>
-
+        {target?.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
+          <MenuItem
+            onClick={() => {
+              console.log("target = ", target);
+              if (target?.fadeMenuInfos.isMuted === false) handleMute();
+              else if (target?.fadeMenuInfos.isMuted === true) handleUnMute();
+              else console.log("PROBLEM WITH MUTE MENU ITEM ----------");
+            }}
+            className={`${quantico.className} w-full`}
+          >
+            {target?.fadeMenuInfos.isMuted ? "Unmute" : "Mute"}
+          </MenuItem>
+        )}
         {/* BLOCK */}
         <MenuItem
           onClick={() => {
@@ -189,40 +166,44 @@ export default function FadeMenu({
         </MenuItem>
 
         {/* KICK */}
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            handleKick();
-          }}
-          className={`${quantico.className} w-full`}
-        >
-          Kick
-        </MenuItem>
+        {target?.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              handleKick();
+            }}
+            className={`${quantico.className} w-full`}
+          >
+            Kick
+          </MenuItem>
+        )}
 
         {/* BAN */}
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            handleBan();
-          }}
-          className={`${quantico.className} w-full`}
-        >
-          Ban
-        </MenuItem>
+        {target?.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              handleBan();
+            }}
+            className={`${quantico.className} w-full`}
+          >
+            Ban
+          </MenuItem>
+        )}
 
         {/* PROMOTE IN CHANNEL */}
-        {/* {targetProfile.role === "MEMBER" &&
-          (userRole === "CREATOR" || userRole === "ADMIN") && ( */}
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            handlePromote();
-          }}
-          className={`${quantico.className} w-full`}
-        >
-          Promote
-        </MenuItem>
-        {/* )} */}
+        {target?.role === "MEMBER" &&
+          (userRole === "CREATOR" || userRole === "ADMIN") && (
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                handlePromote();
+              }}
+              className={`${quantico.className} w-full`}
+            >
+              Promote
+            </MenuItem>
+          )}
 
         {/* // TODO MUTE :
           // eslint-disable-next-line react/jsx-no-comment-textnodes
