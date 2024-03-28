@@ -4,6 +4,7 @@ import PlayerProfile from './PlayerProfile/PlayerProfile';
 export default interface User {
 	playerProfile: PlayerProfile;
 	channelsIn: ChatRoom[];
+	friends: {id: string, name: string, roomId: string}[];
 	isConnected: boolean;
 	isReadyLobby: boolean;
 	access_token: string;

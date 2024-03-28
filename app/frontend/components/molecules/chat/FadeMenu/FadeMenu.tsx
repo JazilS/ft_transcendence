@@ -17,6 +17,8 @@ import {
 } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import Mute from "@/components/atom/chat/mute/mute";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
+import { useAddFriendMutation } from "@/app/store/features/User/user.api.slice";
+import { responsiveFontSizes } from "@mui/material";
 
 export default function FadeMenu({
   anchorEl,
@@ -35,6 +37,25 @@ export default function FadeMenu({
     (user: ChatMemberProfile) => user.userProfile.id === user.userProfile.id
   )?.role;
   const dispatch = useAppDispatch();
+  const [addFriend] = useAddFriendMutation();
+
+  const handleAddFriend = () => {
+    if (user.playerProfile.id !== "") {
+      const response = addFriend({
+        friend: target?.userProfile.id as string,
+      })
+        .then((response) => {
+          console.log("response FROM ADDFRIEND", response);
+        })
+        .catch((error) => {
+          console.log("error FROM ADDFRIEND", error);
+        });
+      // mySocket.emit("ADD_FRIEND", {
+      //   userId: user.playerProfile.id,
+      //   friendId: target?.userProfile.id,
+      // });
+    }
+  };
 
   const handlePromote = () => {
     handleClose();
@@ -137,6 +158,45 @@ export default function FadeMenu({
         TransitionComponent={Fade}
         className={`optionmembres ml-4`}
       >
+        {/* ADD FRIEND */}
+        <MenuItem
+          onClick={() => {
+            console.log("target = ", target);
+            handleAddFriend();
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          Add Friend
+        </MenuItem>
+
+        {/* BLOCK */}
+        <MenuItem
+          onClick={() => {
+            console.log("target = ", target);
+            if (target?.fadeMenuInfos.isBlocked === false) handleBlock(true);
+            else if (target?.fadeMenuInfos.isBlocked === true)
+              handleBlock(false);
+            else console.log("PROBLEM WITH BLOCK MENU ITEM ----------");
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          {target?.fadeMenuInfos.isBlocked ? "Unblock" : "Block"}
+        </MenuItem>
+
+        {/* PROMOTE IN CHANNEL */}
+        {target?.role === "MEMBER" &&
+          (userRole === "CREATOR" || userRole === "ADMIN") && (
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                handlePromote();
+              }}
+              className={`${quantico.className} w-full`}
+            >
+              Promote
+            </MenuItem>
+          )}
+
         {/* MUTE */}
         {target?.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
           <MenuItem
@@ -151,19 +211,6 @@ export default function FadeMenu({
             {target?.fadeMenuInfos.isMuted ? "Unmute" : "Mute"}
           </MenuItem>
         )}
-        {/* BLOCK */}
-        <MenuItem
-          onClick={() => {
-            console.log("target = ", target);
-            if (target?.fadeMenuInfos.isBlocked === false) handleBlock(true);
-            else if (target?.fadeMenuInfos.isBlocked === true)
-              handleBlock(false);
-            else console.log("PROBLEM WITH BLOCK MENU ITEM ----------");
-          }}
-          className={`${quantico.className} w-full`}
-        >
-          {target?.fadeMenuInfos.isBlocked ? "Unblock" : "Block"}
-        </MenuItem>
 
         {/* KICK */}
         {target?.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
@@ -190,20 +237,6 @@ export default function FadeMenu({
             Ban
           </MenuItem>
         )}
-
-        {/* PROMOTE IN CHANNEL */}
-        {target?.role === "MEMBER" &&
-          (userRole === "CREATOR" || userRole === "ADMIN") && (
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                handlePromote();
-              }}
-              className={`${quantico.className} w-full`}
-            >
-              Promote
-            </MenuItem>
-          )}
 
         {/* // TODO MUTE :
           // eslint-disable-next-line react/jsx-no-comment-textnodes

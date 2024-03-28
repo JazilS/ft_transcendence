@@ -16,7 +16,6 @@ import { RootState } from "@/app/store/store";
 // import { SetUserInStorage } from "@/app/utils/SetUserInStorage";
 
 export default function ChannelBar() {
-  // recuperer les channels de l'utilisateur pour le premier render
   const channels = useAppSelector(
     (state: RootState) => state.user.user.channelsIn
   );

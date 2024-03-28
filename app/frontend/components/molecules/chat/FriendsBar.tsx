@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 import Button from "../../atom/Button";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
+import { RootState } from "@/app/store/store";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { Id } from "@reduxjs/toolkit/dist/tsHelpers";
+import { setRoomOnId } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import { mySocket } from "@/app/utils/getSocket";
 // import '../style/FriendsBar.css'
 
 export interface Friends {
@@ -11,27 +16,13 @@ export interface Friends {
 }
 
 export default function Friendsbar() {
-  const [friends, setFriends] = useState<Friends[]>([]);
+  const friends: { id: string; name: string; roomId: string }[] =
+    useAppSelector((state: RootState) => state.user.user.friends);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // Simulation de la récupération des données des canaux depuis le backend
-    const fetchData = async () => {
-      // Ici, vous pouvez appeler votre API backend pour récupérer les données des canaux
-      // Par exemple :
-      // const response = await fetch('votre-url-backend');
-      // const data = await response.json();
-
-      // Pour l'exemple, je simule des données statiques
-      const data: Friends[] = [
-        { name: "Friend 1", members: ["username", "user 2"] },
-        { name: "Friend 2", members: ["username", "user 2"] },
-        { name: "Friend 3", members: ["username", "user 2"] },
-      ];
-      setFriends(data);
-    };
-
-    fetchData();
-  }, []);
+    console.log("friends changed :", friends);
+  }, [friends]);
 
   return (
     <div
@@ -41,27 +32,31 @@ export default function Friendsbar() {
         className={`h-full w-full flex flex-col space-y-2 items-start rounded-3xl bg-[#6265A9]`}
       >
         <div className="flex flex-row items-center w-full justify-end space-x-2 p-2">
-          <Button
-            className="active:scale-95 pb-1 bg-[#767ac9] text-white text-2xl hover:bg-violet-200 hover:text-black"
-            variant={"rounded"}
-            size={"square"}
-          >
-            +
-          </Button>
         </div>
         <div className="w-full">
           <ul>
-            {friends.map((friends) => (
-              <li key={friends.name}>
-                <Button
-                  className="hover:text-2xl text-white hover:bg-[#767ac9] active:bg-[#858ae6] "
-                  variant={"publicChannel"}
-                  size={"channel"}
-                >
-                  <h1 className="pl-8">{friends.name}</h1>
-                </Button>
-              </li>
-            ))}
+            {friends.map(
+              (friend: { id: string; name: string; roomId: string }) => (
+                <li key={friend.id}>
+                  <Button
+                    className="hover:text-2xl text-white hover:bg-[#767ac9] active:bg-[#858ae6] "
+                    variant={"publicChannel"}
+                    size={"channel"}
+                    onClick={() => {
+                      console.log("friend clicked :", friend);
+                      mySocket.emit("SET_DM_CHATROOM", {
+                        friendId: friend.id,
+                        friendName: friend.name,
+                        roomId: friend.roomId,
+                      });
+                      // dispatch(setRoomOnId(friend.id));
+                    }}
+                  >
+                    <h1 className="pl-8">{friend.name}</h1>
+                  </Button>
+                </li>
+              )
+            )}
           </ul>
         </div>
       </div>

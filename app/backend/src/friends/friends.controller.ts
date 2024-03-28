@@ -5,17 +5,24 @@ import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('friends')
 export class FriendsController {
-    constructor(private readonly FriendsService: FriendsService) {}
+  constructor(private readonly friendsService: FriendsService) {}
 
-    @UseGuards(AuthGuard)
-    @Post('add')
-    async addFriend(@GetUser('id') userId: string, @Body('friend') friend: string) {
-        return await this.FriendsService.addFriend(userId, friend);
-    }
+  @UseGuards(AuthGuard)
+  @Post('add')
+  async addFriend(
+    @GetUser('id') userId: string,
+    @Body('friend') friend: string,
+  ) {
+    console.log('addFriend', userId, friend);
+    return await this.friendsService.addFriend(userId, friend);
+  }
 
-    @UseGuards(AuthGuard)
-    @Post('remove')
-    async removeFriend(@GetUser('id') userId: string, @Body('friend') friend: string) {
-        return await this.FriendsService.removeFriend(userId, friend);
-    }
+  @UseGuards(AuthGuard)
+  @Post('remove')
+  async removeFriend(
+    @GetUser('id') userId: string,
+    @Body('friend') friend: string,
+  ) {
+    return await this.friendsService.removeFriend(userId, friend);
+  }
 }

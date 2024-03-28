@@ -17,6 +17,7 @@ const initialState: Userslice = {
       imageSrc: undefined,
     },
     channelsIn: [],
+    friends: [],
     isConnected: false,
     isReadyLobby: false,
     access_token: "",
@@ -69,6 +70,16 @@ export const UserSlice = createSlice({
         );
       console.log("leaveChatroom state.user.channelsIn", state.user.channelsIn);
     },
+    newRoomWithFriend: (
+      state,
+      action: PayloadAction<{ friendId: string; roomId: string }>
+    ) => {
+      state.user.friends = state.user.friends.map((friend) =>
+        friend.id === action.payload.friendId
+          ? { ...friend, roomId: action.payload.roomId }
+          : friend
+      );
+    },
   },
 });
 
@@ -81,5 +92,6 @@ export const {
   getChatRoomsInLocal,
   leaveChatroom,
   setUserProfile,
+  newRoomWithFriend,
 } = UserSlice.actions;
 export default UserSlice.reducer;

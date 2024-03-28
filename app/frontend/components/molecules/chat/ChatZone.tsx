@@ -12,6 +12,7 @@ import EditRoom from "./EditRoom/EditRoom";
 import { quantico } from "@/models/Font/FontModel";
 
 export default function ChatZone() {
+  const [channelName, setChannelName] = useState<string>("Not in a Chatroom");
   const [content, setContent] = useState<string>("");
   const dispatch = useAppDispatch();
   const roomOnId: string = useAppSelector(
@@ -26,7 +27,15 @@ export default function ChatZone() {
 
   useEffect(() => {
     console.log("roomOn changed:", roomOn);
-  }, [roomOn]);
+    if (roomOn.roomInfos.roomType === "DM") {
+        const friendName = roomOn.users.find((u) => u.userProfile.id !== user.id)?.userProfile
+          .name || "";
+        setChannelName(friendName);
+    }
+    else {
+      setChannelName(roomOn.roomInfos.name);
+    }
+  }, [roomOn, user.id]);
 
   //emit messages
   const handleEmitMessage = (content: string) => {
@@ -52,10 +61,10 @@ export default function ChatZone() {
 
   return (
     <div className="h-full w-[60%] p-2 flex flex-col items-center">
-      {roomOnId !== "" ? (
+      {roomOnId !== "" && roomOn.roomInfos.roomType !== "DM" ? (
         <div className="flex flex-row justify-between items-center w-full">
           <div></div> {/* Div vide pour prendre de l'espace */}
-          <h1 className="text-4xl ml-14 text-white">{roomOn.roomInfos.name}</h1>
+          <h1 className="text-4xl ml-14 text-white">{channelName}</h1>
           <div className="flex flex-row space-x-3">
             {roomOn.users.find((u) => u.userProfile.id === user.id)?.role !==
               "MEMBER" && <EditRoom />}
@@ -68,7 +77,7 @@ export default function ChatZone() {
           </div>
         </div>
       ) : (
-        <h1 className="text-4xl text-white">Not in a Chatroom</h1>
+        <h1 className="text-4xl text-white">{channelName}</h1>
       )}
       <MessagesDisplay messages={roomOn.messages} />
       {roomOn.users.find(
@@ -80,21 +89,23 @@ export default function ChatZone() {
         >
           You are muted !
         </span>
-      ) : <input
-      type="text"
-      value={content}
-      placeholder="chat"
-      className="w-[85%] h-10 mt-7 p-2 rounded-3xl text-lg bg-white bg-opacity-80 placeholder:text-gray-700 placeholder:text-lg indent-2"
-      onChange={(e) => setContent((e.target as HTMLInputElement).value)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          if (content !== "") {
-            handleEmitMessage(content);
-            setContent("");
-          }
-        }
-      }}
-    />}
+      ) : (
+        <input
+          type="text"
+          value={content}
+          placeholder="chat"
+          className="w-[85%] h-10 mt-7 p-2 rounded-3xl text-lg bg-white bg-opacity-80 placeholder:text-gray-700 placeholder:text-lg indent-2"
+          onChange={(e) => setContent((e.target as HTMLInputElement).value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              if (content !== "") {
+                handleEmitMessage(content);
+                setContent("");
+              }
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

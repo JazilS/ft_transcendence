@@ -172,19 +172,45 @@ export class UserService {
       // void roomId;
       let isBlocked: boolean;
       let isMuted: boolean;
+      let isFriend: boolean;
       let role: string;
 
       if (!userId || !targetId) {
         return { error: 'User ID and target ID are required' };
       }
       // get user
-      const user: User = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.user.findUnique({
         where: { id: userId },
+        select: {
+          id: true,
+          name: true,
+          blockedByUsers: true,
+          blockedUsers: true,
+          friends: {
+            select: {
+              name: true,
+              id: true,
+              avatar: true,
+            },
+          },
+          friendsRelation: {
+            select: {
+              name: true,
+              id: true,
+              avatar: true,
+            },
+          },
+        },
       });
       if (!user) {
         console.log('user not found (getFadeMenuInfo');
         return;
       }
+
+      // check if user is friend
+      if (user.friends.find((u) => u.id === targetId)) {
+        isFriend = true;
+      } else isFriend = false;
 
       // check if user is blocked
       if (user.blockedUsers.find((id) => id === targetId)) {
@@ -200,7 +226,7 @@ export class UserService {
       });
       if (!chatroomUser) {
         return {
-          isFriend: false,
+          isFriend: isFriend,
           isConnected: false,
           isInvited: false,
           isBlocked: isBlocked,
@@ -272,10 +298,33 @@ export class UserService {
     try {
       const user = await this.prismaService.user.findUnique({
         where: { id: userId },
+        include: {
+          friends: true,
+        },
       });
       if (!user) {
         throw new Error('User not found');
       }
+      const friends = await Promise.all(
+        user.friends.map(async (friend) => {
+          const room = await this.prismaService.chatroom.findFirst({
+            where: {
+              chatroomType: 'DM',
+              users: {
+                every: {
+                  OR: [{ userId: user.id }, { userId: friend.id }],
+                },
+              },
+            },
+          });
+          let roomId = '';
+          if (room) {
+            console.log('ROOM FOUND -----_______-----___--_-', room);
+            roomId = room.id;
+          }
+          return { id: friend.id, name: friend.name, roomId: roomId };
+        }),
+      );
       return {
         playerProfile: {
           id: user.id,
@@ -284,14 +333,14 @@ export class UserService {
           games: [],
         },
         channelsIn: await this.getChatRoomsIn(userId),
-        // channelsIn: ,
+        friends: friends,
         isConnected: user.status === 'ONLINE' ? true : false,
         isReadyLobby: false,
         access_token: token,
       };
     } catch (error) {
       console.log(error);
-      return 'Error getting connected user';
+      return 'Error getting  connected user';
     }
   }
 
@@ -317,17 +366,12 @@ export class UserService {
         id: user.id,
         name: user.name,
         imageSrc: user.avatar,
-        games: [],
       };
       const role = chatroomUser.role as string;
       const fadeMenuInfos = await this.getFadeMenuInfos(
         userId,
         targetId,
         roomId,
-      );
-      console.log(
-        'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWww',
-        fadeMenuInfos,
       );
       return { userProfile, role, fadeMenuInfos };
     } catch (error) {

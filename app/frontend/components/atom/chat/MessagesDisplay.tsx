@@ -26,16 +26,16 @@ export default function MessagesDisplay({
       {messages?.map((message: Messages, index) => (
         <div
           key={index}
-          className={`text-white text-lg items-start text-left break-words flex flex-row p-0.5 space-x-1 ${
-            message.emitterId === "system" ? "text-opacity-50" : null
-          }`}
+          className={`items-start flex flex-row p-0.5 space-x-1 w-full`}
         >
-          <div>
-            <PlayerAvatar src={message.emitterAvatar} width={30} height={30} />
-          </div>
-          <div className="flex flex-row items-center">
+          <PlayerAvatar src={message.emitterAvatar} width={30} height={30} />
+          <div
+            className={`text-white w-full text-lg items-start text-left flex flex-row space-x-1 ${
+              message.emitterId === "system" ? "text-opacity-50" : null
+            }`}
+          >
             <span>{message.emitterName}: </span>
-            <div className="flex-grow word-wrap: break-word;">{message.content}</div>
+            <span className="flex-grow break-all  ">{message.content}</span>
           </div>
         </div>
       ))}

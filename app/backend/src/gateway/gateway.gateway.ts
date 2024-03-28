@@ -196,8 +196,60 @@ export class GatewayGateway
     }
   }
 
-  // JOIN_ROOM
+  @SubscribeMessage('SET_DM_CHATROOM')
+  async handleSetDmRoom(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody()
+    payload: { friendId: string; friendName: string; roomId: string },
+  ) {
+    try {
+      console.log('SET_DM_CHATROOM:', payload);
+      if (!payload.roomId || payload.roomId === '') {
+        const chatroom = await this.prismaService.chatroom.create({
+          data: {
+            name: payload.friendId.slice(0, 5) + client.userId.slice(0, 5),
+            chatroomType: 'DM',
+            users: {
+              createMany: {
+                data: [
+                  {
+                    userId: client.userId,
+                    role: 'MEMBER',
+                    restriction: 'NONE',
+                  },
+                  {
+                    userId: payload.friendId,
+                    role: 'MEMBER',
+                    restriction: 'NONE',
+                  },
+                ],
+              },
+            },
+          },
+        });
+        console.log('CREATE_DM_CHATROOM:', chatroom);
+        client.join(chatroom.id);
+        const { sockets } = this.server.sockets;
+        Object.values(sockets).forEach((socket: SocketWithAuth) => {
+          if (socket.userId === payload.friendId) {
+            socket.join(chatroom.id);
+            console.log('Friend joined room:', chatroom.id);
+          }
+        });
+        this.server.to(client.userId).emit('SET_DM_CHATROOM', chatroom.id);
+        this.server
+          .to(payload.friendId)
+          .emit('CREATE_DM_CHATROOM', client.userId, chatroom.id);
+        return;
+      }
+      this.handleJoinSocketRoom(client, { room: payload.roomId });
+      this.server.to(client.userId).emit('SET_DM_CHATROOM', payload.roomId);
+    } catch (error) {
+      console.error('Error creating DM room:', error);
+    }
+  }
 
+  // JOIN_SOCKET_ROOM
   @SubscribeMessage('JOIN_SOCKET_ROOM')
   handleJoinSocketRoom(
     @ConnectedSocket() client: SocketWithAuth,
@@ -219,6 +271,7 @@ export class GatewayGateway
     }
   }
 
+  // JOIN_ROOM
   @SubscribeMessage('JOIN_ROOM')
   async handleJoinRoom(
     @ConnectedSocket() client: SocketWithAuth,

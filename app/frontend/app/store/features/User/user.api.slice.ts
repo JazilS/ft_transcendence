@@ -78,7 +78,21 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
-  }),
+    addFriend: builder.mutation<Promise<{
+      success: boolean;
+      message: string;
+      sucess?: undefined;
+  } | {
+      sucess: boolean;
+      message: string;
+      success?: undefined;
+  }>, { friend: string }>({
+      query: (data) => ({
+        url: "/friends/add",
+        method: "POST",
+        body: data,
+      }),
+    }),  }),
 });
 
 export const {
@@ -90,4 +104,5 @@ export const {
   useLeaveChatroomMutation,
   useGetFadeMenuInfosMutation,
   useGetConnectedUserQuery,
+  useAddFriendMutation,
 } = UserApiSlice;

@@ -6,9 +6,16 @@ import { UserService } from 'src/user/user.service';
 export class FriendsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private isInList(users: any, name: string): boolean {
+  private isInList(
+    users: {
+      id: string;
+      name: string;
+      avatar: string;
+    }[],
+    id: string,
+  ): boolean {
     // Check if the given login exists in the users array
-    const foundUser = users.find((user) => user.name === name);
+    const foundUser = users.find((user) => user.id === id);
     return !!foundUser; // Return true if login exists, false otherwise
   }
 
@@ -93,24 +100,23 @@ export class FriendsService {
     });
   }
 
-  // const   user = await this.userService.getUserById(userId, { id: true, ...Object.fromEntries(Object.keys(user).map(key => [key, false])});
-
-  async addFriend(userId: string, friendname: string) {
-    if (!userId || !friendname)
+  // add friend by id
+  async addFriend(userId: string, friendId: string) {
+    console.log('addFriend SERVICE -------------------', userId, friendId);
+    if (!userId || !friendId)
       return { success: false, message: 'user not found !' };
 
     const user = await this.getUserInfoById(userId);
-    const friend = await this.getUserInfoByName(friendname);
-    
+    const friend = await this.getUserInfoById(friendId);
 
     if (!user || !friend)
       return { success: false, message: 'user not found !' };
-    if (user.name == friend.name)
+    if (user.id == friend.id)
       return { success: false, message: "you can't add yourself dude!" };
 
-    const areFriend = this.isInList(user.friends, friend.name);
-    const isBlocked = user.blockedByUsers.includes(friend.name);
-    
+    const areFriend = this.isInList(user.friends, friend.id);
+    const isBlocked = user.blockedByUsers.includes(friend.id);
+
     if (areFriend)
       return {
         sucess: false,
@@ -122,12 +128,48 @@ export class FriendsService {
         sucess: false,
         message: `you can't add ${friend.name} as friend, you are blocked by him !`,
       };
-      
+
     await this.linkFriend(user, friend.id);
     await this.linkFriend(friend, userId);
 
     return { success: true, message: `${friend.name} is now your friend !` };
   }
+
+  // const   user = await this.userService.getUserById(userId, { id: true, ...Object.fromEntries(Object.keys(user).map(key => [key, false])});
+
+  // async addFriend(userId: string, friendname: string) {
+  //   console.log('addFriend SERVICE -------------------', userId, friendname);
+  //   if (!userId || !friendname)
+  //     return { success: false, message: 'user not found !' };
+
+  //   const user = await this.getUserInfoById(userId);
+  //   const friend = await this.getUserInfoByName(friendname);
+
+  //   if (!user || !friend)
+  //     return { success: false, message: 'user not found !' };
+  //   if (user.name == friend.name)
+  //     return { success: false, message: "you can't add yourself dude!" };
+
+  //   const areFriend = this.isInList(user.friends, friend.name);
+  //   const isBlocked = user.blockedByUsers.includes(friend.name);
+
+  //   if (areFriend)
+  //     return {
+  //       sucess: false,
+  //       message: `${friend.name} is already your friend !`,
+  //     };
+
+  //   if (isBlocked)
+  //     return {
+  //       sucess: false,
+  //       message: `you can't add ${friend.name} as friend, you are blocked by him !`,
+  //     };
+
+  //   await this.linkFriend(user, friend.id);
+  //   await this.linkFriend(friend, userId);
+
+  //   return { success: true, message: `${friend.name} is now your friend !` };
+  // }
 
   async removeFriend(userId: string, friendname: string) {
     const user = await this.getUserInfoById(userId);
