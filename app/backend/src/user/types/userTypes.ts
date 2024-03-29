@@ -6,29 +6,24 @@ export type Profile = {
 
 export type UserInfo = {
   id: boolean;
+  nickname: boolean;
   email: boolean;
-  avatar: boolean;
-  status: boolean;
-  name: boolean;
-  twoFa: boolean;
-  twoFaSecret: boolean;
-  friends: boolean;
-  friendsRelation: boolean;
- 
-  //remove ?
   password: boolean;
   createdAt: boolean;
+  status: boolean;
   updatedAt: boolean;
   firstConnection: boolean;
   hashedRefreshToken: boolean;
+  twoFa: boolean;
   pong: boolean;
   profile: boolean;
   blockedUsers: boolean;
   blockedBy: boolean;
+  friends: boolean;
+  allowForeignToDm: boolean;
   friendRequestsReceived: boolean;
   friendRequestsSent: boolean;
   chatrooms: boolean;
-  allowForeignToDm: true,
   messages: boolean;
   restrictedGroups: boolean;
 };
@@ -56,3 +51,26 @@ export type UserInfo = {
 //   messages: false,
 //   restrictedGroups: false,
 // };
+export const UserData: UserInfo = {
+  id: true,
+  nickname: true,
+  firstConnection: true,
+  email: true,
+  password: true,
+  createdAt: true,
+  status: true,
+  updatedAt: true,
+  allowForeignToDm: true,
+  hashedRefreshToken: false,
+  twoFa: true,
+  pong: true,
+  profile: true,
+  blockedUsers: false,
+  blockedBy: false,
+  friends: false,
+  friendRequestsReceived: false,
+  friendRequestsSent: false,
+  chatrooms: false,
+  messages: false,
+  restrictedGroups: false,
+};

@@ -1,13 +1,30 @@
-all :
-	docker-compose stop && docker-compose up --build -d --remove-orphans && docker-compose logs -f
+.PHONY: stop-containers remove-containers remove-images stop all
 
-$(NAME) :
-	docker-compose stop && docker-compose up --build -d --remove-orphans
+all:
+	chmod +x ./shared.sh && ./shared.sh
+	docker compose up -d
 
-clean :
-	docker rm -f backend pgadmin-portal frontend bp-pg-db
 
-fclean : clean
-	docker rmi -f ft_transcendance-backend dpage/pgadmin4 postgres:12-alpine ft_transcendance-frontend
+studio:
+	docker exec -ti back npx prisma studio
+
+restart:
+	docker stop `docker ps -q`
+	docker start `docker ps -aq`
+
+stop:
+	docker stop `docker ps -q`
+	
+start:
+	docker start `docker ps -aq`
+
+deletemodules:
+	find . -maxdepth 2  -name  "node_modules" -exec rm -rf {} \;
+
+deletedist:
+	find . -maxdepth 2  -name  "dist" -exec rm -rf {} \;
+
+fclean:
+	./stop.sh
 
 re : fclean all

@@ -3,6 +3,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UserInfo } from './types/userTypes';
 // import { AuthService } from '../auth/auth.service'; // Import the AuthService
 // import { UserData, UserInfo } from 'types/userInfo';
+import { UserData } from '../types/userInfo';
+import { Profile } from './types/userTypes';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -11,18 +14,16 @@ export class UserService {
     // private authService: AuthService,
   ) {}
 
-  // REGISTER
-  async register() {
+  async getUserInfo(userId: string, id: string) {
     try {
-      console.log('REGISTER USER SERVICE');
-      // Créer les utilisateurs
-      const user1 = await this.prismaService.user.create({
-        data: {
-          name: 'Musashi',
-          avatar: '/Musashi.jpg',
-          email: '', // to remove
-        },
-      });
+      const [me, user] = await Promise.all([
+        this.finUserById(userId, UserData),
+        this.prismaService.user.findFirst({
+          where: {
+            id,
+          },
+        }),
+      ]);
       const user = await this.prismaService.user.findUnique({
         where: { id: 'system' },
       });
@@ -259,6 +260,62 @@ export class UserService {
     }
   }
 
+  async createUser(nickname: string, profile: Profile, select: UserInfo) {
+    return await this.prismaService.user.create({
+      data: {
+        nickname,
+        profile: {
+          create: profile,
+        },
+        pong: {
+          create: {},
+        },
+      },
+      select,
+    });
+  }
+
+  async findUserById(id: string, select: UserInfo) {
+    return this.prismaService.user.findUnique({
+      where: { id },
+      select,
+    });
+  }
+
+  async findUserByNickname(nickname: string, select: UserInfo) {
+    return this.prismaService.user.findUnique({
+      where: { nickname },
+      select,
+    });
+  }
+
+  async findManyUsers(ids: string[], select: UserInfo) {
+    return this.prismaService.user.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      select,
+    });
+  }
+
+  async UpdateUserById(id: string, data: Partial<User>) {
+    return this.prismaService.user.update({
+      where: { id },
+      data,
+      include: {
+        profile: {
+          select: {
+            lastname: true,
+            firstname: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+  }
+
   // GETCHATROOMSIN
   async getChatRoomsIn(userId: string) {
     try {
@@ -439,19 +496,19 @@ export class UserService {
   //   });
   // }
 
-  async getUserById(userId: string, select: UserInfo) {
-    return await this.prismaService.user.findUnique({
-      where: { id: userId },
-      select,
-    });
-  }
+  // async getUserById(userId: string, select: UserInfo) {
+  //   return await this.prismaService.user.findUnique({
+  //     where: { id: userId },
+  //     select,
+  //   });
+  // }
 
-  async findUserById(id: string, select: UserInfo) {
-    return await this.prismaService.user.findUnique({
-      where: { id },
-      select,
-    });
-  }
+  // async findUserById(id: string, select: UserInfo) {
+  //   return await this.prismaService.user.findUnique({
+  //     where: { id },
+  //     select,
+  //   });
+  // }
 
   // async findUserByname(name: string, select: UserInfo) {
   //   return await this.prismaService.user.findUnique({
@@ -460,16 +517,16 @@ export class UserService {
   //   });
   // }
 
-  async findManyUsers(ids: string[], select: UserInfo) {
-    return await this.prismaService.user.findMany({
-      where: {
-        id: {
-          in: ids,
-        },
-      },
-      select,
-    });
-  }
+  // async findManyUsers(ids: string[], select: UserInfo) {
+  //   return await this.prismaService.user.findMany({
+  //     where: {
+  //       id: {
+  //         in: ids,
+  //       },
+  //     },
+  //     select,
+  //   });
+  // }
 
   //   async UpdateUserById(id: string, data: Partial<User>) {
   //     return this.prismaService.user.update({

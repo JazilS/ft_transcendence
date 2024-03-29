@@ -1,38 +1,73 @@
+import { StartGameInfo } from "../../../../shared/types";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { Lobby, Game } from "@/models/Game/GameModel";
-import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 
-export interface GameSlice {
-  lobby: Lobby;
-  game: Game | undefined;
+export interface AppState {
+  inQueue: boolean;
+  waitingReady: boolean;
+  gameData: StartGameInfo | undefined;
+  users: any[];
 }
 
-const initialState: GameSlice = {
-  lobby: {
-    id: undefined,
-    user: undefined,
-    opponent: {
-      id: "Temp_Kojiro",
-      name: "Kojiro",
-      imageSrc: "/Kojiro.jpg",
-    },
-    status: true,
-  },
-  game: undefined,
+const initialState: AppState = {
+  inQueue: false,
+  waitingReady: false,
+  gameData: undefined,
+  users: [],
 };
 
 export const GameSlice = createSlice({
-  name: "game",
-  initialState: initialState,
+  name: "app",
+  initialState,
   reducers: {
-    setGame: (state, action: PayloadAction<Game>) => {
-      if (state.game) state.game = action.payload;
+    setInQueue: (state, action: PayloadAction<boolean>) => {
+      state.inQueue = action.payload;
     },
-    setUser: (state, action: PayloadAction<PlayerProfile>) => {
-      if (state.lobby) state.lobby.user = action.payload;
+    setWaitingReady: (state, action: PayloadAction<boolean>) => {
+      state.waitingReady = action.payload;
+    },
+    setGameData: (state, action: PayloadAction<StartGameInfo | undefined>) => {
+      state.gameData = action.payload;
+    },
+    setLeaderboardUser: (state, action) => {
+      state.users = action.payload;
+    },
+    updateUserStatus: (state, action) => {
+      const { ids, status } = action.payload;
+      state.users.forEach((user) => {
+        if (ids.includes(user.id)) {
+          user.status = status;
+        }
+      });
+    },
+    updateUserInfo: (state, action) => {
+      const index = state.users.findIndex(
+        (user) => user.id === action.payload.id
+      );
+
+      if (index >= 0) {
+        if ("nickname" in action.payload) {
+          state.users[index].nickname = action.payload.nickname;
+          return;
+        }
+        state.users[index].profile.avatar = action.payload.avatar;
+      }
+    },
+    addNewPlayerToLeaderboard: (state, action) => {
+      const index = state.users.findIndex(
+        (user) => user.id === action.payload.id
+      );
+
+      if (index < 0) state.users.push(action.payload);
     },
   },
 });
 
-export const { setGame, setUser } = GameSlice.actions;
-export default GameSlice.reducer;
+export const {
+  setInQueue,
+  setWaitingReady,
+  setGameData,
+  setLeaderboardUser,
+  updateUserStatus,
+  addNewPlayerToLeaderboard,
+  updateUserInfo,
+} = GameSlice.actions;

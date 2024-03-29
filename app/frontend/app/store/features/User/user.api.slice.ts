@@ -2,24 +2,55 @@ import User from "@/models/User/UserModel";
 import { apiSlice } from "../../api/apiSlice";
 import { get } from "http";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
+<<<<<<< HEAD
 import { leaveChatroom, setAllData } from "./UserSlice";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
 import { UserProfile } from "@/models/ProfilePageModel";
+=======
+import { leaveChatroom } from "./UserSlice";
+import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
+>>>>>>> origin/jazil
 
 export const UserApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    register: builder.mutation<User, void>({
-      query: () => ({
-        url: "/user/register",
-        method: "GET",
-      }),
-    }),
-    updateUsername: builder.mutation<
-      string,
-      { userId: string; newName: string }
-    >({
+    updateUsername: builder.mutation< string, { userId: string; newName: string }>({
       query: (data) => ({
         url: "/user/updateUsername",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    updateAvatar: builder.mutation<string, { userId: string; newAvatar: string }>({
+      query: (data) => ({
+        url: "/user/updateAvatar",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    getUserNameById: builder.mutation<string, { userId: string }>({
+      query: (data) => ({
+        url: "/user/getUserNameById",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    getProfileById: builder.mutation<PlayerProfile, { userId: string }>({
+      query: (data) => ({
+        url: "/user/getProfileById",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    leaveChatroom: builder.mutation<void, { userId: string, roomId: string }>({
+      query: (data) => ({
+        url: "/user/leaveChatroom",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    getFadeMenuInfos: builder.mutation< FadeMenuInfos, {userId: string; targetId: string; roomId: string}>({
+      query: (data) => ({
+        url: "/user/getFadeMenuInfos",
         method: "POST",
         body: data,
       }),
@@ -96,7 +127,6 @@ export const UserApiSlice = apiSlice.injectEndpoints({
 });
 
 export const {
-  useRegisterMutation,
   useUpdateUsernameMutation,
   useUpdateAvatarMutation,
   useGetUserNameByIdMutation,

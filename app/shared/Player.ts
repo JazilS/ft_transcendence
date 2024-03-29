@@ -1,6 +1,9 @@
 import { Coordinate, Dimension, Velocity } from "./types";
 import { clamp } from "./utils";
 import {
+
+
+
   PADDLE_MAX_Y_POS,
   PADDLE_MIN_Y_POS,
   keyPressedType,
@@ -23,10 +26,10 @@ export class Player {
   private moveDown: boolean;
 
   constructor(
-    id: string,
-    position: Coordinate,
     dimension: Dimension,
-    velocity: Velocity
+    position: Coordinate,
+    velocity: Velocity,
+    id?: string,
   ) {
     this.id = id as string;
     this.position = position;

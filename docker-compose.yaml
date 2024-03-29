@@ -14,6 +14,7 @@ services:
     volumes:
       - ./app/frontend:/app
       - /app/node_modules
+      - ./app/shared:/app/shared:rw
     networks:
       - transcendance-network
     depends_on:
@@ -30,6 +31,7 @@ services:
     volumes:
       - ./app/backend:/app
       - /app/node_modules
+      - ./app/shared:/app/shared:rw
     networks:
       - transcendance-network
     ports:
