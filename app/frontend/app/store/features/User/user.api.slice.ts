@@ -92,6 +92,27 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    RemoveFriend: builder.mutation<
+    Promise<
+      | {
+          success: boolean;
+          message: string;
+          sucess?: undefined;
+        }
+      | {
+          sucess: boolean;
+          message: string;
+          success?: undefined;
+        }
+    >,
+    { friend: string }
+  >({
+    query: (data) => ({
+      url: "/friends/remove",
+      method: "POST",
+      body: data,
+    }),
+  }),
   }),
 });
 
@@ -104,4 +125,5 @@ export const {
   useGetFadeMenuInfosMutation,
   useGetConnectedUserQuery,
   useAddFriendMutation,
+  useRemoveFriendMutation,
 } = UserApiSlice;

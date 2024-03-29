@@ -38,7 +38,7 @@ export default function ChatMembers() {
           {roomOn.users.map((roomUser: ChatMemberProfile) => (
             <li key={roomUser.userProfile.id}>
               <Button
-                className="hover:bg-[#f28eff] pl-9 w-[100%]"
+                className={` pl-9 w-[100%] ${roomUser.userProfile.id === user.playerProfile.id ? "bg-[#e594ee]" : "hover:bg-[#f28eff]"}`}
                 variant={"chatMember"}
                 size={"channel"}
                 infos={roomUser.fadeMenuInfos}

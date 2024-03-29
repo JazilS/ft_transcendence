@@ -12,13 +12,18 @@ import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { quantico } from "@/models/Font/FontModel";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import {
+  setRoomOnId,
   updateRole,
   updateUsers,
 } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import Mute from "@/components/atom/chat/mute/mute";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
-import { useAddFriendMutation } from "@/app/store/features/User/user.api.slice";
+import {
+  useAddFriendMutation,
+  useRemoveFriendMutation,
+} from "@/app/store/features/User/user.api.slice";
 import { responsiveFontSizes } from "@mui/material";
+import { addFriend, removeFriend } from "@/app/store/features/User/UserSlice";
 
 export default function FadeMenu({
   anchorEl,
@@ -37,11 +42,13 @@ export default function FadeMenu({
     (user: ChatMemberProfile) => user.userProfile.id === user.userProfile.id
   )?.role;
   const dispatch = useAppDispatch();
-  const [addFriend] = useAddFriendMutation();
+  const [addFriendApi] = useAddFriendMutation();
+  const [removeFriendApi] = useRemoveFriendMutation();
 
   const handleAddFriend = () => {
+    handleClose();
     if (user.playerProfile.id !== "") {
-      const response = addFriend({
+      const response = addFriendApi({
         friend: target?.userProfile.id as string,
       })
         .then((response) => {
@@ -50,10 +57,75 @@ export default function FadeMenu({
         .catch((error) => {
           console.log("error FROM ADDFRIEND", error);
         });
-      // mySocket.emit("ADD_FRIEND", {
-      //   userId: user.playerProfile.id,
+      mySocket.emit("ADD_FRIEND", {
+        userId: user.playerProfile.id,
+        friendId: target?.userProfile.id,
+      });
+      // console.log(
+      //   "emit setdmchatroom room = ",
+      //   user.friends.find(
+      //     (friend: { id: string; name: string; roomId: string }) =>
+      //       friend.id === target?.userProfile.id
+      //   )?.roomId as string
+      // );
+      // mySocket.emit("SET_DM_CHATROOM", {
       //   friendId: target?.userProfile.id,
+      //   friendName: target?.userProfile.name,
+      //   roomId: user.friends.find(
+      //     (friend: { id: string; name: string; roomId: string }) =>
+      //       friend.id === target?.userProfile.id
+      //   )?.roomId as string,
       // });
+    }
+  };
+
+  const handleRemoveFriend = () => {
+    handleClose();
+    if (user.playerProfile.id !== "") {
+      const response = removeFriendApi({
+        friend: target?.userProfile.id as string,
+      })
+        .then((response) => {
+          console.log("response FROM REMOVEFRIEND", response);
+        })
+        .catch((error) => {
+          console.log("error FROM REMOVEFRIEND", error);
+        });
+      // const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
+      //   (user: ChatMemberProfile) => {
+      //     if (user.userProfile.id === target?.userProfile.id) {
+      //       return {
+      //         ...user,
+      //         fadeMenuInfos: {
+      //           ...user.fadeMenuInfos,
+      //           isFriend: false,
+      //         },
+      //       };
+      //     } else {
+      //       return user;
+      //     }
+      //   }
+      // );
+      // mySocket.emit("LEAVE_ROOM", {
+      //   room: user.friends.find(
+      //     (friend: { id: string; name: string; roomId: string }) =>
+      //       friend.id === target?.userProfile.id
+      //   )?.roomId as string,
+      //   userName: user.playerProfile.name,
+      //   userID: user.playerProfile.id,
+      //   leavingType: "LEAVING",
+      // });
+      // dispatch(updateUsers(updatedUsers));
+      // dispatch(setRoomOnId(""));
+      // dispatch(removeFriend(target?.userProfile.id as string));
+      mySocket.emit("REMOVE_FRIEND", {
+        userId: user.playerProfile.id,
+        friendId: target?.userProfile.id,
+        dmRoom: user.friends.find(
+          (friend: { id: string; name: string; roomId: string }) =>
+            friend.id === target?.userProfile.id
+        )?.roomId as string,
+      });
     }
   };
 
@@ -100,7 +172,6 @@ export default function FadeMenu({
       const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
         (user: ChatMemberProfile) => {
           if (user.userProfile.id === target?.userProfile.id) {
-            console.log("PPPPPPPPPPPPPPPPPPPPPPPPP", newValue);
             return {
               ...user,
               fadeMenuInfos: {
@@ -159,15 +230,27 @@ export default function FadeMenu({
         className={`optionmembres ml-4`}
       >
         {/* ADD FRIEND */}
-        <MenuItem
-          onClick={() => {
-            console.log("target = ", target);
-            handleAddFriend();
-          }}
-          className={`${quantico.className} w-full`}
-        >
-          Add Friend
-        </MenuItem>
+        {target?.fadeMenuInfos.isFriend === false ? (
+          <MenuItem
+            onClick={() => {
+              console.log("target = ", target);
+              handleAddFriend();
+            }}
+            className={`${quantico.className} w-full`}
+          >
+            Add Friend
+          </MenuItem>
+        ) : (
+          <MenuItem
+            onClick={() => {
+              console.log("target = ", target);
+              handleRemoveFriend();
+            }}
+            className={`${quantico.className} w-full`}
+          >
+            Remove Friend
+          </MenuItem>
+        )}
 
         {/* BLOCK */}
         <MenuItem

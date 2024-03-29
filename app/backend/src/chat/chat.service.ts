@@ -56,7 +56,7 @@ export class ChatService {
         name: chatroom.name,
         roomType: chatroom.chatroomType,
         users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
-        messages: null,
+        messages: [],
       };
     } catch (error) {
       if (
@@ -86,7 +86,7 @@ export class ChatService {
       name: chatroom.name,
       roomType: chatroom.chatroomType,
       users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
-      messages: null,
+      messages: [],
     }));
   }
 
@@ -108,10 +108,9 @@ export class ChatService {
           },
         },
       });
-      const chatrooms = userWithChatrooms.chatRoomsIn.map(
-        (chatroomUser) => chatroomUser.chatroom,
-      );
-      console.log('Chatrooms:', chatrooms, 'messages:');
+      const chatrooms = userWithChatrooms.chatRoomsIn
+        .filter((chatroom) => chatroom.chatroom.chatroomType !== ('DM' as TYPE))
+        .map((chatroomUser) => chatroomUser.chatroom);
       return chatrooms.map((chatroom) => ({
         id: chatroom.id,
         name: chatroom.name,
@@ -197,7 +196,7 @@ export class ChatService {
         name: chatroom.name,
         roomType: chatroom.chatroomType,
         users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
-        messages: null,
+        messages: [],
       };
     } catch (error) {
       console.error('Error joining chatroom:', error);

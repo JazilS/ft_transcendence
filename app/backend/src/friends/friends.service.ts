@@ -1,6 +1,6 @@
-import { Body, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserService } from 'src/user/user.service';
+// import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class FriendsService {
@@ -77,8 +77,8 @@ export class FriendsService {
 
   private async getUserInfoByName(name: string) {
     return await this.prismaService.user.findUnique({
-      // where: { name: name },
-      where: { id: '123' }, // to revert
+      // where: { id: '123' }, // to revert
+      where: { name: name },
       select: {
         id: true,
         name: true,
@@ -135,6 +135,32 @@ export class FriendsService {
     return { success: true, message: `${friend.name} is now your friend !` };
   }
 
+  // remove friend by id
+  async removeFriend(userId: string, friendId: string) {
+    const user = await this.getUserInfoById(userId);
+    const friend = await this.getUserInfoById(friendId);
+
+    if (!user || !friend)
+      return { success: false, message: 'user not found !' };
+    if (user.name == friend.name)
+      return { success: false, message: "you can't remove yourself moron !" };
+
+    const areFriend = this.isInList(user.friends, friend.id);
+    if (!areFriend)
+      return {
+        sucess: false,
+        message: `${friend.name} is not even your friend !`,
+      };
+
+    this.unlinkFriend(user, friend.id);
+    this.unlinkFriend(friend, userId);
+
+    return {
+      success: true,
+      message: `${friend.name} is no more your friend !`,
+    };
+  }
+
   // const   user = await this.userService.getUserById(userId, { id: true, ...Object.fromEntries(Object.keys(user).map(key => [key, false])});
 
   // async addFriend(userId: string, friendname: string) {
@@ -171,28 +197,28 @@ export class FriendsService {
   //   return { success: true, message: `${friend.name} is now your friend !` };
   // }
 
-  async removeFriend(userId: string, friendname: string) {
-    const user = await this.getUserInfoById(userId);
-    const friend = await this.getUserInfoByName(friendname);
+  // async removeFriend(userId: string, friendname: string) {
+  //   const user = await this.getUserInfoById(userId);
+  //   const friend = await this.getUserInfoByName(friendname);
 
-    if (!user || !friend)
-      return { success: false, message: 'user not found !' };
-    if (user.name == friend.name)
-      return { success: false, message: "you can't remove yourself moron !" };
+  //   if (!user || !friend)
+  //     return { success: false, message: 'user not found !' };
+  //   if (user.name == friend.name)
+  //     return { success: false, message: "you can't remove yourself moron !" };
 
-    const areFriend = this.isInList(user.friends, friend.name);
-    if (!areFriend)
-      return {
-        sucess: false,
-        message: `${friend.name} is not even your friend !`,
-      };
+  //   const areFriend = this.isInList(user.friends, friend.name);
+  //   if (!areFriend)
+  //     return {
+  //       sucess: false,
+  //       message: `${friend.name} is not even your friend !`,
+  //     };
 
-    this.unlinkFriend(user, friend.id);
-    this.unlinkFriend(friend, userId);
+  //   this.unlinkFriend(user, friend.id);
+  //   this.unlinkFriend(friend, userId);
 
-    return {
-      success: true,
-      message: `${friend.name} is no more your friend !`,
-    };
-  }
+  //   return {
+  //     success: true,
+  //     message: `${friend.name} is no more your friend !`,
+  //   };
+  // }
 }

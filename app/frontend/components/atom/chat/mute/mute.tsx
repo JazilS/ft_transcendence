@@ -22,10 +22,6 @@ export default function Mute({
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
 
-  const userProfiles: ChatMemberProfile[] = useAppSelector(
-    (state) => state.chatRooms.userProfiles
-  );
-
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 

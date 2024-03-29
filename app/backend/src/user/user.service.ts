@@ -188,7 +188,6 @@ export class UserService {
 
       // check if user is friend
       if (user.friends.find((u) => u.id === targetId)) {
-        console.log('is friend');
         isFriend = true;
       } else isFriend = false;
 
@@ -224,7 +223,7 @@ export class UserService {
       if (chatroomUser.role) role = chatroomUser.role as string;
       else role = '';
       return {
-        isFriend: false,
+        isFriend: isFriend,
         isConnected: false,
         isInvited: false,
         isBlocked: isBlocked,
@@ -264,9 +263,9 @@ export class UserService {
           },
         },
       });
-      const chatrooms = userWithChatrooms.chatRoomsIn.map(
-        (chatroomUser) => chatroomUser.chatroom,
-      );
+      const chatrooms = userWithChatrooms.chatRoomsIn
+        .filter((chatroom) => chatroom.chatroom.chatroomType !== 'DM')
+        .map((chatroomUser) => chatroomUser.chatroom);
       return chatrooms.map((chatroom) => ({
         id: chatroom.id,
         name: chatroom.name,

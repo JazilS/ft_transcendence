@@ -80,6 +80,17 @@ export const UserSlice = createSlice({
           : friend
       );
     },
+    addFriend: (
+      state,
+      action: PayloadAction<{ id: string; name: string; roomId: string }>
+    ) => {
+      state.user.friends = [...state.user.friends, action.payload];
+    },
+    removeFriend: (state, action: PayloadAction<string>) => {
+      state.user.friends = state.user.friends.filter(
+        (friend) => friend.id !== action.payload
+      );
+    },
   },
 });
 
@@ -93,5 +104,7 @@ export const {
   leaveChatroom,
   setUserProfile,
   newRoomWithFriend,
+  removeFriend,
+  addFriend,
 } = UserSlice.actions;
 export default UserSlice.reducer;

@@ -352,19 +352,23 @@ export class GatewayGateway {
             },
           });
 
-        client.to(payload.room).emit(
-          'JOIN_ROOM',
-          {
-            userProfile: userProfile,
-            role: userRole.role as string,
-            fadeMenuInfos: this.userService.getFadeMenuInfos(
-              client.userId,
-              payload.userId,
-              payload.room,
-            ),
-          },
-          payload.room,
-        );
+        try {
+          client.to(payload.room).emit(
+            'JOIN_ROOM',
+            {
+              userProfile: userProfile,
+              role: userRole.role as string,
+              fadeMenuInfos: await this.userService.getFadeMenuInfos(
+                client.userId,
+                payload.userId,
+                payload.room,
+              ),
+            },
+            payload.room,
+          );
+        } catch (error) {
+          console.error('Error joining room:', error);
+        }
         return userName;
       }
     } catch (error) {
@@ -404,7 +408,7 @@ export class GatewayGateway {
         }
       }
     }
-    console.log('userId = ', payload.userId);
+    console.log('userId  = ', payload.userId);
     console.log('room = ', payload.room);
     const userInChatroom = await this.prismaService.chatroomUser.findFirst({
       where: { chatroomId: payload.room, userId: payload.userId },
@@ -1011,6 +1015,37 @@ export class GatewayGateway {
     }
   }
 
+  @SubscribeMessage('ADD_FRIEND')
+  async handleAddFriend(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody()
+    payload: { userId: string; targetId: string; dmRoom: string },
+  ) {
+    try {
+      const target = await this.prismaService.user.findUnique({
+        where: { id: payload.targetId },
+      });
+      const targetName = target.name;
+      this.server
+        .to(payload.dmRoom)
+        .emit('ADD_FRIEND', payload.userId, targetName);
+    } catch (error) {
+      console.error('Error adding user as friend:', error);
+    }
+  }
+
+  @SubscribeMessage('REMOVE_FRIEND')
+  async handleRemoveFriend(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody()
+    payload: { userId: string; targetId: string; dmRoom: string },
+  ) {
+    try {
+      this.server.to(payload.dmRoom).emit('REMOVE_FRIEND', payload.userId);
+    } catch (error) {
+      console.error('Error removing user from friends:', error);
+    }
+  }
   // @SubscribeMessage('GET_MUTE_TIME')
   // async handleGetMuteTime(
   //   @ConnectedSocket() client: SocketWithAuth,
