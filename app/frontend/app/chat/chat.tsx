@@ -267,29 +267,20 @@ export default function ChatPage() {
               }
             );
             dispatch(updateUsers(updatedUsers));
-            dispatch(
-              addFriend({
-                id: newFriendId,
-                name: newFriendName,
-                roomId: "",
-              })
-            );
+            // dispatch(
+            //   addFriend({
+            //     id: newFriendId,
+            //     name: newFriendName,
+            //     roomId: "",
+            //   })
+            // );
           }
         );
 
-        //! c'est pas bon, ici on fait quitter que un utilisateur, je dois faire quitter tout le monde et bine mettre ca a jour
         mySocket.on(
           "REMOVE_FRIEND",
           (removingFriendId: string, roomId: string) => {
-            mySocket.emit("LEAVE_ROOM", {
-              room: user.friends.find(
-                (friend: { id: string; name: string; roomId: string }) =>
-                  friend.id === removingFriendId
-              )?.roomId as string,
-              userName: user.playerProfile.name,
-              userID: user.playerProfile.id,
-              leavingType: "LEAVING",
-            });
+            console.log("REMOVE_FRIEND", removingFriendId, roomId);
             const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
               (user: ChatMemberProfile) => {
                 if (user.userProfile.id === removingFriendId) {
@@ -306,7 +297,10 @@ export default function ChatPage() {
               }
             );
             dispatch(updateUsers(updatedUsers));
-            if (roomOnId === roomId) dispatch(setRoomOnId(""));
+            if (roomOnId === roomId) {
+              console.log("i get into setroom to '' here ")
+              dispatch(setRoomOnId(""));
+            } 
             dispatch(removeFriend(removingFriendId));
             console.log("REMOVING FRIEND", removingFriendId, roomId);
           }

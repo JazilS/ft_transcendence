@@ -24,6 +24,7 @@ import {
 } from "@/app/store/features/User/user.api.slice";
 import { responsiveFontSizes } from "@mui/material";
 import { addFriend, removeFriend } from "@/app/store/features/User/UserSlice";
+import { userInfo } from "os";
 
 export default function FadeMenu({
   anchorEl,
@@ -59,7 +60,10 @@ export default function FadeMenu({
         });
       mySocket.emit("ADD_FRIEND", {
         userId: user.playerProfile.id,
-        friendId: target?.userProfile.id,
+        userName: user.playerProfile.name,
+        targetId: target?.userProfile.id,
+        targetName: target?.userProfile.name,
+        dmRoom: "",
       });
       // console.log(
       //   "emit setdmchatroom room = ",
@@ -120,11 +124,9 @@ export default function FadeMenu({
       // dispatch(removeFriend(target?.userProfile.id as string));
       mySocket.emit("REMOVE_FRIEND", {
         userId: user.playerProfile.id,
-        friendId: target?.userProfile.id,
-        dmRoom: user.friends.find(
-          (friend: { id: string; name: string; roomId: string }) =>
-            friend.id === target?.userProfile.id
-        )?.roomId as string,
+        userName: user.playerProfile.name,
+        targetId: target?.userProfile.id,
+        targetName: target?.userProfile.name,
       });
     }
   };

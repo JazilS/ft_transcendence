@@ -1019,16 +1019,21 @@ export class GatewayGateway {
   async handleAddFriend(
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody()
-    payload: { userId: string; targetId: string; dmRoom: string },
+    payload: {
+      userId: string;
+      userName: string;
+      targetId: string;
+      targetName: string;
+      dmRoom: string;
+    },
   ) {
     try {
-      const target = await this.prismaService.user.findUnique({
-        where: { id: payload.targetId },
-      });
-      const targetName = target.name;
       this.server
-        .to(payload.dmRoom)
-        .emit('ADD_FRIEND', payload.userId, targetName);
+        .to(payload.userId)
+        .emit('ADD_FRIEND', payload.targetId, payload.targetName);
+      this.server
+        .to(payload.targetId)
+        .emit('ADD_FRIEND', payload.userId, payload.userName);
     } catch (error) {
       console.error('Error adding user as friend:', error);
     }
@@ -1038,10 +1043,56 @@ export class GatewayGateway {
   async handleRemoveFriend(
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody()
-    payload: { userId: string; targetId: string; dmRoom: string },
+    payload: {
+      userId: string;
+      userName: string;
+      targetId: string;
+      targetName: string;
+    },
   ) {
     try {
-      this.server.to(payload.dmRoom).emit('REMOVE_FRIEND', payload.userId);
+      const room = await this.prismaService.chatroom.findFirst({
+        where: {
+          chatroomType: 'DM',
+          users: {
+            every: {
+              OR: [{ userId: payload.userId }, { userId: payload.targetId }],
+            },
+          },
+        },
+      });
+      const { sockets } = this.server.sockets;
+      let targetSocket: SocketWithAuth;
+      for (const id in sockets) {
+        const socket = sockets[id] as SocketWithAuth;
+        if (socket.userId === payload.targetId) {
+          targetSocket = socket;
+        }
+      }
+      await this.handleLeaveRoom(
+        {
+          room: room.id,
+          userName: payload.userName,
+          userId: payload.userId,
+          leavingType: 'LEAVING',
+        },
+        client,
+      );
+      await this.handleLeaveRoom(
+        {
+          room: room.id,
+          userName: payload.targetName,
+          userId: payload.targetId,
+          leavingType: 'LEAVING',
+        },
+        targetSocket,
+      );
+      this.server
+        .to(payload.userId)
+        .emit('REMOVE_FRIEND', payload.targetId, room.id);
+      this.server
+        .to(payload.targetId)
+        .emit('REMOVE_FRIEND', payload.userId, room.id);
     } catch (error) {
       console.error('Error removing user from friends:', error);
     }
