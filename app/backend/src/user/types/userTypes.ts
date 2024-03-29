@@ -6,7 +6,7 @@ export type Profile = {
 
 export type UserInfo = {
   id: boolean;
-  nickname: boolean;
+  name: boolean;
   email: boolean;
   password: boolean;
   createdAt: boolean;
@@ -53,7 +53,7 @@ export type UserInfo = {
 // };
 export const UserData: UserInfo = {
   id: true,
-  nickname: true,
+  name: true,
   firstConnection: true,
   email: true,
   password: true,

@@ -14,6 +14,7 @@ import Messages from './types/Message.types';
 import { ChatroomUser, TYPE, User } from '@prisma/client';
 import RoomData from './types/RoomData.types';
 import { UserService } from 'src/user/user.service';
+import { UserData } from '../types/userInfo';
 import { Interval } from '@nestjs/schedule';
 import { FRAME_RATE } from '../../shared/constant';
 import { GameService } from 'src/game/game.service';
@@ -38,14 +39,12 @@ import {
   WsUserNotFoundException,
 } from 'src/exception/customException';
 import { LibService } from 'src/lib/lib.service';
-import { UserData } from 'src/types/userInfo';
 import { GAME_INVITATION_TIME_LIMIT } from 'src/game/class/GameInvitation';
 import { UserIdDto } from 'src/user/dto/dto';
 
 @WebSocketGateway()
-export class GatewayGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+// implements OnGatewayConnection, OnGatewayDisconnect
+export class GatewayGateway {
   constructor(
     private readonly pongService: GameService,
     private readonly prismaService: PrismaService,
@@ -543,28 +542,26 @@ export class GatewayGateway
           data: { blockedByUsers: BlockedUser.blockedByUsers },
         });
       }
+
+      // create message
+      const blockedMessage: Messages = {
+        id: '',
+        content:
+          'You have been' + blockedMessageContent + ' by ' + BlockerUser.name,
+        chatId: payload.blockedUserId,
+        emitterId: 'system',
+        emitterName: '',
+        emitterAvatar: '/robot.png',
+      };
+
+      // send message to blocked user
+      // this.handleMessage({ message: blockedMessage }, client);
+      this.server.to(payload.blockedUserId).emit('MESSAGE', blockedMessage);
     } catch (error) {
       console.error('Error blocking user:', error);
     }
-
-    // create message
-    const blockedMessage: Messages = {
-      id: '',
-      content:
-        'You have been' + blockedMessageContent + ' by ' + BlockerUser.name,
-      chatId: payload.blockedUserId,
-      emitterId: 'system',
-      emitterName: '',
-      emitterAvatar: '/robot.png',
-    };
-
-    // send message to blocked user
-    // this.handleMessage({ message: blockedMessage }, client);
-    this.server.to(payload.blockedUserId).emit('MESSAGE', blockedMessage);
   }
-  catch(error) {
-    console.error('Error blocking user:', error);
-  }
+
   @SubscribeMessage(PongEvent.JOIN_QUEUE)
   async joinQueue(
     @ConnectedSocket() client: SocketWithAuth,
@@ -610,9 +607,7 @@ export class GatewayGateway
 
       if (!senderSocket) {
         this.pongService.deleteGameRoomGameById(room);
-        throw new WsUnknownException(
-          `${user.nickname} is currently not online`,
-        );
+        throw new WsUnknownException(`${user.name} is currently not online`);
       }
 
       await this.pongService.joinGame(
@@ -621,7 +616,7 @@ export class GatewayGateway
         {
           creator: creator,
           opponent: {
-            nickname: user.nickname,
+            name: user.name,
             avatar: user.profile.avatar,
           },
         },
@@ -667,20 +662,11 @@ export class GatewayGateway
     const [me, user] = await Promise.all([
       this.prismaService.user.findFirst({
         where: { id: userId },
-        include: {
-          blockedBy: {
-            where: { id },
-          },
-        },
       }),
       this.userService.findUserById(id, UserData),
     ]);
 
     if (!me || !user) throw new WsUserNotFoundException();
-
-    if (me.blockedBy.length > 0) {
-      throw new WsBadRequestException('You are blocked by this user');
-    }
 
     const game = this.pongService.checkIfUserIsAlreadyInARoom(userId);
 
@@ -733,7 +719,7 @@ export class GatewayGateway
     }
 
     client.emit(GeneralEvent.SUCCESS, {
-      message: `Game invitation succesfully sent to ${user.nickname}`,
+      message: `Game invitation succesfully sent to ${user.name}`,
     });
 
     this.libService.sendToSocket(
@@ -741,7 +727,7 @@ export class GatewayGateway
       id,
       PongEvent.RECEIVE_GAME_INVITATION,
       {
-        message: `${me.nickname} invited you to a play ${
+        message: `${me.name} invited you to a play ${
           pongType === PongTypeNormal ? 'normal' : 'special'
         } pong game`,
         data: { id: userId },
@@ -828,7 +814,7 @@ export class GatewayGateway
     );
 
     if (!senderSocket) {
-      throw new WsUnknownException(`${user.nickname} is currently not online`);
+      throw new WsUnknownException(`${user.name} is currently not online`);
     }
 
     this.pongService.addNewGameRoom({
@@ -846,8 +832,8 @@ export class GatewayGateway
       this.server,
       gameId,
       {
-        creator: { nickname: user.nickname, avatar: user.profile.avatar },
-        opponent: { nickname: me.nickname, avatar: me.profile.avatar },
+        creator: { name: user.name, avatar: user.profile.avatar },
+        opponent: { name: me.name, avatar: me.profile.avatar },
       },
       userId,
       id,
@@ -909,7 +895,7 @@ export class GatewayGateway
         id,
         PongEvent.USER_DECLINED_INVITATION,
         {
-          message: `${me.nickname} declined your invitation`,
+          message: `${me.name} declined your invitation`,
           severity: 'info',
         },
       );

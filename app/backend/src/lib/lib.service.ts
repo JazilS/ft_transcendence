@@ -2,8 +2,10 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as base32Encode from 'hi-base32';
 import { extname } from 'path';
-import { INTERNAL_SERVER_ERROR } from '../exception/http_error';
-import { CustomException } from '../exception/customException';
+import {
+  CustomException,
+  INTERNAL_SERVER_ERROR,
+} from '../exception/customException';
 import * as fs from 'fs';
 import { MAX_DATE } from '../../shared/constant';
 import { Server } from 'socket.io';

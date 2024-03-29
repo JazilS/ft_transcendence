@@ -61,7 +61,7 @@ export class GameService {
       orderBy: [{ pong: { rating: 'desc' } }],
       select: {
         id: true,
-        nickname: true,
+        name: true,
         pong: true,
         profile: true,
         status: true,
@@ -250,12 +250,12 @@ export class GameService {
   ): Promise<{ message: string | undefined }> {
     const winner = await this.prismaService.user.findFirst({
       where: { id: winnerId },
-      select: { pong: true, profile: true, nickname: true },
+      select: { pong: true, profile: true, name: true },
     });
 
     const loser = await this.prismaService.user.findFirst({
       where: { id: loserId },
-      select: { pong: true, profile: true, nickname: true },
+      select: { pong: true, profile: true, name: true },
     });
 
     if (!winner || !loser) return { message: undefined };
@@ -297,7 +297,7 @@ export class GameService {
         },
       });
     });
-    return { message: `${winner.nickname} has won the game` };
+    return { message: `${winner.name} has won the game` };
   }
 
   async joinGame(
@@ -372,7 +372,7 @@ export class GameService {
       room: this.games[index].getGameId,
       creator: {
         id: creator.id,
-        nickname: creator.nickname,
+        name: creator.name,
         avatar: creator.profile.avatar,
         socketId: creatorSocketId,
       },

@@ -6,7 +6,7 @@ export type StartGameInfo = {
 
 export type PlayerStartGameInfo = {
   id?: string;
-  nickname: string;
+  name: string;
   avatar: string | undefined;
   socketId?: string;
 };

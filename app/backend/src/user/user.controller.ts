@@ -15,10 +15,6 @@ export class UserController {
     private userService: UserService,
     private jwtService: JwtService,
   ) {}
-  @Get('register')
-  async register() {
-    return this.userService.register();
-  }
   @Post('updateUsername')
   async updateUsername(@Body() body: { userId: string; newName: string }) {
     return this.userService.updateUsername(body);

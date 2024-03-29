@@ -111,6 +111,7 @@ export class ChatService {
       const chatrooms = userWithChatrooms.chatRoomsIn.map(
         (chatroomUser) => chatroomUser.chatroom,
       );
+      console.log('Chatrooms:', chatrooms, 'messages:');
       return chatrooms.map((chatroom) => ({
         id: chatroom.id,
         name: chatroom.name,

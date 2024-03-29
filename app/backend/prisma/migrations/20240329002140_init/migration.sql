@@ -28,6 +28,35 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "Profile" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "avatar" TEXT,
+    "firstname" VARCHAR(25),
+    "lastname" VARCHAR(25),
+
+    CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Pong" (
+    "userId" TEXT NOT NULL,
+    "victory" INTEGER NOT NULL DEFAULT 0,
+    "losses" INTEGER NOT NULL DEFAULT 0,
+    "rating" INTEGER NOT NULL DEFAULT 0
+);
+
+-- CreateTable
+CREATE TABLE "GameHistory" (
+    "id" TEXT NOT NULL,
+    "winnerId" TEXT NOT NULL,
+    "looserId" TEXT NOT NULL,
+    "matchDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "GameHistory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Message" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
@@ -69,23 +98,7 @@ CREATE TABLE "ChatroomRestrictedUsers" (
 );
 
 -- CreateTable
-CREATE TABLE "GameHistory" (
-    "id" TEXT NOT NULL,
-    "usersId" TEXT[],
-    "scoreUser_1" TEXT NOT NULL,
-    "scoreUser_2" TEXT NOT NULL,
-
-    CONSTRAINT "GameHistory_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "_Friends" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "_GameHistoryToUser" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
 );
@@ -97,6 +110,15 @@ CREATE UNIQUE INDEX "User_roomOnId_key" ON "User"("roomOnId");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Pong_userId_key" ON "Pong"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GameHistory_winnerId_looserId_matchDate_key" ON "GameHistory"("winnerId", "looserId", "matchDate");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Chatroom_name_key" ON "Chatroom"("name");
 
 -- CreateIndex
@@ -105,14 +127,20 @@ CREATE UNIQUE INDEX "_Friends_AB_unique" ON "_Friends"("A", "B");
 -- CreateIndex
 CREATE INDEX "_Friends_B_index" ON "_Friends"("B");
 
--- CreateIndex
-CREATE UNIQUE INDEX "_GameHistoryToUser_AB_unique" ON "_GameHistoryToUser"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_GameHistoryToUser_B_index" ON "_GameHistoryToUser"("B");
-
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_roomOnId_fkey" FOREIGN KEY ("roomOnId") REFERENCES "Chatroom"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Profile" ADD CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Pong" ADD CONSTRAINT "Pong_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GameHistory" ADD CONSTRAINT "GameHistory_winnerId_fkey" FOREIGN KEY ("winnerId") REFERENCES "Pong"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GameHistory" ADD CONSTRAINT "GameHistory_looserId_fkey" FOREIGN KEY ("looserId") REFERENCES "Pong"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_chatId_fkey" FOREIGN KEY ("chatId") REFERENCES "Chatroom"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -137,9 +165,3 @@ ALTER TABLE "_Friends" ADD CONSTRAINT "_Friends_A_fkey" FOREIGN KEY ("A") REFERE
 
 -- AddForeignKey
 ALTER TABLE "_Friends" ADD CONSTRAINT "_Friends_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_GameHistoryToUser" ADD CONSTRAINT "_GameHistoryToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "GameHistory"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_GameHistoryToUser" ADD CONSTRAINT "_GameHistoryToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

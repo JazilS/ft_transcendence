@@ -45,8 +45,8 @@ export const GameSlice = createSlice({
       );
 
       if (index >= 0) {
-        if ("nickname" in action.payload) {
-          state.users[index].nickname = action.payload.nickname;
+        if ("name" in action.payload) {
+          state.users[index].name = action.payload.name;
           return;
         }
         state.users[index].profile.avatar = action.payload.avatar;

@@ -1,11 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserInfo } from './types/userTypes';
-// import { AuthService } from '../auth/auth.service'; // Import the AuthService
-// import { UserData, UserInfo } from 'types/userInfo';
-import { UserData } from '../types/userInfo';
-import { Profile } from './types/userTypes';
-import { User } from '@prisma/client';
+import { UserData, UserInfo } from '../types/userInfo';
 
 @Injectable()
 export class UserService {
@@ -15,47 +10,31 @@ export class UserService {
   ) {}
 
   async getUserInfo(userId: string, id: string) {
-    try {
-      const [me, user] = await Promise.all([
-        this.finUserById(userId, UserData),
-        this.prismaService.user.findFirst({
-          where: {
-            id,
-          },
-        }),
-      ]);
-      const user = await this.prismaService.user.findUnique({
-        where: { id: 'system' },
-      });
-
-      if (!user) {
-        console.log('CREATING SYSTEM USER');
-        await this.prismaService.user.create({
-          data: {
-            id: 'system',
-            name: '',
-            avatar: '/robot.png',
-            email: '', // to remove
-          },
-        });
-      }
-      return {
-        playerProfile: {
-          // id: '4dfc2a23-2a05-4b1f-a9d9-7e629c223253',
-          id: user1.id,
-          name: user1.name,
-          imageSrc: user1.avatar,
-          games: [],
+    const [me, user] = await Promise.all([
+      this.findUserById(userId, UserData),
+      this.prismaService.user.findFirst({
+        where: {
+          id,
         },
-        channelsIn: [],
-        isConnected: false,
-        isReadyLobby: false,
-        access_token: '',
-      };
-    } catch (error) {
-      console.log(error);
-      return 'Error Register!';
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          pong: {
+            select: {
+              victory: true,
+              losses: true,
+              rating: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    if (!me || !user) {
+      throw new Error('User not found');
     }
+    return user;
   }
 
   // UPDATEUSERNAME
@@ -260,59 +239,10 @@ export class UserService {
     }
   }
 
-  async createUser(nickname: string, profile: Profile, select: UserInfo) {
-    return await this.prismaService.user.create({
-      data: {
-        nickname,
-        profile: {
-          create: profile,
-        },
-        pong: {
-          create: {},
-        },
-      },
-      select,
-    });
-  }
-
   async findUserById(id: string, select: UserInfo) {
     return this.prismaService.user.findUnique({
       where: { id },
       select,
-    });
-  }
-
-  async findUserByNickname(nickname: string, select: UserInfo) {
-    return this.prismaService.user.findUnique({
-      where: { nickname },
-      select,
-    });
-  }
-
-  async findManyUsers(ids: string[], select: UserInfo) {
-    return this.prismaService.user.findMany({
-      where: {
-        id: {
-          in: ids,
-        },
-      },
-      select,
-    });
-  }
-
-  async UpdateUserById(id: string, data: Partial<User>) {
-    return this.prismaService.user.update({
-      where: { id },
-      data,
-      include: {
-        profile: {
-          select: {
-            lastname: true,
-            firstname: true,
-            avatar: true,
-          },
-        },
-      },
     });
   }
 
