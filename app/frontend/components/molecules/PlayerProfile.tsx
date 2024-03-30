@@ -1,4 +1,4 @@
-import { press_Start_2P} from '@/models/FontModel'
+import { press_Start_2P} from '@/models/Font/FontModel'
 import { UserProfile } from '@/models/ProfilePageModel'
 import PlayerAvatar from '../atom/PlayerAvatar';
 

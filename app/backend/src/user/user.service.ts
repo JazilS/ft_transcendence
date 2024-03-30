@@ -120,6 +120,9 @@ export class UserService {
           users: true,
         },
       });
+      if (!usersInRoom) {
+        return 'Chatroom not found';
+      }
       const chatroomUser = await this.prismaService.chatroomUser.findFirst({
         where: { userId: body.userId, chatroomId: body.roomId },
       });
@@ -131,6 +134,11 @@ export class UserService {
           },
         });
         if (usersInRoom.users.length === 0) {
+          await this.prismaService.message.deleteMany({
+            where: {
+              chatId: body.roomId,
+            },
+          });
           await this.prismaService.chatroom.delete({
             where: {
               id: chatroomUser.chatroomId,

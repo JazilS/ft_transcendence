@@ -44,6 +44,7 @@ export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
   const [getRoomById] = useGetChatRoomByIdMutation();
   const dispatch = useAppDispatch();
+  const [leaveChannel] = useLeaveChatroomMutation();
   const user: User = useAppSelector((state: RootState) => state.user.user);
   const roomOn: RoomData = useAppSelector(
     (state: RootState) => state.chatRooms.roomOn
@@ -276,10 +277,15 @@ export default function ChatPage() {
             // );
           }
         );
-
         mySocket.on(
           "REMOVE_FRIEND",
           (removingFriendId: string, roomId: string) => {
+            mySocket.emit("LEAVE_ROOM", {
+              room: roomId,
+              userName: user.playerProfile.name,
+              userId: user.playerProfile.id,
+              leavingType: "LEAVING",
+            });
             console.log("REMOVE_FRIEND", removingFriendId, roomId);
             const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
               (user: ChatMemberProfile) => {
@@ -298,9 +304,9 @@ export default function ChatPage() {
             );
             dispatch(updateUsers(updatedUsers));
             if (roomOnId === roomId) {
-              console.log("i get into setroom to '' here ")
+              console.log("i get into setroom to '' here ");
               dispatch(setRoomOnId(""));
-            } 
+            }
             dispatch(removeFriend(removingFriendId));
             console.log("REMOVING FRIEND", removingFriendId, roomId);
           }

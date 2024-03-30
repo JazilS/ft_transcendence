@@ -25,6 +25,7 @@ import {
 import { responsiveFontSizes } from "@mui/material";
 import { addFriend, removeFriend } from "@/app/store/features/User/UserSlice";
 import { userInfo } from "os";
+import ViewProfile from "@/components/atom/ViewProfile";
 
 export default function FadeMenu({
   anchorEl,
@@ -95,6 +96,12 @@ export default function FadeMenu({
         .catch((error) => {
           console.log("error FROM REMOVEFRIEND", error);
         });
+      mySocket.emit("REMOVE_FRIEND", {
+        userId: user.playerProfile.id,
+        userName: user.playerProfile.name,
+        targetId: target?.userProfile.id,
+        targetName: target?.userProfile.name,
+      });
       // const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
       //   (user: ChatMemberProfile) => {
       //     if (user.userProfile.id === target?.userProfile.id) {
@@ -122,12 +129,6 @@ export default function FadeMenu({
       // dispatch(updateUsers(updatedUsers));
       // dispatch(setRoomOnId(""));
       // dispatch(removeFriend(target?.userProfile.id as string));
-      mySocket.emit("REMOVE_FRIEND", {
-        userId: user.playerProfile.id,
-        userName: user.playerProfile.name,
-        targetId: target?.userProfile.id,
-        targetName: target?.userProfile.name,
-      });
     }
   };
 
@@ -213,6 +214,10 @@ export default function FadeMenu({
     handleClose();
   };
 
+  const handleOpenProfile = () => {
+    handleClose();
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -231,6 +236,9 @@ export default function FadeMenu({
         TransitionComponent={Fade}
         className={`optionmembres ml-4`}
       >
+        {/* VIEW PROFILE */}
+        <ViewProfile targetId={target?.userProfile.id} />
+
         {/* ADD FRIEND */}
         {target?.fadeMenuInfos.isFriend === false ? (
           <MenuItem
