@@ -89,11 +89,30 @@ export class UserService {
     }
   }
 
+  async getUserIdByName(body: { userName: string }) {
+    try {
+      const user = await this.prismaService.user.findFirst({
+        where: { name: body.userName },
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      console.log(
+        'user.id ààààààààààààààààààààààà5555555555555555555--------',
+        user.id,
+      );
+      return { userId: user.id };
+    } catch (error) {
+      console.log(error);
+      return 'Error getting user id by name !';
+    }
+  }
+
   // GETPROFILEBYID
   async getProfileById(userId: string) {
     try {
       if (!userId) {
-        throw new Error('User ID is required');
+        throw new Error('User is required');
       }
       const user = await this.prismaService.user.findUnique({
         where: { id: userId },
@@ -102,6 +121,27 @@ export class UserService {
         id: user.id,
         name: user.name,
         imageSrc: user.avatar,
+        isConnected: user.status === 'ONLINE' ? true : false,
+      };
+    } catch (error) {
+      console.log(error);
+      return 'Error getting profile by id !';
+    }
+  }
+  // GETPROFILEBYID
+  async getProfileByName(userName: string) {
+    try {
+      if (!userName) {
+        throw new Error('User Name is required');
+      }
+      const user = await this.prismaService.user.findUnique({
+        where: { name: userName },
+      });
+      return {
+        id: user.id,
+        name: user.name,
+        imageSrc: user.avatar,
+        isConnected: user.status === 'ONLINE' ? true : false,
       };
     } catch (error) {
       console.log(error);

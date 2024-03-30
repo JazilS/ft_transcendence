@@ -39,6 +39,7 @@ import {
   WsUserNotFoundException,
 } from 'src/exception/customException';
 import { LibService } from 'src/lib/lib.service';
+import { v4 as uuid_v4 } from 'uuid';
 import { GAME_INVITATION_TIME_LIMIT } from 'src/game/class/GameInvitation';
 import { UserIdDto } from 'src/user/dto/dto';
 import { ChatService } from 'src/chat/chat.service';
@@ -236,7 +237,7 @@ export class GatewayGateway {
       if (!payload.roomId || payload.roomId === '') {
         const chatroom = await this.prismaService.chatroom.create({
           data: {
-            name: payload.friendId.slice(0, 5) + client.userId.slice(0, 5),
+            name: uuid_v4().slice(0, 15),
             chatroomType: 'DM',
             users: {
               createMany: {
@@ -391,7 +392,7 @@ export class GatewayGateway {
     @ConnectedSocket() emitter: SocketWithAuth,
   ): Promise<string> {
     // leave socketRoom
-    let canLeave: boolean = false;
+    // let canLeave: boolean = false;
     if (!payload.room || payload.room === '') throw 'No room provided';
     if (!payload.userId || payload.userId === '') throw 'No userId provided';
     if (!payload.leavingType || payload.leavingType === '')
@@ -408,14 +409,6 @@ export class GatewayGateway {
     if (!roomExists) {
       return;
     }
-    const userInChatroom = await this.prismaService.chatroomUser.findFirst({
-      where: { chatroomId: payload.room, userId: payload.userId },
-    });
-    console.log('userInchatroom : ', userInChatroom);
-    if (userInChatroom)
-      await this.prismaService.chatroomUser.delete({
-        where: { id: userInChatroom.id },
-      });
 
     if (payload.leavingType === 'LEAVING') {
       emitter.leave(payload.room);
@@ -473,6 +466,16 @@ export class GatewayGateway {
 
     // Get all clients in the room
 
+    // const userInChatroom = await this.prismaService.chatroomUser.findFirst({
+    //   where: { chatroomId: payload.room, userId: payload.userId },
+    // });
+    // if (userInChatroom) {
+    //   console.log('userInchatroom : ', userInChatroom);
+    //   await this.prismaService.chatroomUser.delete({
+    //     where: { id: userInChatroom.id },
+    //   });
+    // }
+
     // const clientsInRoom = await this.server.in(payload.room).fetchSockets();
     // // If the room is empty, delete it from the database
     // if (clientsInRoom.length === 0) {
@@ -487,7 +490,7 @@ export class GatewayGateway {
     //     throw error;
     //   }
 
-    // Then delete the room
+    //   // Then delete the room
     //   try {
     //     await this.prismaService.chatroom.delete({
     //       where: { id: payload.room },
@@ -1082,74 +1085,76 @@ export class GatewayGateway {
       userName: string;
       targetId: string;
       targetName: string;
+      roomId: string;
     },
   ) {
     try {
-      const room = await this.prismaService.chatroom.findFirst({
-        where: {
-          chatroomType: 'DM',
-          users: {
-            every: {
-              OR: [{ userId: payload.userId }, { userId: payload.targetId }],
-            },
-          },
-        },
-      });
-      let roomId: string;
+      console.log('REMOVE_FRIEND:', payload);
+      // const room = await this.prismaService.chatroom.findFirst({
+      //   where: {
+      //     chatroomType: 'DM',
+      //     users: {
+      //       every: {
+      //         OR: [{ userId: payload.userId }, { userId: payload.targetId }],
+      //       },
+      //     },
+      //   },
+      // });
+      // let roomId: string;
 
-      if (room) {
-        console.log('CWCWCWWWWWWWWWWWWWWWWWWWCCCWWCWCWCWCWCWCW ROOOM:', room);
-        // const { sockets } = this.server.sockets;
-        // let targetSocket: SocketWithAuth;
-        // for (const id in sockets) {
-        //   const socket = sockets[id] as SocketWithAuth;
-        //   if (socket.userId === payload.targetId) {
-        //     targetSocket = socket;
-        //   }
-        // }
-        // await this.handleLeaveRoom(
-        //   {
-        //     room: room.id,
-        //     userName: payload.userName,
-        //     userId: payload.userId,
-        //     leavingType: 'LEAVING',
-        //   },
-        //   client,
-        // );
-        // console.log(
-        //   'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBREMOVE_FRIEND:',
-        //   targetSocket,
-        // );
-        // await this.handleLeaveRoom(
-        //   {
-        //     room: room.id,
-        //     userName: payload.targetName,
-        //     userId: payload.targetId,
-        //     leavingType: 'LEAVING',
-        //   },
-        //   targetSocket,
-        // );
-        roomId = room.id;
-      } else roomId = '';
+      // if (room) {
+      //   console.log('CWCWCWWWWWWWWWWWWWWWWWWWCCCWWCWCWCWCWCWCW ROOOM:', room);
+      // const { sockets } = this.server.sockets;
+      // let targetSocket: SocketWithAuth;
+      // for (const id in sockets) {
+      //   const socket = sockets[id] as SocketWithAuth;
+      //   if (socket.userId === payload.targetId) {
+      //     targetSocket = socket;
+      //   }
+      // }
+      // await this.handleLeaveRoom(
+      //   {
+      //     room: room.id,
+      //     userName: payload.userName,
+      //     userId: payload.userId,
+      //     leavingType: 'LEAVING',
+      //   },
+      //   client,
+      // );
+      // console.log(
+      //   'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBREMOVE_FRIEND:',
+      //   targetSocket,
+      // );
+      // await this.handleLeaveRoom(
+      //   {
+      //     room: room.id,
+      //     userName: payload.targetName,
+      //     userId: payload.targetId,
+      //     leavingType: 'LEAVING',
+      //   },
+      //   targetSocket,
+      // );
+      //   roomId = room.id;
+      // } else roomId = '';
       this.server
         .to(payload.userId)
-        .emit('REMOVE_FRIEND', payload.targetId, roomId);
-      const room2 = await this.prismaService.chatroom.findFirst({
-        where: {
-          chatroomType: 'DM',
-          users: {
-            every: {
-              OR: [{ userId: payload.userId }, { userId: payload.targetId }],
-            },
-          },
-        },
-      });
+        .emit('REMOVE_FRIEND', payload.targetId, payload.roomId);
       this.server
         .to(payload.targetId)
-        .emit('REMOVE_FRIEND', payload.userId, room2.id);
+        .emit('REMOVE_FRIEND', payload.userId, payload.roomId);
     } catch (error) {
       console.error('Error removing user from friends:', error);
     }
+    // const room2 = await this.prismaService.chatroom.findFirst({
+    //   where: {
+    //     chatroomType: 'DM',
+    //     users: {
+    //       every: {
+    //         OR: [{ userId: payload.userId }, { userId: payload.targetId }],
+    //       },
+    //     },
+    //   },
+    // });
   }
   // @SubscribeMessage('GET_MUTE_TIME')
   // async handleGetMuteTime(

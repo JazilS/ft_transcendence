@@ -155,9 +155,45 @@ export class FriendsService {
     this.unlinkFriend(user, friend.id);
     this.unlinkFriend(friend, userId);
 
+    const room = await this.prismaService.chatroom.findFirst({
+      where: {
+        chatroomType: 'DM',
+        users: {
+          every: {
+            OR: [{ userId: userId }, { userId: friendId }],
+          },
+        },
+      },
+    });
+    let roomId: string = '';
+    if (room) {
+      roomId = room.id;
+      // Delete messages in the room
+      await this.prismaService.message.deleteMany({
+        where: {
+          chatId: room.id,
+        },
+      });
+
+      // Delete ChatroomUser in the room
+      await this.prismaService.chatroomUser.deleteMany({
+        where: {
+          chatroomId: room.id,
+        },
+      });
+
+      // Delete the room itself
+      await this.prismaService.chatroom.delete({
+        where: {
+          id: room.id,
+        },
+      });
+    }
+
     return {
       success: true,
       message: `${friend.name} is no more your friend !`,
+      data: roomId,
     };
   }
 

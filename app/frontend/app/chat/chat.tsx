@@ -280,12 +280,6 @@ export default function ChatPage() {
         mySocket.on(
           "REMOVE_FRIEND",
           (removingFriendId: string, roomId: string) => {
-            mySocket.emit("LEAVE_ROOM", {
-              room: roomId,
-              userName: user.playerProfile.name,
-              userId: user.playerProfile.id,
-              leavingType: "LEAVING",
-            });
             console.log("REMOVE_FRIEND", removingFriendId, roomId);
             const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
               (user: ChatMemberProfile) => {
@@ -303,12 +297,12 @@ export default function ChatPage() {
               }
             );
             dispatch(updateUsers(updatedUsers));
+            console.log("roomId REMOVININGINGINGINGIGNIGNGIIGNIGNIGN", roomId);
             if (roomOnId === roomId) {
               console.log("i get into setroom to '' here ");
               dispatch(setRoomOnId(""));
             }
             dispatch(removeFriend(removingFriendId));
-            console.log("REMOVING FRIEND", removingFriendId, roomId);
           }
         );
       }

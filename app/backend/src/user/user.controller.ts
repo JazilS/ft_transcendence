@@ -27,9 +27,17 @@ export class UserController {
   async getUserNameById(@Body() body: { userId: string }) {
     return this.userService.getUserNameById(body);
   }
+  @Post('getUserIdByName')
+  async getUserIdByName(@Body() body: { userName: string }) {
+    return this.userService.getUserIdByName(body);
+  }
   @Post('getProfileById')
   async getProfileById(@Body() body: { userId: string }) {
     return this.userService.getProfileById(body.userId);
+  }
+  @Post('getProfileByName')
+  async getProfileByName(@Body() body: { userName: string }) {
+    return this.userService.getProfileByName(body.userName);
   }
   @Post('leaveChatroom')
   async leaveChatroom(@Body() body: { userId: string; roomId: string }) {
