@@ -22,3 +22,9 @@ export function disConnectSocket() {
     mySocket.disconnect();
   }
 }
+
+export function stopListeningToSocket(events: string[]) {
+  events.map((event) => {
+    if (mySocket.hasListeners(event)) mySocket.off(event);
+  });
+}

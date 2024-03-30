@@ -567,13 +567,12 @@ export class GatewayGateway {
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody() { pongType }: PongGameTypeDto,
   ) {
-    const { userId } = client;
-
+    console.log('client:', client);
+    const userId: string = client.userId;
     const user = await this.prismaService.user.findFirst({
       where: { id: userId },
       include: { profile: true },
     });
-
     if (!user) throw new WsUserNotFoundException();
     const inARoom = this.pongService.checkIfUserIsAlreadyInARoom(userId);
 
@@ -588,7 +587,6 @@ export class GatewayGateway {
         'You must undo invitation before joining queue',
       );
     }
-
     const data = await this.pongService.checkIfMatchupPossible(
       userId,
       client.id,
@@ -598,6 +596,7 @@ export class GatewayGateway {
     if (data) {
       const { room, creator } = data;
 
+      console.log('dataa', data);
       if (creator === undefined) throw new WsUserNotFoundException();
 
       const senderSocket = this.libService.getSocket(
@@ -609,7 +608,7 @@ export class GatewayGateway {
         this.pongService.deleteGameRoomGameById(room);
         throw new WsUnknownException(`${user.name} is currently not online`);
       }
-
+      console.log('JOIN_QUEUE:', room, creator, user.name, user.profile.avatar);
       await this.pongService.joinGame(
         this.server,
         room,
@@ -632,10 +631,14 @@ export class GatewayGateway {
     this.libService.sendToSocket(this.server, userId, GeneralEvent.SUCCESS, {
       message: 'Please wait for an opponent',
     });
+    console.log(
+      '**************************** You are in queue*****************************',
+    );
   }
 
   @SubscribeMessage(PongEvent.LEAVE_QUEUE)
   async leaveQueue(@ConnectedSocket() client: SocketWithAuth) {
+    console.log('LEAVE_QUEUE');
     const { userId } = client;
 
     const user = await this.userService.findUserById(userId, UserData);

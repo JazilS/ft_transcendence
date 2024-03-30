@@ -45,15 +45,14 @@ const rootReducer = (
 
 // const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-
 export const store = configureStore({
   reducer: rootReducer,
 
   middleware: (getDefaultMiddleware) =>
-  getDefaultMiddleware({
-  serializableCheck: false,
-  immutableCheck: false,
-  }).concat([apiSlice.middleware, crashMiddleware]),
+    getDefaultMiddleware({
+      serializableCheck: false,
+      immutableCheck: false,
+    }).concat([apiSlice.middleware, crashMiddleware]),
 });
 
 export type AppDispatch = typeof store.dispatch;

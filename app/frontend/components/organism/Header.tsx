@@ -53,7 +53,7 @@ function HeaderButtons() {
             Home
           </Button>
         </Link>
-        <Link href="/lobby">
+        <Link href="/game">
           <Button className={`${press_Start_2P.className}`} variant={"header"}>
             Play
           </Button>

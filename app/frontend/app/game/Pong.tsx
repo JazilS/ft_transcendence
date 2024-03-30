@@ -10,12 +10,12 @@ import {
   PADDLE_HEIGHT,
 } from "../../shared/constant";
 import { PongEvent } from "../../shared/socketEvent";
-import { RootState, store } from "../store/store";
+import { RootState } from "../store/store";
 import { StartGameInfo } from "../../shared/types";
 import { Ball } from "./Ball";
 import { Player } from "./Player";
-import { connectSocket } from "../utils/getSockets";
-import { mySocket } from "../utils/getSockets";
+import { ConnectSocket } from "../utils/getSocket";
+import { mySocket } from "../utils/getSocket";
 import { UpdatedGameData } from "../../../shared/types";
 import { Stack, Typography } from "@mui/material";
 
@@ -110,7 +110,7 @@ export const Pong = () => {
     window.addEventListener("keydown", keyPress);
     window.addEventListener("keyup", keyup);
 
-    connectSocket();
+    ConnectSocket();
 
     mySocket.on(PongEvent.UPDATE_GAME, (data: { data: UpdatedGameData }) => {
       const { player1, player2, coordinates } = data.data;

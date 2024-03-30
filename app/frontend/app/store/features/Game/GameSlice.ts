@@ -1,14 +1,14 @@
 import { StartGameInfo } from "../../../../shared/types";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-export interface AppState {
+export interface GameSlice {
   inQueue: boolean;
   waitingReady: boolean;
   gameData: StartGameInfo | undefined;
   users: any[];
 }
 
-const initialState: AppState = {
+const initialState: GameSlice = {
   inQueue: false,
   waitingReady: false,
   gameData: undefined,
@@ -16,7 +16,7 @@ const initialState: AppState = {
 };
 
 export const GameSlice = createSlice({
-  name: "app",
+  name: "game",
   initialState,
   reducers: {
     setInQueue: (state, action: PayloadAction<boolean>) => {
@@ -45,8 +45,8 @@ export const GameSlice = createSlice({
       );
 
       if (index >= 0) {
-        if ("name" in action.payload) {
-          state.users[index].name = action.payload.name;
+        if ("nickname" in action.payload) {
+          state.users[index].nickname = action.payload.nickname;
           return;
         }
         state.users[index].profile.avatar = action.payload.avatar;
@@ -71,3 +71,5 @@ export const {
   addNewPlayerToLeaderboard,
   updateUserInfo,
 } = GameSlice.actions;
+
+export default GameSlice.reducer;

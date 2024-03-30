@@ -17,7 +17,6 @@ export class updatePlayerPositionDto {
   keyPressed: Position;
 }
 
-
 export class PongGameTypeDto {
   @IsIn(pongType)
   pongType: PongGameType;

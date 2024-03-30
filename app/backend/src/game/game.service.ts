@@ -88,7 +88,7 @@ export class GameService {
     pongGameType: PongGameType,
   ): string {
     const gameId = PONG_ROOM_PREFIX + userId;
-
+    // console.log('createGameRoom');
     this.games.push(
       GameService.createGameBasedOnType(gameId, userId, socketId, pongGameType),
     );

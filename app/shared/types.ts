@@ -1,5 +1,5 @@
 export type StartGameInfo = {
-  room: string;
+  room: string | undefined;
   creator: PlayerStartGameInfo;
   opponent: PlayerStartGameInfo;
 };

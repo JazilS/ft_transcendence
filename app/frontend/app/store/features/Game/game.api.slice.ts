@@ -1,11 +1,15 @@
 import { GeneralEvent, PongEvent } from "../../../../shared/socketEvent";
-import { GameInvitationType, PongGameType } from "../../../../models/Game/GameModel";
+import {
+  GameInvitationType,
+  PongGameType,
+} from "../../../../models/Game/GameModel";
 import { Basetype } from "../../../../models/Game/BaseType";
 import {
-  disconnectSocket,
-  connectSocket,
+  disConnectSocket,
+  ConnectSocket,
   mySocket,
-} from "../../../utils/getSockets";
+  stopListeningToSocket,
+} from "../../../utils/getSocket";
 import { apiSlice } from "../../api/apiSlice";
 
 export const GameApiSlice = apiSlice.injectEndpoints({
@@ -18,17 +22,23 @@ export const GameApiSlice = apiSlice.injectEndpoints({
     >({
       queryFn: (data) => {
         return new Promise((resolve) => {
-          connectSocket();
+          ConnectSocket();
 
           mySocket.emit(PongEvent.JOIN_BACK_CURRENT_GAME, data);
 
           mySocket.on(GeneralEvent.SUCCESS, (data) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ data });
           });
 
           mySocket.on(GeneralEvent.EXCEPTION, (error) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ error });
           });
         });
@@ -42,17 +52,23 @@ export const GameApiSlice = apiSlice.injectEndpoints({
     >({
       queryFn: (data) => {
         return new Promise((resolve) => {
-          connectSocket();
+          ConnectSocket();
 
           mySocket.emit(PongEvent.JOIN_QUEUE, data);
 
           mySocket.on(GeneralEvent.SUCCESS, (data) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ data });
           });
 
           mySocket.on(GeneralEvent.EXCEPTION, (error) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ error });
           });
         });
@@ -66,17 +82,23 @@ export const GameApiSlice = apiSlice.injectEndpoints({
     >({
       queryFn: () => {
         return new Promise((resolve) => {
-          connectSocket();
+          ConnectSocket();
 
           mySocket.emit(PongEvent.LEAVE_QUEUE);
 
           mySocket.on(GeneralEvent.SUCCESS, (data) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ data });
           });
 
           mySocket.on(GeneralEvent.EXCEPTION, (error) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ error });
           });
         });
@@ -90,17 +112,23 @@ export const GameApiSlice = apiSlice.injectEndpoints({
     >({
       queryFn: (data) => {
         return new Promise((resolve) => {
-          connectSocket();
+          ConnectSocket();
 
           mySocket.emit(PongEvent.SEND_GAME_INVITATION, data);
 
           mySocket.on(GeneralEvent.SUCCESS, (data) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ data });
           });
 
           mySocket.on(GeneralEvent.EXCEPTION, (error) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ error });
           });
         });
@@ -114,26 +142,29 @@ export const GameApiSlice = apiSlice.injectEndpoints({
     >({
       queryFn: (data) => {
         return new Promise((resolve) => {
-          connectSocket();
+          ConnectSocket();
 
           mySocket.emit(PongEvent.ACCEPT_GAME_INVITATION, data);
 
           mySocket.on(GeneralEvent.SUCCESS, (data) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ data });
           });
 
           mySocket.on(GeneralEvent.EXCEPTION, (error) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ error });
           });
         });
       },
     }),
-    getLeaderboard: builder.query<
-      BaseServerResponse & { data: any[] },
-      void
-    >({
+    getLeaderboard: builder.query<BaseServerResponse & { data: any[] }, void>({
       query: () => ({
         url: "/pong/leaderboard",
       }),
@@ -146,17 +177,23 @@ export const GameApiSlice = apiSlice.injectEndpoints({
     >({
       queryFn: (data) => {
         return new Promise((resolve) => {
-          connectSocket();
+          ConnectSocket();
 
           mySocket.emit(PongEvent.DECLINE_GAME_INVITATION, data);
 
           mySocket.on(GeneralEvent.SUCCESS, (data) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ data });
           });
 
           mySocket.on(GeneralEvent.EXCEPTION, (error) => {
-            disconnectSocket();
+            stopListeningToSocket([
+              GeneralEvent.SUCCESS,
+              GeneralEvent.EXCEPTION,
+            ]);
             resolve({ error });
           });
         });
@@ -175,8 +212,6 @@ export const {
   useGetLeaderboardQuery,
   useJoinBackCurrentGameMutation,
 } = GameApiSlice;
-
-
 
 export type BaseServerResponse = {
   message: string;
