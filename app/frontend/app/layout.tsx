@@ -12,10 +12,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathName = usePathname();
-  const [accessToken, setAccessToken] = useState(false);
+  const [accessToken, setAccessToken] = useState(true);
 
   useEffect(() => {
     setAccessToken(Boolean(Cookies.get("accessToken")));
+    console.log(accessToken);
     if (!accessToken && isValidURL() && pathName !== "/")
       window.location.href = "/";
   }, [accessToken]);

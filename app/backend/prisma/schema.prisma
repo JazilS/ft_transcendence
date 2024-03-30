@@ -32,6 +32,7 @@ model User {
   status            STATUS    @default(OFFLINE)
   twoFa             Boolean   @default(false)
   twoFaSecret       String?
+  qrCheck           Boolean   @default(false)
   friends           User[]    @relation("Friends")
   friendsRelation   User[]    @relation("Friends")
 

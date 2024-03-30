@@ -42,10 +42,13 @@ export class AuthService {
       });
       incomingUser = { ...newUser, id: newUser.id };
     } else {
-        if (registeredUser.twoFa)
+        if (registeredUser.twoFa && registeredUser.qrCheck)
         {
-          // res.redirect('http://localhost:3000/');
-          // return (registeredUser.id);
+          const payload = { sub: registeredUser.name, id: registeredUser.id, avatar: registeredUser.avatar };
+          const jwt = this.jwtService.sign(payload);
+          res.cookie('2fa', jwt);
+          res.redirect('http://localhost:3000/twofa');
+          return (registeredUser.id);
         }
         else {
           const tmp = await this.prismaService.user.update({
@@ -63,7 +66,6 @@ export class AuthService {
     res.cookie('avatar', incomingUser.avatar);
     res.cookie('name', incomingUser.name);
     res.redirect('http://localhost:3000/home');
-    console.log('123');
     return { access_token: jwt };
   }
 
@@ -75,9 +77,13 @@ export class AuthService {
       const decoded = this.jwtService.decode(token);
       if (!decoded) throw new BadRequestException('invalid token');
       console.log(decoded);
+      const user = await this.prismaService.user.findUnique({
+        where: { id: decoded.id },
+      });
       await this.prismaService.user.update({
         where: { id: decoded.id },
-        data: { status: 'OFFLINE' },
+        data: { status: 'OFFLINE',
+                qrCheck: user.twoFa ? true : false },
       });
       return { data: 'logout successful' };
     } catch (error) {

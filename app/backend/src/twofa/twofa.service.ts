@@ -36,7 +36,8 @@ export class TwofaService {
     if (verified) {
       await this.prismaService.user.update({
         where: { id: UserId },
-        data: { twoFa: true },
+        data: { twoFa: true,
+                qrCheck: false },
       });
     } else console.log('Wrong Code entered');
     console.log(verified);
@@ -51,8 +52,10 @@ export class TwofaService {
       data: {
         twoFa: false,
         twoFaSecret: null,
+        qrCheck: false,
       },
     });
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaa');
     void user;
   }
 

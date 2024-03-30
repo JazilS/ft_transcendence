@@ -23,6 +23,7 @@ CREATE TABLE "User" (
     "status" "STATUS" NOT NULL DEFAULT 'OFFLINE',
     "twoFa" BOOLEAN NOT NULL DEFAULT false,
     "twoFaSecret" TEXT,
+    "qrCheck" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
