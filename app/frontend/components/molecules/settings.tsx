@@ -23,7 +23,6 @@ export const style = {
 };
 
 export default function SettingsModal() {
-
   console.log("SettingsModal is rendering"); // Ajout du console.log ici
 
   const [open, setOpen] = useState(false);
@@ -34,23 +33,24 @@ export default function SettingsModal() {
     // localStorage.removeItem("token");
     console.log(Cookies.get("accessToken"));
     await axios
-    .get("http://localhost:4000/api/auth/logout", {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("accessToken")}`,
-      },
-      withCredentials: true,
-    })
-    .then((response: { data: string }) => {
-      console.log("Logout response:", response.data);
-    })
-    .catch((error: any) => {
-      console.error("Error logging out:", error);
-    });
+      .get("http://localhost:4000/api/auth/logout", {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+        withCredentials: true,
+      })
+      .then((response: { data: string }) => {
+        console.log("Logout response:", response.data);
+      })
+      .catch((error: any) => {
+        console.error("Error logging out:", error);
+      });
     Cookies.remove("accessToken");
     Cookies.remove("name");
     Cookies.remove("avatar");
     disConnectSocket();
-    setOpen(false); 
+    setOpen(false);
+    window.location.reload();
   };
 
   return (
@@ -77,13 +77,13 @@ export default function SettingsModal() {
                 Enable double auth.
               </button>
             </Link>
-            <Link href="/log">
-            <button
-              className=" w-[325px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded-[50px] text-center"
-              onClick={handleLogout}
-            >
-              Logout.
-            </button>
+            <Link href="/">
+              <button
+                className=" w-[325px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded-[50px] text-center"
+                onClick={handleLogout}
+              >
+                Logout.
+              </button>
             </Link>
           </div>
         </Box>

@@ -56,6 +56,17 @@ export class TwofaService {
     void user;
   }
 
+
+  async isActive(UserId: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: UserId,
+      },
+    });
+    if (!user)
+      return false;
+    return user.twoFa;
+  }
   // async turnOnTwoFactorAuthenticaton(userId: string) {
   //     await this.prismaService.user.update({
   //         where: { id: userId },

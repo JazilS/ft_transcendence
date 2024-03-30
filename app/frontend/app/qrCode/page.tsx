@@ -35,6 +35,7 @@
 //     );
 // }
 "use client";
+
 import React, { FormEvent, useRef } from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -47,7 +48,6 @@ export default function TwoFAQRCodePage() {
   const [userCode, setUserCode] = useState<string>("");
 
   useEffect(() => {
-    console.log("Component rendered");
     const fetchData = async () => {
       console.log("useEffect called");
       await axios

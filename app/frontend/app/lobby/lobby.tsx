@@ -17,7 +17,7 @@ export default function LobbyPage() {
   useEffect(() => {
     dispatch(setUser(user));
   });
-  
+
   const lobby: Lobby = useAppSelector((state) => state.game.lobby);
   console.log(lobby?.user);
 

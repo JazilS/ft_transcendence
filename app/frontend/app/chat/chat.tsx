@@ -298,9 +298,9 @@ export default function ChatPage() {
             );
             dispatch(updateUsers(updatedUsers));
             if (roomOnId === roomId) {
-              console.log("i get into setroom to '' here ")
+              console.log("i get into setroom to '' here ");
               dispatch(setRoomOnId(""));
-            } 
+            }
             dispatch(removeFriend(removingFriendId));
             console.log("REMOVING FRIEND", removingFriendId, roomId);
           }

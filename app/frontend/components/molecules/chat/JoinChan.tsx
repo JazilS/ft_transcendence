@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -15,7 +14,10 @@ import {
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { joinChannel } from "@/app/store/features/User/UserSlice";
 import { ConnectSocket, mySocket } from "@/app/utils/getSocket";
-import { addChatroom, setRoomOnId } from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import {
+  addChatroom,
+  setRoomOnId,
+} from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import { RootState } from "@/app/store/store";
 import Cookies from "js-cookie";
 

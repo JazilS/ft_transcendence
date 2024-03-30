@@ -104,6 +104,9 @@ CREATE TABLE "_Friends" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_name_key" ON "User"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "User_roomOnId_key" ON "User"("roomOnId");
 
 -- CreateIndex

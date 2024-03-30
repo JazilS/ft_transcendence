@@ -22,8 +22,8 @@ export default function ChannelBar() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    console.log('channels changed :', channels);
-  }, [channels])
+    console.log("channels changed :", channels);
+  }, [channels]);
 
   return (
     <div className={`h-[95%] w-full rounded-r-3xl rounded-bl-3xl bg-[#9EB7F6]`}>

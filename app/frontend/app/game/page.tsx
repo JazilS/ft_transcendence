@@ -3,8 +3,6 @@
 // import "./styles.css";
 // import Button from "@/components/atom/Button";
 // import Link from "next/link";
-// import { useCallback, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
 // export default function GamePage() {
 //   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 //   const dispatch = useAppDispatch();
@@ -16,7 +14,7 @@
 
 import { Provider } from "react-redux";
 import { store } from "../store/store";
-import {Pong} from "./Pong";
+import { Pong } from "./Pong";
 
 export default function PongPage() {
   return (

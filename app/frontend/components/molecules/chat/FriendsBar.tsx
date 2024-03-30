@@ -31,8 +31,7 @@ export default function Friendsbar() {
       <div
         className={`h-full w-full flex flex-col space-y-2 items-start rounded-3xl bg-[#6265A9]`}
       >
-        <div className="flex flex-row items-center w-full justify-end space-x-2 p-2">
-        </div>
+        <div className="flex flex-row items-center w-full justify-end space-x-2 p-2"></div>
         <div className="w-full">
           <ul>
             {friends.map(
