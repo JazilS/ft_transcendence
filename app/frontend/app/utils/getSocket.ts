@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 export let mySocket: Socket;
 
 export function ConnectSocket() {
+  if (mySocket) return ;
   try {
     mySocket = io("http://localhost:4000", {
       auth: {

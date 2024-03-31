@@ -1,11 +1,10 @@
 import { Player } from '../../../shared/Player';
-import { keyPressedType } from '../../../shared/constant';
-
-export const PongTypeNormal = 'NORMAL';
-export const pongType = [PongTypeNormal] as const;
-export type PongGameType = (typeof pongType)[number];
-export const scoreToWinPongGame = 5;
-export const pongGameDuration = 15;
+import {
+  keyPressedType,
+  pongGameDuration,
+  PongGameType,
+  scoreToWinPongGame,
+} from '../../../shared/constant';
 
 export abstract class IPongGame {
   private player: Player;
@@ -25,8 +24,9 @@ export abstract class IPongGame {
   private toWin: number;
   private pongType: PongGameType;
 
-  constructor() {
+  constructor(type: PongGameType) {
     this.toWin = scoreToWinPongGame;
+    this.pongType = type;
   }
 
   public abstract update(): void;

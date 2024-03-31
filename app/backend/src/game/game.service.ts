@@ -40,6 +40,7 @@ export class GameService {
     socketId: string,
     pongType: PongGameType,
   ) {
+    console.log('playerid:', playerId, 'gameId:', gameId);
     if (pongType === PongTypeNormal)
       return new PongGame(gameId, playerId, socketId);
 
@@ -88,7 +89,7 @@ export class GameService {
     pongGameType: PongGameType,
   ): string {
     const gameId = PONG_ROOM_PREFIX + userId;
-    // console.log('createGameRoom');
+    console.log('createGameRoom');
     this.games.push(
       GameService.createGameBasedOnType(gameId, userId, socketId, pongGameType),
     );
@@ -155,8 +156,7 @@ export class GameService {
 
   deleteGameRoomGameById(gameId: string, server?: Server) {
     const index = this.games.findIndex((game) => game.getGameId === gameId);
-
-    if (index !== -1) return;
+    if (index === -1) return;
 
     if (server) {
       const socketIds = this.games[index].getSocketId;
@@ -166,6 +166,7 @@ export class GameService {
 
         socket?.leave(gameId);
       });
+      console.log('ROOM LEFT!!!!!!!!', gameId);
     }
     this.games.splice(index, 1);
   }
@@ -338,9 +339,13 @@ export class GameService {
       status: 'PLAYING',
     });
 
+    console.log('joinGame:', room);
     mySocket.join(room);
     otherSocket.join(room);
-    server.to(room).emit(PongEvent.LETS_PLAY, { data });
+    console.log('data BEFORE emit LETS_PLAY', data);
+    server.to(room).emit(PongEvent.LETS_PLAY, {
+      data,
+    });
   }
 
   async checkIfMatchupPossible(
@@ -351,6 +356,7 @@ export class GameService {
     { room?: string; creator: PlayerStartGameInfo | undefined } | undefined
   > {
     const index = this.games.findIndex((game) => game.getPlayers.length === 1);
+    console.log('index:', index);
     if (index === -1 || pongType !== this.games[index].getPongType)
       return undefined;
 
@@ -373,7 +379,7 @@ export class GameService {
       creator: {
         id: creator.id,
         name: creator.name,
-        avatar: creator.profile.avatar,
+        avatar: creator.avatar,
         socketId: creatorSocketId,
       },
     };

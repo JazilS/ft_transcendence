@@ -475,12 +475,6 @@ export class GatewayGateway {
 
     return 'Left room : ' + payload.room;
   }
-  //-----------------------------------------------------------------------------------------------------------------
-  @Interval(FRAME_RATE)
-  async updateGame() {
-    this.gameService.gameUpdate(this.server);
-  }
-
   @SubscribeMessage('BLOCK_USER')
   async handleBlockUser(
     @ConnectedSocket() client: SocketWithAuth,
@@ -562,17 +556,25 @@ export class GatewayGateway {
     }
   }
 
+  //-----------------------------------------------------------------------------------------------------------------
+
+  @Interval(FRAME_RATE)
+  async updateGame() {
+    console.log(' FRAME_RATE: ', FRAME_RATE);
+    this.gameService.gameUpdate(this.server);
+  }
+
   @SubscribeMessage(PongEvent.JOIN_QUEUE)
   async joinQueue(
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody() { pongType }: PongGameTypeDto,
   ) {
-    console.log('client:', client);
     const userId: string = client.userId;
     const user = await this.prismaService.user.findFirst({
       where: { id: userId },
       include: { profile: true },
     });
+
     if (!user) throw new WsUserNotFoundException();
     const inARoom = this.pongService.checkIfUserIsAlreadyInARoom(userId);
 
@@ -596,7 +598,7 @@ export class GatewayGateway {
     if (data) {
       const { room, creator } = data;
 
-      console.log('dataa', data);
+      console.log('data', data);
       if (creator === undefined) throw new WsUserNotFoundException();
 
       const senderSocket = this.libService.getSocket(
@@ -608,7 +610,6 @@ export class GatewayGateway {
         this.pongService.deleteGameRoomGameById(room);
         throw new WsUnknownException(`${user.name} is currently not online`);
       }
-      console.log('JOIN_QUEUE:', room, creator, user.name, user.profile.avatar);
       await this.pongService.joinGame(
         this.server,
         room,
@@ -616,7 +617,7 @@ export class GatewayGateway {
           creator: creator,
           opponent: {
             name: user.name,
-            avatar: user.profile.avatar,
+            avatar: user.avatar,
           },
         },
         userId,
@@ -624,10 +625,13 @@ export class GatewayGateway {
         client,
         senderSocket as SocketWithAuth,
       );
+      console.log('player1:', creator.name, 'player2:', user.name);
       return;
     }
 
-    this.pongService.createGameRoom(userId, client.id, pongType);
+    const i = this.pongService.createGameRoom(userId, client.id, pongType);
+    console.log('GameId:', i);
+
     this.libService.sendToSocket(this.server, userId, GeneralEvent.SUCCESS, {
       message: 'Please wait for an opponent',
     });
@@ -647,9 +651,13 @@ export class GatewayGateway {
     const game = this.pongService.checkIfUserIsAlreadyInARoom(userId);
 
     if (game) {
-      this.pongService.deleteGameRoomGameById(game.getGameId);
+      console.log('queue to leave  found');
+      this.pongService.deleteGameRoomGameById(game.getGameId, this.server);
     }
     this.libService.sendToSocket(this.server, userId, GeneralEvent.SUCCESS);
+    console.log(
+      "**************************** You've left the queue *****************************",
+    );
   }
 
   @SubscribeMessage(PongEvent.SEND_GAME_INVITATION)
@@ -850,6 +858,14 @@ export class GatewayGateway {
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody() { gameId, keyPressed }: updatePlayerPositionDto,
   ) {
+    // console.log('gameId LALA:', gameId, 'keyPressed:', keyPressed);
+    // console.log('-------------------- LAUNCHING GAME ?? ------------------');
+    // if (FRAME_RATE === 1000 / 60) {
+    //   this.gameService.gameUpdate(this.server);
+    // }
+    if (!gameId || !keyPressed) {
+      return;
+    }
     const { userId } = client;
     const [game, index] = this.pongService.getGameByIdAndReturnIndex(gameId);
 
@@ -905,6 +921,9 @@ export class GatewayGateway {
     }
     this.libService.sendToSocket(this.server, userId, GeneralEvent.SUCCESS);
   }
+
+  //-----------------------------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------------------------
 
   // private getAllSockeIdsByKey(key: string) {
   //   return this.server.of('/').adapter.rooms.get(key);

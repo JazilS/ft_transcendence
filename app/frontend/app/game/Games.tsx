@@ -1,55 +1,66 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { RootState } from "../store/store";
-import { useNavigate } from "react-router-dom";
 import {
   useJoinBackCurrentGameMutation,
   useJoinQueueMutation,
+  useLeaveQueueMutation,
 } from "../store/features/Game/game.api.slice";
 import {
   PongGameType,
   PongTypeNormal,
   PongTypeSpecial,
 } from "@/shared/constant";
-import { set } from "zod";
 import { setGameData } from "../store/features/Game/GameSlice";
 import { Button, Stack } from "@mui/material";
 import WaitingQueue from "./WaitingQueue";
-import Image from "next/image";
-import { PermDeviceInformationTwoTone } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
+import { PongEvent } from "@/shared/socketEvent";
+import { ConnectSocket, mySocket } from "../utils/getSocket";
+import { ParsedUrlQuery } from "node:querystring";
+import { StartGameInfo } from "@/shared/types";
+
 
 export const Games = () => {
   const [open, setOpen] = useState<{ queue: boolean }>({ queue: false });
   const gameData = useAppSelector((state: RootState) => state.game.gameData);
-  // const navigate = useNavigate();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const [joinQueue, { isLoading }] = useJoinQueueMutation();
   const [joinBackGame, joinBackMutation] = useJoinBackCurrentGameMutation();
+
+  useEffect(() => {
+    ConnectSocket();
+    mySocket.on(PongEvent.LETS_PLAY, (data: StartGameInfo) => {
+      console.log("LET'S PLAY event received", data);
+      dispatch(setGameData(data));
+      router.push("/pong?myroom=" + data.data.room);
+    });
+    return () => {
+      mySocket.off(PongEvent.LETS_PLAY);
+    };
+  }, [router, dispatch]);
 
   const handleJoinQueue = async (data: { pongType: PongGameType }) => {
     try {
       const r = await joinQueue(data)
         .unwrap()
-        .then((r) => {
-          // console.log("R", r);
-          // setLoadingIMG(false);
-        })
-        .catch((e) => {
-          console.log("E", e);
-        });
-
+        .then((r) => {})
+        .catch((e) => {});
       setOpen((prev) => ({ ...prev, queue: true }));
     } catch {
       alert("handleJoinQueue");
     }
   };
 
-  const handleJoinBackGame = async (data: { gameId: string }) => {
+  const handleJoinBackGame = async (data: any) => {
     try {
       await joinBackGame(data).unwrap();
-      // navigate("/game/pong");
-    } catch {
-      alert("handleJoinBackGame");
+      console.log('"/pong?myroom=" + data.gameId', "/pong?myroom=" + data.gameId);
+      router.push("/pong?myroom=" + data.gameId);
+
+    } catch (error){
+      console.log("error", error);
       dispatch(setGameData(undefined));
     }
   };

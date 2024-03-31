@@ -27,7 +27,7 @@ export class AuthService {
       avatar: any;
       id: any;
     };
-    console.log(user);
+    // console.log(user);
     if (
       !(await this.prismaService.user.findUnique({
         where: { email: user.email },
@@ -39,6 +39,14 @@ export class AuthService {
           name: user.name,
           status: 'ONLINE',
           avatar: user.avatar,
+          profile: {
+            create: {
+              id: user.id,
+              avatar: user.avatar,
+              firstname: user.name,
+              lastname: user.name,
+            },
+          },
         },
       });
       user = { ...newUser, id: newUser.id };
@@ -67,7 +75,7 @@ export class AuthService {
         throw new BadRequestException('authorization header not found');
       const decoded = this.jwtService.decode(token);
       if (!decoded) throw new BadRequestException('invalid token');
-      console.log(decoded);
+      // console.log(decoded);
       await this.prismaService.user.update({
         where: { id: decoded.id },
         data: { status: 'OFFLINE' },
@@ -87,11 +95,11 @@ export class AuthService {
       code: code,
       redirect_uri: process.env.REDIRECT_URI,
     };
-    console.log(url);
-    console.log(data);
+    // console.log(url);
+    // console.log(data);
     try {
       const response = await axios.post(url, data);
-      console.log(response.data);
+      // console.log(response.data);
       return response.data.access_token;
     } catch (error) {
       throw new HttpException(
@@ -103,12 +111,12 @@ export class AuthService {
 
   async getUserInfo(token: string) {
     const url = process.env.AUTH_URL_42_USER;
-    console.log(url);
+    // console.log(url);
     const headers = { Authorization: `Bearer ${token}` };
     try {
-      console.log(headers);
+      // console.log(headers);
       const userInfo = await axios.get(url, { headers });
-      // console.log(userInfo.data.login);
+      console.log(userInfo.data.login);
       return {
         name: userInfo.data.login,
         email: userInfo.data.email,

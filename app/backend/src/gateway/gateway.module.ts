@@ -31,9 +31,10 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { UserModule } from 'src/user/user.module';
 import { GameModule } from 'src/game/game.module';
 import { GatewayService } from './gateway.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [PrismaModule, UserModule, GameModule],
+  imports: [PrismaModule, UserModule, GameModule, ScheduleModule.forRoot()],
   providers: [
     GameService,
     GatewayService,

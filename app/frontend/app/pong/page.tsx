@@ -2,14 +2,14 @@
 
 import { Provider } from "react-redux";
 import { store } from "../store/store";
-import { Games } from "./Games";
+import { Pong } from "./Pong";
 import { useAppSelector } from "../store/hooks";
 
-export default function GamesPage() {
+export default function PongPage() {
 
   return (
     <Provider store={store}>
-      <Games />
+      <Pong />
     </Provider>
   );
 }

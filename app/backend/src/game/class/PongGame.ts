@@ -1,16 +1,17 @@
-import { IPongGame } from './InterfaceGame';
+import { IPongGame, PongTypeNormal } from './InterfaceGame';
 import { Player } from '../../../shared/Player';
 import {
   defaultPlayer,
   defaultOpponentPlayer,
   defaultBall,
+  FRAME_RATE,
 } from '../../../shared/constant';
 import { Ball } from '../../../shared/Ball';
 
 export class PongGame extends IPongGame {
   private ball: Ball;
   constructor(gameId: string, playerId: string, socketId: string) {
-    super();
+    super(PongTypeNormal);
     this.setGameId = gameId;
     this.setPlayer = new Player(
       {
@@ -53,6 +54,7 @@ export class PongGame extends IPongGame {
       },
     );
     this.addNewPlayer(playerId);
+    console.log('Player added ---------------------');
     this.addNewSocket(socketId);
   }
 
@@ -66,7 +68,7 @@ export class PongGame extends IPongGame {
 
   public update() {
     const now = performance.now();
-    const dt = this.getLastTime === -1 ? 1000 / 60 : now - this.getLastTime;
+    const dt = this.getLastTime === -1 ? FRAME_RATE : now - this.getLastTime;
     const score = this.getBall.update(
       this.getPlayer,
       this.getOppenentPlayer,

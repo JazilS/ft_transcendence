@@ -22,7 +22,7 @@ export const PongTypeNormal = 'NORMAL';
 export const PongTypeSpecial = 'SPECIAL';
 export const pongType = [PongTypeNormal, PongTypeSpecial] as const;
 export type PongGameType = (typeof pongType)[number];
-export const scoreToWinPongGame = 5;
+export const scoreToWinPongGame = 11;
 export const pongGameDuration = 15;
 
 export const defaultPlayer = {
@@ -44,7 +44,7 @@ export const defaultOpponentPlayer = {
 export const BALL_X_POSITION = 0.5;
 export const Ball_Y_POSITION = 0.5;
 export const BALL_VELOCITY = 0.0007;
-export const SPEED_FACTOR = BALL_VELOCITY / 10;
+export const SPEED_FACTOR = BALL_VELOCITY / 20;
 export const RESIZE_FACTOR = 1.3;
 export const BALL_HALF_WIDTH = 0.009;
 export const BALL_HALF_HEIGHT = BALL_HALF_WIDTH * ASPECT_RATIO;

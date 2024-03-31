@@ -76,7 +76,7 @@ export const GameApiSlice = apiSlice.injectEndpoints({
     }),
     leaveQueue: builder.mutation<
       {
-        data: unknown;
+        data: { gameId:string};
       },
       void
     >({
