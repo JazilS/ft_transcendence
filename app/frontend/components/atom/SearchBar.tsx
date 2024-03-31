@@ -1,7 +1,6 @@
 import { useGetUserIdByNameMutation } from "@/app/store/features/User/user.api.slice";
 import { press_Start_2P } from "@/models/Font/FontModel";
 import { useEffect, useState } from "react";
-import { set } from "zod";
 import PublicProfile from "./PublicProfile";
 
 export default function SearchBar() {

@@ -9,12 +9,12 @@ interface PlayerProfileProps {
   displayName: boolean;
 }
 
-const PlayerProfileDisplay: React.FC<PlayerProfileProps> = ({
+export default function PlayerProfileDisplay({
   user,
   width,
   height,
   displayName,
-}) => {
+}: PlayerProfileProps) {
   return (
     <>
       <PlayerAvatar src={user?.imageSrc} width={width} height={height} />
@@ -27,6 +27,4 @@ const PlayerProfileDisplay: React.FC<PlayerProfileProps> = ({
       ) : null}
     </>
   );
-};
-
-export default PlayerProfileDisplay;
+}

@@ -980,13 +980,6 @@ export class GatewayGateway {
   ) {
     try {
       console.log('UPDATE_ROOM:', payload);
-      const nameExists = await this.prismaService.chatroom.findFirst({
-        where: { name: payload.newRoom.roomInfos.name },
-      });
-      if (nameExists) {
-        console.log('nameExists:', nameExists);
-        throw 'Room name already exists';
-      }
       await this.prismaService.chatroom.update({
         where: { id: payload.room.roomInfos.id },
         data: {

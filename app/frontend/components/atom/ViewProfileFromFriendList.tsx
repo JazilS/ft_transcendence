@@ -39,11 +39,13 @@ export const style = {
   p: 4,
 };
 
-export default function PublicProfile({
+export default function ViewProfileFromFriendList({
+  user,
   targetName,
   open,
   setOpen,
 }: {
+  user: User;
   targetName: string | undefined;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -64,7 +66,7 @@ export default function PublicProfile({
     setOpen(false);
   };
   const dispatch = useAppDispatch();
-  const user: User = useAppSelector((state: RootState) => state.user.user);
+//   const user: User = useAppSelector((state: RootState) => state.user.user);
   const roomOn: RoomData = useAppSelector(
     (state: RootState) => state.chatRooms.roomOn
   );
@@ -72,36 +74,6 @@ export default function PublicProfile({
   //   (state: RootState) => state.chatRooms.roomOnId
   // );
   const response = useGetConnectedUserQuery({});
-
-  // fetch user
-  React.useEffect(() => {
-    if (!mySocket) ConnectSocket();
-    let user: User;
-    if (response.data) {
-      user = response.data as User;
-      console.log("user : ", user);
-      dispatch(setAllData(user));
-    }
-  }, [dispatch, response.data]);
-
-  // fetch chat rooms
-  React.useEffect(() => {
-    async function FetchChannels() {
-      const response = await getChannels({});
-      if ("data" in response) {
-        dispatch(getChatRoomsInLocal(response.data));
-        response.data.map((channel: ChatRoom) => {
-          mySocket.emit("JOIN_SOCKET_ROOM", {
-            room: channel.id,
-          });
-        });
-      } else {
-        console.error("Error during API call for chat rooms:", response.error);
-      }
-    }
-    FetchChannels();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // fetch target profile
   React.useEffect(() => {

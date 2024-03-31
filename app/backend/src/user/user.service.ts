@@ -134,9 +134,13 @@ export class UserService {
       if (!userName) {
         throw new Error('User Name is required');
       }
-      const user = await this.prismaService.user.findUnique({
+      console.log('LOOKING FOR userName', userName);
+      const user = await this.prismaService.user.findFirst({
         where: { name: userName },
       });
+      if (!user) {
+        throw new Error('User not found');
+      }
       return {
         id: user.id,
         name: user.name,
