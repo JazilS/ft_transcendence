@@ -8,15 +8,15 @@ import { Dispatch, SetStateAction } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { mySocket } from "@/app/utils/getSocket";
 import { quantico } from "@/models/Font/FontModel";
-import {
-  updateUsers,
-} from "@/app/store/features/ChatRoom/ChatRoomSlice";
+import { updateUsers } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 import {
   useAddFriendMutation,
   useRemoveFriendMutation,
 } from "@/app/store/features/User/user.api.slice";
 import ViewProfile from "@/components/atom/chat/ViewProfile";
+import { PongEvent } from "../../../../shared/socketEvent";
+import { PongGameType } from "../../../../shared/constant";
 
 export default function FadeMenu({
   anchorEl,
@@ -166,6 +166,16 @@ export default function FadeMenu({
     handleClose();
   };
 
+  const handleInviteInNormalGame = (pongType: PongGameType) => {
+    if (user.playerProfile.id !== "") {
+      mySocket.emit(PongEvent.SEND_GAME_INVITATION, {
+        id: target?.userProfile.id,
+        pongType,
+      });
+    }
+    handleClose();
+  };
+
   const handleOpenProfile = () => {
     handleClose();
   };
@@ -226,6 +236,26 @@ export default function FadeMenu({
           className={`${quantico.className} w-full`}
         >
           {target?.fadeMenuInfos.isBlocked ? "Unblock" : "Block"}
+        </MenuItem>
+
+        {/* INVITE IN NORMAL GAME */}
+        <MenuItem
+          onClick={() => {
+            handleInviteInNormalGame("NORMAL");
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          Invite In Normal Game
+        </MenuItem>
+
+        {/* INVITE IN SPECIAL GAME */}
+        <MenuItem
+          onClick={() => {
+            handleInviteInNormalGame("SPECIAL");
+          }}
+          className={`${quantico.className} w-full`}
+        >
+          Invite In Game
         </MenuItem>
 
         {/* PROMOTE IN CHANNEL */}

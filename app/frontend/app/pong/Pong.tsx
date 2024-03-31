@@ -104,10 +104,6 @@ export const Pong = () => {
     canvas.height = gameHeight;
     canvas.style.width = `${gameWidth}px`;
     canvas.style.height = `${gameHeight}px`;
-    // console.log("CANVAS WIDTH", canvas.width);
-    // console.log("CANVAS HEIGHT", canvas.height);
-    // console.log("CANVAS STYLE WIDTH", canvas.style.width);
-    // console.log("CANVAS STYLE HEIGHT", canvas.style.height);
 
     context.fillStyle = "green";
 

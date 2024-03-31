@@ -6,6 +6,9 @@ export interface GameSlice {
   waitingReady: boolean;
   gameData: StartGameInfo | undefined;
   users: any[];
+  open: boolean;
+  opponentId: string;
+  message: string;
 }
 
 const initialState: GameSlice = {
@@ -13,6 +16,9 @@ const initialState: GameSlice = {
   waitingReady: false,
   gameData: undefined,
   users: [],
+  open: false,
+  message: "",
+  opponentId: "",
 };
 
 export const GameSlice = createSlice({
@@ -59,6 +65,16 @@ export const GameSlice = createSlice({
 
       if (index < 0) state.users.push(action.payload);
     },
+    openInvitation: (state, action) => {
+      state.open = true;
+      state.message = action.payload.message;
+      state.opponentId = action.payload.data.id;
+    },
+    closeInvitation: (state) => {
+      state.open = false;
+      state.message = "";
+      state.opponentId = "";
+    },
   },
 });
 
@@ -70,6 +86,8 @@ export const {
   updateUserStatus,
   addNewPlayerToLeaderboard,
   updateUserInfo,
+  closeInvitation,
+  openInvitation,
 } = GameSlice.actions;
 
 export default GameSlice.reducer;

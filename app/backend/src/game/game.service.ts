@@ -414,6 +414,8 @@ export class GameService {
     let message: string = undefined;
 
     this.gameInvitations.forEach((invitation) => {
+      console.log({ invitation });
+
       if (invitation.getSenderId === id && invitation.hasExpired) {
         message = `You cannot send an invition to an user that is currently sending one, please wait at max ${GAME_INVITATION_TIME_LIMIT} seconds`;
         return;

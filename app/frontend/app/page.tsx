@@ -10,6 +10,7 @@ import "./styles.css";
 
 function LogPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  
   const handleButtonClick = (event: FormEvent) => {
     setIsLoading(true);
     const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;

@@ -16,9 +16,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { SerializedError } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { ConnectSocket, mySocket } from "../utils/getSocket";
-import {
-  useGetConnectedUserQuery,
-} from "../store/features/User/user.api.slice";
+import { useGetConnectedUserQuery } from "../store/features/User/user.api.slice";
 import {
   addFriend,
   getChatRoomsInLocal,
@@ -33,22 +31,29 @@ import {
   newMessage,
   setRoomOn,
   setRoomOnId,
-  setUserProfiles,
   updateUsers,
 } from "../store/features/ChatRoom/ChatRoomSlice";
 import Messages from "@/models/ChatRoom/messages";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
+import ReceivedGameInvitation from "@/components/molecules/ReceivedGameInvitation";
+import { PongEvent } from "@/shared/socketEvent";
+import router, { useRouter } from "next/router";
+import { StartGameInfo } from "../../../shared/types";
+import {
+  setGameData,
+  closeInvitation,
+  openInvitation,
+} from "../store/features/Game/GameSlice";
 
 export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
   const [getRoomById] = useGetChatRoomByIdMutation();
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const user: User = useAppSelector((state: RootState) => state.user.user);
-  const roomOn: RoomData = useAppSelector(
-    (state: RootState) => state.chatRooms.roomOn
-  );
-  const roomOnId: string = useAppSelector(
-    (state: RootState) => state.chatRooms.roomOnId
+  const { open, message, opponentId } = useAppSelector((state) => state.game);
+  const { roomOn, roomOnId } = useAppSelector(
+    (state: RootState) => state.chatRooms
   );
   const [getChannels] = useGetChatRoomsInMutation();
   const response = useGetConnectedUserQuery({});
@@ -243,6 +248,11 @@ export default function ChatPage() {
             dispatch(newRoomWithFriend({ friendId, roomId }));
           }
         );
+        mySocket.on(PongEvent.RECEIVE_GAME_INVITATION, (data): any => {
+          console.log("RECEIVED", data);
+
+          dispatch(openInvitation(data));
+        });
         mySocket.on(
           "ADD_FRIEND",
           (newFriendId: string, newFriendName: string) => {
@@ -266,13 +276,6 @@ export default function ChatPage() {
               }
             );
             dispatch(updateUsers(updatedUsers));
-            // dispatch(
-            //   addFriend({
-            //     id: newFriendId,
-            //     name: newFriendName,
-            //     roomId: "",
-            //   })
-            // );
           }
         );
         mySocket.on(
@@ -306,7 +309,17 @@ export default function ChatPage() {
       }
     }
 
+    mySocket.on(PongEvent.LETS_PLAY, (data: { data: StartGameInfo }) => {
+      dispatch(setGameData(data.data));
+      console.log({ data });
+      console.log({ d: data.data.room });
+
+      router.push("/pong?myroom=" + data.data.room);
+    });
+
     return () => {
+      mySocket.off(PongEvent.LETS_PLAY);
+      mySocket.off(PongEvent.RECEIVE_GAME_INVITATION);
       mySocket.off("LEAVE_ROOM");
       mySocket.off("UPDATE_CHAT_MEMBERS");
       mySocket.off("UPDATE_ROOM");
@@ -323,16 +336,25 @@ export default function ChatPage() {
   });
 
   return (
-    <div className="h-full">
-      <div className="flex justify-center h-[95%] ">
-        <div
-          className={`flex flex-row h-full w-5/6 bg-gradient-to-tr from-black to-[#314287] rounded-3xl p-2 ${quantico.className}`}
-        >
-          <ChoseChat isChan={isChan} setIsChan={setIsChan} />
-          <ChatZone />
-          <ChatMembers />
+    <>
+      <ReceivedGameInvitation
+        open={open}
+        onClose={closeInvitation}
+        message={message}
+        id={opponentId}
+      />
+      ;
+      <div className="h-full">
+        <div className="flex justify-center h-[95%] ">
+          <div
+            className={`flex flex-row h-full w-5/6 bg-gradient-to-tr from-black to-[#314287] rounded-3xl p-2 ${quantico.className}`}
+          >
+            <ChoseChat isChan={isChan} setIsChan={setIsChan} />
+            <ChatZone />
+            <ChatMembers />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

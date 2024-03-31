@@ -22,6 +22,7 @@ export class GameInvitation {
     this.invitedUserId = invitedUserId;
     this.socketId = socketId;
     this.pongType = pongType;
+    this.date = new Date();
   }
 
   get getSenderId() {

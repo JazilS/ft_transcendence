@@ -705,6 +705,8 @@ export class GatewayGateway {
     @MessageBody() { id, pongType }: GameInvitationDto,
   ) {
     const { userId } = client;
+    console.log({ userId, id });
+
     if (userId === id) {
       throw new WsUnauthorizedException('You cannot invite yourself');
     }
@@ -715,6 +717,7 @@ export class GatewayGateway {
       }),
       this.userService.findUserById(id, UserData),
     ]);
+    console.log({ me, user });
 
     if (!me || !user) throw new WsUserNotFoundException();
 
@@ -852,10 +855,13 @@ export class GatewayGateway {
       );
     }
 
+    console.log({ invitation });
+
     if (!invitation.hasExpired)
       throw new WsUnauthorizedException(
         `User invitaion has expired, invitation last at most ${GAME_INVITATION_TIME_LIMIT}`,
       );
+    console.log('2');
 
     const gameId: string = invitation.getGameId;
     const senderSocket = this.libService.getSocket(
@@ -882,8 +888,8 @@ export class GatewayGateway {
       this.server,
       gameId,
       {
-        creator: { name: user.name, avatar: user.profile.avatar },
-        opponent: { name: me.name, avatar: me.profile.avatar },
+        creator: { name: user.name, avatar: user.profile?.avatar },
+        opponent: { name: me.name, avatar: me.profile?.avatar },
       },
       userId,
       id,

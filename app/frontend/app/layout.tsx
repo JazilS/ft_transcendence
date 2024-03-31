@@ -1,11 +1,12 @@
 "use client";
 
 import MyHeader from "@/components/organism/Header";
-import Home from "./home/page";
+import Home from "./page";
 import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
-import dotenv from 'dotenv';
+import { useCallback, useEffect, useState } from "react";
+import dotenv from "dotenv";
+
 dotenv.config();
 
 export default function RootLayout({
@@ -16,14 +17,7 @@ export default function RootLayout({
   const pathName = usePathname();
   const [accessToken, setAccessToken] = useState(true);
 
-  useEffect(() => {
-    setAccessToken(Boolean(Cookies.get("accessToken")));
-    console.log(accessToken);
-    if (!accessToken && isValidURL() && pathName !== "/")
-      window.location.href = "/";
-  }, [accessToken]);
-
-  const isValidURL = () => {
+  const isValidURL = useCallback(() => {
     if (
       pathName === "/game" ||
       pathName === "/chat" ||
@@ -35,7 +29,14 @@ export default function RootLayout({
     )
       return true;
     return false;
-  };
+  }, [pathName]);
+
+  useEffect(() => {
+    setAccessToken(Boolean(Cookies.get("accessToken")));
+    console.log(accessToken);
+    if (!accessToken && isValidURL() && pathName !== "/")
+      window.location.href = "/";
+  }, [accessToken, isValidURL, pathName]);
 
   return (
     <html lang="en">

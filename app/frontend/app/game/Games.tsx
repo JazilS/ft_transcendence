@@ -20,7 +20,6 @@ import { ConnectSocket, mySocket } from "../utils/getSocket";
 import { ParsedUrlQuery } from "node:querystring";
 import { StartGameInfo } from "@/shared/types";
 
-
 export const Games = () => {
   const [open, setOpen] = useState<{ queue: boolean }>({ queue: false });
   const gameData = useAppSelector((state: RootState) => state.game.gameData);
@@ -28,18 +27,6 @@ export const Games = () => {
   const dispatch = useAppDispatch();
   const [joinQueue, { isLoading }] = useJoinQueueMutation();
   const [joinBackGame, joinBackMutation] = useJoinBackCurrentGameMutation();
-
-  useEffect(() => {
-    ConnectSocket();
-    mySocket.on(PongEvent.LETS_PLAY, (data: StartGameInfo) => {
-      console.log("LET'S PLAY event received", data);
-      dispatch(setGameData(data));
-      router.push("/pong?myroom=" + data.data.room);
-    });
-    return () => {
-      mySocket.off(PongEvent.LETS_PLAY);
-    };
-  }, [router, dispatch]);
 
   const handleJoinQueue = async (data: { pongType: PongGameType }) => {
     try {
@@ -56,10 +43,12 @@ export const Games = () => {
   const handleJoinBackGame = async (data: any) => {
     try {
       await joinBackGame(data).unwrap();
-      console.log('"/pong?myroom=" + data.gameId', "/pong?myroom=" + data.gameId);
+      console.log(
+        '"/pong?myroom=" + data.gameId',
+        "/pong?myroom=" + data.gameId
+      );
       router.push("/pong?myroom=" + data.gameId);
-
-    } catch (error){
+    } catch (error) {
       console.log("error", error);
       dispatch(setGameData(undefined));
     }

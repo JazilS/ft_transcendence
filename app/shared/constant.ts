@@ -32,7 +32,7 @@ export const defaultPlayer = {
   yPosition: 0.5,
   speed: PLAYER_SPEED,
 };
-
+export const GAME_INVITATION_TIME_LIMIT_SNACKBAR = 5000;
 export const defaultOpponentPlayer = {
   paddleWidth: PADDLE_WIDTH,
   paddleHeight: PADDLE_HEIGHT,
