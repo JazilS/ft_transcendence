@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { TextField } from "@mui/material";
 import { press_Start_2P, quantico } from "@/models/Font/FontModel";
@@ -12,13 +11,15 @@ export default function EditUsername() {
   console.log("EditUsername is rendering"); // Ajout du console.log ici
   const [isEditing, setIsEditing] = useState(false);
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state: RootState) => state.user.user.playerProfile);
+  const user = useAppSelector(
+    (state: RootState) => state.user.user.playerProfile
+  );
   const [updateUsername] = useUpdateUsernameMutation();
 
   const handleNameDisplay = (value: boolean) => {
     setIsEditing(value);
   };
-  
+
   const handleUsernameChange = async (value: string) => {
     const response = await updateUsername({ userId: user.id, newName: value });
     console.log(response);

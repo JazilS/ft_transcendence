@@ -3,6 +3,7 @@ import { Message, Prisma, RESTRICTION, ROLE, TYPE } from '@prisma/client';
 import Messages from 'src/gateway/types/Message.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class ChatService {
@@ -32,10 +33,12 @@ export class ChatService {
       )
         throw new Error('Password cannot be empty for protected chat room');
 
+      const hashedPassword = await bcrypt.hash(body.password, 10);
+      
       const chatroom = await this.prismaService.chatroom.create({
         data: {
           name: body.name,
-          password: body.password,
+          password: hashedPassword,
           chatroomType: body.type.toUpperCase() as TYPE,
           users: {
             create: {
@@ -143,7 +146,8 @@ export class ChatService {
         throw new Error('Chatroom not found');
       }
       if (chatroom.chatroomType === 'PROTECTED' && body.password !== null) {
-        if (chatroom.password !== body.password)
+        const verifyPassword = await bcrypt.compare(body.password, chatroom.password);
+        if (!verifyPassword)
           throw new Error('Invalid password');
         // check password for protected chatroom
       }
@@ -323,7 +327,8 @@ export class ChatService {
             ),
           ),
           messages: messages,
-          password: chatroom.password,
+          password: undefined,
+          // password: chatroom.password,
 
           // chatroom: {
           //   id: chatroom.id,
