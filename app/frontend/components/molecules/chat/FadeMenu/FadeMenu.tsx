@@ -4,27 +4,18 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import "@/style/FadeMenu.css";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
+import { Dispatch, SetStateAction } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { mySocket } from "@/app/utils/getSocket";
-import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { quantico } from "@/models/Font/FontModel";
-import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import {
-  setRoomOnId,
-  updateRole,
   updateUsers,
 } from "@/app/store/features/ChatRoom/ChatRoomSlice";
-import Mute from "@/components/atom/chat/mute/mute";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 import {
   useAddFriendMutation,
   useRemoveFriendMutation,
 } from "@/app/store/features/User/user.api.slice";
-import { responsiveFontSizes } from "@mui/material";
-import { addFriend, removeFriend } from "@/app/store/features/User/UserSlice";
-import { userInfo } from "os";
 import ViewProfile from "@/components/atom/chat/ViewProfile";
 
 export default function FadeMenu({
@@ -47,10 +38,10 @@ export default function FadeMenu({
   const [addFriendApi] = useAddFriendMutation();
   const [removeFriendApi] = useRemoveFriendMutation();
 
-  const handleAddFriend = () => {
+  const handleAddFriend = async () => {
     handleClose();
     if (user.playerProfile.id !== "") {
-      const response = addFriendApi({
+      const response = await addFriendApi({
         friend: target?.userProfile.id as string,
       })
         .then((response) => {
@@ -69,10 +60,10 @@ export default function FadeMenu({
     }
   };
 
-  const handleRemoveFriend = () => {
+  const handleRemoveFriend = async () => {
     handleClose();
     if (user.playerProfile.id !== "") {
-      removeFriendApi({
+      await removeFriendApi({
         friend: target?.userProfile.id as string,
       })
         .then((response) => {

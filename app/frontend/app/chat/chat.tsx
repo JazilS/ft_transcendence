@@ -18,7 +18,6 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { ConnectSocket, mySocket } from "../utils/getSocket";
 import {
   useGetConnectedUserQuery,
-  useLeaveChatroomMutation,
 } from "../store/features/User/user.api.slice";
 import {
   addFriend,
@@ -44,7 +43,6 @@ export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
   const [getRoomById] = useGetChatRoomByIdMutation();
   const dispatch = useAppDispatch();
-  const [leaveChannel] = useLeaveChatroomMutation();
   const user: User = useAppSelector((state: RootState) => state.user.user);
   const roomOn: RoomData = useAppSelector(
     (state: RootState) => state.chatRooms.roomOn

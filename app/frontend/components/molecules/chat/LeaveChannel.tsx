@@ -44,9 +44,9 @@ export default function LeaveChannel({
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const handleLeavingChannel = () => {
+  const handleLeavingChannel = async () => {
     // leave from db
-    leaveChannel({ userId: userId, roomId: roomOnId });
+    await leaveChannel({ userId: userId, roomId: roomOnId });
     dispatch(leaveChatroom(roomOnId));
     if (mySocket)
       mySocket.emit("LEAVE_ROOM", {

@@ -49,13 +49,15 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getUserIdByName: builder.mutation<{userId: string}, { userName: string }>({
-      query: (data) => ({
-        url: "/user/getUserIdByName",
-        method: "POST",
-        body: data,
-      }),
-    }),
+    getUserIdByName: builder.mutation<{ userId: string }, { userName: string }>(
+      {
+        query: (data) => ({
+          url: "/user/getUserIdByName",
+          method: "POST",
+          body: data,
+        }),
+      }
+    ),
     leaveChatroom: builder.mutation<void, { userId: string; roomId: string }>({
       query: (data) => ({
         url: "/user/leaveChatroom",
@@ -71,13 +73,6 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         url: "/user/getFadeMenuInfos",
         method: "POST",
         body: data,
-      }),
-    }),
-    // url: "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Flogin&response_type=code",
-    auth: builder.query<JSON, {}>({
-      query: (data) => ({
-        url: `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.UID}&redirect_uri=${process.env.REDIRECT_URI}&response_type=code`,
-        method: "GET",
       }),
     }),
     getConnectedUser: builder.query<User, {}>({
@@ -108,28 +103,28 @@ export const UserApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     RemoveFriend: builder.mutation<
-    Promise<
-      | {
-          success: boolean;
-          message: string;
-          sucess?: undefined;
-          data: string;
-        }
-      | {
-          sucess: boolean;
-          message: string;
-          success?: undefined;
-          data: string;
-        }
-    >,
-    { friend: string }
-  >({
-    query: (data) => ({
-      url: "/friends/remove",
-      method: "POST",
-      body: data,
+      Promise<
+        | {
+            success: boolean;
+            message: string;
+            sucess?: undefined;
+            data: string;
+          }
+        | {
+            sucess: boolean;
+            message: string;
+            success?: undefined;
+            data: string;
+          }
+      >,
+      { friend: string }
+    >({
+      query: (data) => ({
+        url: "/friends/remove",
+        method: "POST",
+        body: data,
+      }),
     }),
-  }),
   }),
 });
 

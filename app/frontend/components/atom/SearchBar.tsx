@@ -1,6 +1,5 @@
-import { useGetUserIdByNameMutation } from "@/app/store/features/User/user.api.slice";
 import { press_Start_2P } from "@/models/Font/FontModel";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PublicProfile from "./PublicProfile";
 
 export default function SearchBar() {
@@ -19,6 +18,7 @@ export default function SearchBar() {
           type="search"
           placeholder="search"
           value={userName}
+          maxLength={10}
           className="h-[44px] p-4 rounded-lg  bg-white placeholder-indigo-500 text-black text-center text-xl"
           onChange={(e) => setUserName(e.currentTarget.value)}
           onKeyDown={(e) => {

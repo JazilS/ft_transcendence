@@ -5,16 +5,12 @@ import { addRoom, setRoomOnId } from "@/app/store/features/ChatRoom/ChatRoomSlic
 import { joinChannel } from "@/app/store/features/User/UserSlice";
 import {
   useCreateChatRoomMutation,
-  useSetRoomOnMutation,
 } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import createChatRoomForm from "@/models/ChatRoom/CreateChatRoomForm";
 import { useState } from "react";
 import { RootState } from "@/app/store/store";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
-import { SerializedError } from "@reduxjs/toolkit";
 import { mySocket } from "@/app/utils/getSocket";
-// import { SetUserInStorage } from "@/app/utils/SetUserInStorage";
 
 export default function SubmitNewChan({
   access,

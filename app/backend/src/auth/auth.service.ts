@@ -64,11 +64,15 @@ export class AuthService {
     const payload = {
       sub: incomingUser.name,
       id: incomingUser.id,
+<<<<<<< HEAD
       avatar: incomingUser.avatar,
+=======
+      // avatar: incomingUser.avatar,
+>>>>>>> origin/kenan_2
     };
     const jwt = this.jwtService.sign(payload);
     res.cookie('accessToken', jwt);
-    res.cookie('avatar', incomingUser.avatar);
+    // res.cookie('avatar', incomingUser.avatar);
     res.cookie('name', incomingUser.name);
     res.redirect('http://localhost:3000/home');
     return { access_token: jwt };
@@ -129,7 +133,7 @@ export class AuthService {
       return {
         name: userInfo.data.login,
         email: userInfo.data.email,
-        avatar: userInfo.data.image.versions.medium, //check var names on /v2/me
+        avatar: userInfo.data.image.versions.small, //check var names on /v2/me
       };
     } catch (error) {
       throw new HttpException(

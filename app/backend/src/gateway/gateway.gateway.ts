@@ -88,6 +88,7 @@ export class GatewayGateway {
       // return;
       // }
       const decodedToken = this.jwtService.decode(client.handshake.auth.token);
+      if (!decodedToken) throw 'Invalid token';
       const userId = decodedToken.id;
       client.userId = userId;
       console.log('client.userId:', client.userId);

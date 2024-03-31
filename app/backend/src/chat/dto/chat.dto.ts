@@ -22,7 +22,6 @@ export class CreateChatRoomDto {
   type: string;
 
   @IsString()
-  @IsNotEmpty()
   @IsOptional()
   @MaxLength(15)
   @Matches(/^[a-zA-Z0-9]*$/, {

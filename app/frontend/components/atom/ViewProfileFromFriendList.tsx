@@ -107,10 +107,10 @@ export default function ViewProfileFromFriendList({
     fetchProfile();
   }, [getProfileByName, targetName, open]);
 
-  const handleAddFriend = () => {
+  const handleAddFriend = async () => {
     handleClose();
     if (user.playerProfile.id !== "") {
-      const response = addFriendApi({
+      await addFriendApi({
         friend: target?.id as string,
       })
         .then((response) => {
@@ -129,9 +129,9 @@ export default function ViewProfileFromFriendList({
     }
   };
 
-  const handleRemoveFriend = () => {
+  const handleRemoveFriend = async () => {
     if (user.playerProfile.id !== "") {
-      removeFriendApi({
+      await removeFriendApi({
         friend: target?.id as string,
       })
         .then((response) => {
