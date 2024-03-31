@@ -6,7 +6,7 @@ import { GetUser } from 'src/decorator/get.user.decorator';
 @Controller('twofa')
 export class TwofaController {
     constructor(private readonly TwofaService: TwofaService) {}
-
+    
     @UseGuards(AuthGuard)
     @Get('setup')
     async setup(@GetUser('id') UserId: string) {
@@ -23,5 +23,11 @@ export class TwofaController {
     @Get('disable')
     async disable(@GetUser('id') UserId: string) {
         await this.TwofaService.disableTwoFa(UserId);
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('isActive')
+    async isActive(@GetUser('id') UserId: string) {
+        return await this.TwofaService.isActive(UserId);
     }
 }

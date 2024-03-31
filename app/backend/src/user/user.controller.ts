@@ -5,9 +5,12 @@ import {
   Get,
   Post,
   Headers,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtService } from '@nestjs/jwt';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { GetUser } from 'src/decorator/get.user.decorator';
 
 @Controller('user')
 export class UserController {
@@ -15,26 +18,50 @@ export class UserController {
     private userService: UserService,
     private jwtService: JwtService,
   ) {}
+
+  @UseGuards(AuthGuard)
   @Post('updateUsername')
   async updateUsername(@Body() body: { userId: string; newName: string }) {
-    return this.userService.updateUsername(body);
+    return await this.userService.updateUsername(body);
   }
+
+  @UseGuards(AuthGuard)
   @Post('updateAvatar')
   async updateAvatar(@Body() body: { userId: string; newAvatar: string }) {
-    return this.userService.updateAvatar(body);
+    return await this.userService.updateAvatar(body);
   }
+
+  @UseGuards(AuthGuard)
   @Post('getUserNameById')
   async getUserNameById(@Body() body: { userId: string }) {
-    return this.userService.getUserNameById(body);
+    return await this.userService.getUserNameById(body);
   }
+
+  @UseGuards(AuthGuard)
+  @Post('getUserIdByName')
+  async getUserIdByName(@Body() body: { userName: string }) {
+    return await this.userService.getUserIdByName(body);
+  }
+
+  @UseGuards(AuthGuard)
   @Post('getProfileById')
   async getProfileById(@Body() body: { userId: string }) {
-    return this.userService.getProfileById(body.userId);
+    return await this.userService.getProfileById(body.userId);
   }
+
+  @UseGuards(AuthGuard)
+  @Post('getProfileByName')
+  async getProfileByName(@Body() body: { userName: string }) {
+    return await this.userService.getProfileByName(body.userName);
+  }
+
+  @UseGuards(AuthGuard)
   @Post('leaveChatroom')
   async leaveChatroom(@Body() body: { userId: string; roomId: string }) {
-    return this.userService.leaveChatroom(body);
+    return await this.userService.leaveChatroom(body);
   }
+
+  @UseGuards(AuthGuard)
   @Post('/getFadeMenuInfos')
   async getFadeMenuInfos(
     @Body()
@@ -44,29 +71,23 @@ export class UserController {
       roomId: string;
     },
   ) {
-    return this.userService.getFadeMenuInfos(
+    return await this.userService.getFadeMenuInfos(
       body.userId,
       body.targetId,
       body.roomId,
     );
   }
 
+  @UseGuards(AuthGuard)
   @Get('getConnectedUser')
-  async getConnectedUser(@Headers('authorization') authorization: string) {
+  async getConnectedUser(
+    @GetUser('id') userId: string,
+    @Headers('authorization') authorization: string,
+  ) {
     const token: string = authorization.replace('Bearer ', '');
-    console.log('getting into controller');
-
-    try {
-      const decodedToken = this.jwtService.decode(token);
-      const userId = decodedToken.id;
-
-      console.log('Decoded user ID in getConnectedUser:', userId);
-      return this.userService.getConnectedUser(userId, token);
-    } catch (error) {
-      console.error('Invalid token');
-      throw new BadRequestException('Invalid token');
-    }
+    return await this.userService.getConnectedUser(userId, token);
   }
+
   // @UseGuards(AuthGuard)
   // @Get('getUserInfos')
   // async getUserInfos(@Req() req: Request) {

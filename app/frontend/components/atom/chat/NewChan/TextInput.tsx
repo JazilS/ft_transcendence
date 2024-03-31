@@ -1,4 +1,4 @@
-import { press_Start_2P, quantico } from "@/models/Font/FontModel";
+import { quantico } from "@/models/Font/FontModel";
 
 export default function TextInput({
   setText,

@@ -21,9 +21,11 @@ import {
   useLeaveChatroomMutation,
 } from "../store/features/User/user.api.slice";
 import {
+  addFriend,
   getChatRoomsInLocal,
   leaveChatroom,
   newRoomWithFriend,
+  removeFriend,
   setAllData,
 } from "../store/features/User/UserSlice";
 import { RootState } from "../store/store";
@@ -42,6 +44,7 @@ export default function ChatPage() {
   const [isChan, setIsChan] = useState<boolean>(true);
   const [getRoomById] = useGetChatRoomByIdMutation();
   const dispatch = useAppDispatch();
+  const [leaveChannel] = useLeaveChatroomMutation();
   const user: User = useAppSelector((state: RootState) => state.user.user);
   const roomOn: RoomData = useAppSelector(
     (state: RootState) => state.chatRooms.roomOn
@@ -188,8 +191,10 @@ export default function ChatPage() {
         mySocket.on(
           "JOIN_ROOM",
           async (data: ChatMemberProfile, roomId: string) => {
-            if (roomOn.roomInfos.id === roomId)
-              dispatch(setUserProfiles([...roomOn.users, data]));
+            if (roomOn.roomInfos.id === roomId) {
+              console.log("JOIN_ROOM", data);
+              dispatch(updateUsers([...roomOn.users, data]));
+            }
           }
         );
         mySocket.on(
@@ -199,7 +204,7 @@ export default function ChatPage() {
               const updatedProfiles: ChatMemberProfile[] = roomOn.users.filter(
                 (user) => user.userProfile.id !== userId
               );
-              dispatch(setUserProfiles(updatedProfiles));
+              dispatch(updateUsers(updatedProfiles));
             }
           }
         );
@@ -237,7 +242,67 @@ export default function ChatPage() {
           "CREATE_DM_CHATROOM",
           (friendId: string, roomId: string) => {
             console.log("CREATE_DM_CHATROOM IN LISTEN", friendId, roomId);
-            dispatch(newRoomWithFriend({friendId, roomId}));
+            dispatch(newRoomWithFriend({ friendId, roomId }));
+          }
+        );
+        mySocket.on(
+          "ADD_FRIEND",
+          (newFriendId: string, newFriendName: string) => {
+            dispatch(
+              addFriend({ id: newFriendId, name: newFriendName, roomId: "" })
+            );
+            console.log("ADDING FRIEND", newFriendId, newFriendName);
+            const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
+              (user: ChatMemberProfile) => {
+                if (user.userProfile.id === newFriendId) {
+                  return {
+                    ...user,
+                    fadeMenuInfos: {
+                      ...user.fadeMenuInfos,
+                      isFriend: true,
+                    },
+                  };
+                } else {
+                  return user;
+                }
+              }
+            );
+            dispatch(updateUsers(updatedUsers));
+            // dispatch(
+            //   addFriend({
+            //     id: newFriendId,
+            //     name: newFriendName,
+            //     roomId: "",
+            //   })
+            // );
+          }
+        );
+        mySocket.on(
+          "REMOVE_FRIEND",
+          (removingFriendId: string, roomId: string) => {
+            console.log("REMOVE_FRIEND", removingFriendId, roomId);
+            const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
+              (user: ChatMemberProfile) => {
+                if (user.userProfile.id === removingFriendId) {
+                  return {
+                    ...user,
+                    fadeMenuInfos: {
+                      ...user.fadeMenuInfos,
+                      isFriend: false,
+                    },
+                  };
+                } else {
+                  return user;
+                }
+              }
+            );
+            dispatch(updateUsers(updatedUsers));
+            console.log("roomId REMOVININGINGINGINGIGNIGNGIIGNIGNIGN", roomId);
+            if (roomOnId === roomId) {
+              console.log("i get into setroom to '' here ");
+              dispatch(setRoomOnId(""));
+            }
+            dispatch(removeFriend(removingFriendId));
           }
         );
       }
@@ -254,8 +319,10 @@ export default function ChatPage() {
       mySocket.off("PROMOTE_USER");
       mySocket.off("SET_DM_CHATROOM");
       mySocket.off("CREATE_DM_CHATROOM");
+      mySocket.off("ADD_FRIEND");
+      mySocket.off("REMOVE_FRIEND");
     };
-  }, [dispatch, roomOn, roomOn.users, roomOnId, user.playerProfile.id]);
+  });
 
   return (
     <div className="h-full">

@@ -1,7 +1,6 @@
 import { useAppSelector } from "@/app/store/hooks";
 import Messages from "@/models/ChatRoom/messages";
 import React, { use, useEffect, useRef } from "react";
-import AvatarNameRow from "./AvatarNameRow";
 import PlayerAvatar from "../PlayerAvatar";
 import "@/style/DisplayMessages.css";
 

@@ -89,11 +89,30 @@ export class UserService {
     }
   }
 
+  async getUserIdByName(body: { userName: string }) {
+    try {
+      const user = await this.prismaService.user.findFirst({
+        where: { name: body.userName },
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      console.log(
+        'user.id ààààààààààààààààààààààà5555555555555555555--------',
+        user.id,
+      );
+      return { userId: user.id };
+    } catch (error) {
+      console.log(error);
+      return 'Error getting user id by name !';
+    }
+  }
+
   // GETPROFILEBYID
   async getProfileById(userId: string) {
     try {
       if (!userId) {
-        throw new Error('User ID is required');
+        throw new Error('User is required');
       }
       const user = await this.prismaService.user.findUnique({
         where: { id: userId },
@@ -102,6 +121,31 @@ export class UserService {
         id: user.id,
         name: user.name,
         imageSrc: user.avatar,
+        isConnected: user.status === 'ONLINE' ? true : false,
+      };
+    } catch (error) {
+      console.log(error);
+      return 'Error getting profile by id !';
+    }
+  }
+  // GETPROFILEBYID
+  async getProfileByName(userName: string) {
+    try {
+      if (!userName) {
+        throw new Error('User Name is required');
+      }
+      console.log('LOOKING FOR userName', userName);
+      const user = await this.prismaService.user.findFirst({
+        where: { name: userName },
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      return {
+        id: user.id,
+        name: user.name,
+        imageSrc: user.avatar,
+        isConnected: user.status === 'ONLINE' ? true : false,
       };
     } catch (error) {
       console.log(error);
@@ -120,6 +164,9 @@ export class UserService {
           users: true,
         },
       });
+      if (!usersInRoom) {
+        return 'Chatroom not found';
+      }
       const chatroomUser = await this.prismaService.chatroomUser.findFirst({
         where: { userId: body.userId, chatroomId: body.roomId },
       });
@@ -131,6 +178,11 @@ export class UserService {
           },
         });
         if (usersInRoom.users.length === 0) {
+          await this.prismaService.message.deleteMany({
+            where: {
+              chatId: body.roomId,
+            },
+          });
           await this.prismaService.chatroom.delete({
             where: {
               id: chatroomUser.chatroomId,
@@ -188,7 +240,6 @@ export class UserService {
 
       // check if user is friend
       if (user.friends.find((u) => u.id === targetId)) {
-        console.log('is friend');
         isFriend = true;
       } else isFriend = false;
 
@@ -224,7 +275,7 @@ export class UserService {
       if (chatroomUser.role) role = chatroomUser.role as string;
       else role = '';
       return {
-        isFriend: false,
+        isFriend: isFriend,
         isConnected: false,
         isInvited: false,
         isBlocked: isBlocked,
@@ -264,9 +315,9 @@ export class UserService {
           },
         },
       });
-      const chatrooms = userWithChatrooms.chatRoomsIn.map(
-        (chatroomUser) => chatroomUser.chatroom,
-      );
+      const chatrooms = userWithChatrooms.chatRoomsIn
+        .filter((chatroom) => chatroom.chatroom.chatroomType !== 'DM')
+        .map((chatroomUser) => chatroomUser.chatroom);
       return chatrooms.map((chatroom) => ({
         id: chatroom.id,
         name: chatroom.name,

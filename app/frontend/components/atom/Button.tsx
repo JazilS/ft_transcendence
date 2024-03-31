@@ -14,7 +14,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-green-900 text-white hover:bg-slate-800",
+        default: "text-white",
         header: "text-white hover:scale-110",
         publicChannel:
           "bg-transparant p-1.5 text-xl rounded-full overflow-hidden",
@@ -24,6 +24,7 @@ const buttonVariants = cva(
           "bg-[#6E82B6] justify-center items-center rounded-full hover:bg-[#53648f] hover:text-gray-300 ",
         chatSwitch: "justify-center rounded-t-2xl text-lg",
         chatMember: "bg-transparant p-1.5 text-xl rounded-full overflow-hidden",
+        FriendList: "p-1.5 text-xl rounded-xl overflow-hidden",
       },
       size: {
         default: "h-10 py-2 px-4",
@@ -32,6 +33,7 @@ const buttonVariants = cva(
         sm: "h-9 px-2",
         lg: "h11 px-8",
         channel: "h-[10%] w-full",
+        Friend: "h-20 w-[full]",
         square: "h-7 w-7",
       },
     },

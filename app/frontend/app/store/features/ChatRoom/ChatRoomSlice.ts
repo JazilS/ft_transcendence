@@ -62,15 +62,7 @@ export const ChatRoomSlice = createSlice({
     },
     newMessage: (state, action: PayloadAction<Messages>) => {
       console.log("newMessage action.payload", action.payload);
-      if (Array.isArray(state.chatRooms)) {
-        const newChatRooms: ChatRoom[] = state.chatRooms.map((chatRoom) => {
-          if (chatRoom.id === action.payload.chatId) {
-            chatRoom.messages = [...chatRoom.messages, action.payload];
-          }
-          return chatRoom;
-        });
-        state.chatRooms = newChatRooms;
-      } else console.error("state.chatRooms is not an array");
+      state.roomOn.messages = [...state.roomOn.messages, action.payload];
     },
     addChatroom: (state, action: PayloadAction<ChatRoom>) => {
       console.log("addChatroom action.payload", action.payload);
@@ -78,16 +70,7 @@ export const ChatRoomSlice = createSlice({
         state.chatRooms = [...state.chatRooms, action.payload];
       else console.error("state.chatRooms is not an array");
     },
-    setUserProfiles: (
-      state,
-      action: PayloadAction<
-        {
-          userProfile: PlayerProfile;
-          role: string;
-          fadeMenuInfos: FadeMenuInfos;
-        }[]
-      >
-    ) => {
+    setUserProfiles: (state, action: PayloadAction<ChatMemberProfile[]>) => {
       state.userProfiles = action.payload;
     },
     updateRole: (
@@ -110,7 +93,7 @@ export const ChatRoomSlice = createSlice({
     },
     updateUsers: (state, action: PayloadAction<ChatMemberProfile[]>) => {
       state.roomOn.users = action.payload;
-    }
+    },
   },
 });
 

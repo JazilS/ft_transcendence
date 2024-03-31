@@ -4,6 +4,7 @@ import { get } from "http";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import { leaveChatroom } from "./UserSlice";
 import FadeMenuInfos from "@/models/ChatRoom/FadeMenuInfos";
+import { UserProfile } from "@/models/ProfilePageModel";
 
 export const UserApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -34,9 +35,23 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    getProfileById: builder.mutation<PlayerProfile, { userId: string }>({
+    getProfileById: builder.mutation<UserProfile, { userId: string }>({
       query: (data) => ({
         url: "/user/getProfileById",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    getProfileByName: builder.mutation<UserProfile, { userName: string }>({
+      query: (data) => ({
+        url: "/user/getProfileByName",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    getUserIdByName: builder.mutation<{userId: string}, { userName: string }>({
+      query: (data) => ({
+        url: "/user/getUserIdByName",
         method: "POST",
         body: data,
       }),
@@ -92,6 +107,29 @@ export const UserApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    RemoveFriend: builder.mutation<
+    Promise<
+      | {
+          success: boolean;
+          message: string;
+          sucess?: undefined;
+          data: string;
+        }
+      | {
+          sucess: boolean;
+          message: string;
+          success?: undefined;
+          data: string;
+        }
+    >,
+    { friend: string }
+  >({
+    query: (data) => ({
+      url: "/friends/remove",
+      method: "POST",
+      body: data,
+    }),
+  }),
   }),
 });
 
@@ -104,4 +142,7 @@ export const {
   useGetFadeMenuInfosMutation,
   useGetConnectedUserQuery,
   useAddFriendMutation,
+  useRemoveFriendMutation,
+  useGetUserIdByNameMutation,
+  useGetProfileByNameMutation,
 } = UserApiSlice;

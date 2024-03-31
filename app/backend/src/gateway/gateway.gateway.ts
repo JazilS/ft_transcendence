@@ -39,8 +39,11 @@ import {
   WsUserNotFoundException,
 } from 'src/exception/customException';
 import { LibService } from 'src/lib/lib.service';
+import { v4 as uuid_v4 } from 'uuid';
 import { GAME_INVITATION_TIME_LIMIT } from 'src/game/class/GameInvitation';
 import { UserIdDto } from 'src/user/dto/dto';
+import { ChatService } from 'src/chat/chat.service';
+import * as bcrypt from 'bcrypt';
 
 @WebSocketGateway()
 // implements OnGatewayConnection, OnGatewayDisconnect
@@ -49,6 +52,7 @@ export class GatewayGateway {
     private readonly pongService: GameService,
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
+    private readonly chatService: ChatService,
     private readonly jwtService: JwtService,
     private readonly gameService: GameService,
     private readonly libService: LibService,
@@ -234,7 +238,7 @@ export class GatewayGateway {
       if (!payload.roomId || payload.roomId === '') {
         const chatroom = await this.prismaService.chatroom.create({
           data: {
-            name: payload.friendId.slice(0, 5) + client.userId.slice(0, 5),
+            name: uuid_v4().slice(0, 15),
             chatroomType: 'DM',
             users: {
               createMany: {
@@ -352,19 +356,23 @@ export class GatewayGateway {
             },
           });
 
-        client.to(payload.room).emit(
-          'JOIN_ROOM',
-          {
-            userProfile: userProfile,
-            role: userRole.role as string,
-            fadeMenuInfos: this.userService.getFadeMenuInfos(
-              client.userId,
-              payload.userId,
-              payload.room,
-            ),
-          },
-          payload.room,
-        );
+        try {
+          client.to(payload.room).emit(
+            'JOIN_ROOM',
+            {
+              userProfile: userProfile,
+              role: userRole.role as string,
+              fadeMenuInfos: await this.userService.getFadeMenuInfos(
+                client.userId,
+                payload.userId,
+                payload.room,
+              ),
+            },
+            payload.room,
+          );
+        } catch (error) {
+          console.error('Error joining room:', error);
+        }
         return userName;
       }
     } catch (error) {
@@ -385,33 +393,42 @@ export class GatewayGateway {
     @ConnectedSocket() emitter: SocketWithAuth,
   ): Promise<string> {
     // leave socketRoom
+    // let canLeave: boolean = false;
+    if (!payload.room || payload.room === '') throw 'No room provided';
+    if (!payload.userId || payload.userId === '') throw 'No userId provided';
+    if (!payload.leavingType || payload.leavingType === '')
+      throw 'No leavingType provided';
     if (payload.leavingType === 'LEAVING') payload.userId = emitter.userId;
-    if (!payload.room) throw 'No room provided';
-    if (!payload.userId) throw 'No userId provided';
-    if (!payload.leavingType) throw 'No leavingType provided';
     if (payload.leavingType === 'LEAVING' && emitter.userId !== payload.userId)
       throw 'Unauthorized';
-    if (payload.leavingType === 'LEAVING') emitter.leave(payload.room);
-    else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for (const [_, socket] of this.server.of('/').sockets) {
-        const client = socket as SocketWithAuth;
 
-        // If the socket's userId matches the given userId, make it leave the room
-        if (client.userId === payload.userId) {
-          client.leave(payload.room);
-          break;
+    console.log('userId  = ', payload.userId);
+    console.log('room = ', payload.room);
+    const roomExists = await this.prismaService.chatroom.findUnique({
+      where: { id: payload.room },
+    });
+    if (!roomExists) {
+      return;
+    }
+
+    if (payload.leavingType === 'LEAVING') {
+      emitter.leave(payload.room);
+    } else {
+      if (payload.leavingType !== 'LEAVING') {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const [_, socket] of this.server.of('/').sockets) {
+          const client = socket as SocketWithAuth;
+          if (client.userId === payload.userId) {
+            client.leave(payload.room);
+            break;
+          }
         }
       }
     }
-    console.log('userId = ', payload.userId);
-    console.log('room = ', payload.room);
-    const userInChatroom = await this.prismaService.chatroomUser.findFirst({
-      where: { chatroomId: payload.room, userId: payload.userId },
-    });
-    console.log('userInchatroom : ', userInChatroom);
-    await this.prismaService.chatroomUser.delete({
-      where: { id: userInChatroom.id },
+
+    this.userService.leaveChatroom({
+      userId: payload.userId,
+      roomId: payload.room,
     });
 
     // send message to all chat
@@ -449,22 +466,47 @@ export class GatewayGateway {
     );
 
     // Get all clients in the room
-    const clientsInRoom = await this.server.in(payload.room).fetchSockets();
 
-    // If the room is empty, delete it from the database
-    if (clientsInRoom.length === 0) {
-      // Delete all messages associated with the room
-      console.log('Room is empty, deleting room:', payload.room);
-      await this.prismaService.message.deleteMany({
-        where: { chatId: payload.room },
-      });
+    // const userInChatroom = await this.prismaService.chatroomUser.findFirst({
+    //   where: { chatroomId: payload.room, userId: payload.userId },
+    // });
+    // if (userInChatroom) {
+    //   console.log('userInchatroom : ', userInChatroom);
+    //   await this.prismaService.chatroomUser.delete({
+    //     where: { id: userInChatroom.id },
+    //   });
+    // }
 
-      // Then delete the room
-      await this.prismaService.chatroom.delete({
-        where: { id: payload.room },
-      });
-      return;
-    }
+    // const clientsInRoom = await this.server.in(payload.room).fetchSockets();
+    // // If the room is empty, delete it from the database
+    // if (clientsInRoom.length === 0) {
+    //   // Delete all messages associated with the room
+    //   console.log('Room is empty, deleting room:', payload.room);
+    //   try {
+    //     await this.prismaService.message.deleteMany({
+    //       where: { chatId: payload.room },
+    //     });
+    //   } catch (error) {
+    //     console.error('Error deletidng messages:', error);
+    //     throw error;
+    //   }
+
+    //   // Then delete the room
+    //   try {
+    //     await this.prismaService.chatroom.delete({
+    //       where: { id: payload.room },
+    //     });
+    //   } catch (error) {
+    //     console.error(
+    //       'Error deleting room:',
+    //       error,
+    //       await this.prismaService.chatroom.findFirst({
+    //         where: { id: payload.room },
+    //       }),
+    //     );
+    //   }
+    //   // return;
+    // }
     if (payload.leavingType === 'KICKED' || payload.leavingType === 'BANNED')
       this.server
         .to(payload.userId)
@@ -961,19 +1003,17 @@ export class GatewayGateway {
   ) {
     try {
       console.log('UPDATE_ROOM:', payload);
-      const nameExists = await this.prismaService.chatroom.findFirst({
-        where: { name: payload.newRoom.roomInfos.name },
-      });
-      if (nameExists) {
-        console.log('nameExists:', nameExists);
-        throw 'Room name already exists';
-      }
+
+      let hashedPassword;
+      if (!payload.newRoom.password) hashedPassword = undefined;
+      else hashedPassword = await bcrypt.hash(payload.newRoom.password, 10);
+
       await this.prismaService.chatroom.update({
         where: { id: payload.room.roomInfos.id },
         data: {
           name: payload.newRoom.roomInfos.name,
           chatroomType: payload.newRoom.roomInfos.roomType as TYPE,
-          password: payload.newRoom.password,
+          password: hashedPassword,
         },
       });
       this.server
@@ -1033,26 +1073,52 @@ export class GatewayGateway {
     }
   }
 
-  // @SubscribeMessage('GET_MUTE_TIME')
-  // async handleGetMuteTime(
-  //   @ConnectedSocket() client: SocketWithAuth,
-  //   @MessageBody()
-  //   payload: { roomId: string; mutedUser: string },
-  // ) {
-  //   try {
-  //     // Vérifier si l'utilisateur est actuellement mute
-  //     if (this.muteIntervals[payload.mutedUser]) {
-  //       // Si oui, obtenir le temps restant de mute
-  //       const muteTimeLeft = this.muteIntervals[payload.mutedUser].repeat;
+  @SubscribeMessage('ADD_FRIEND')
+  async handleAddFriend(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody()
+    payload: {
+      userId: string;
+      userName: string;
+      targetId: string;
+      targetName: string;
+      dmRoom: string;
+    },
+  ) {
+    try {
+      this.server
+        .to(payload.userId)
+        .emit('ADD_FRIEND', payload.targetId, payload.targetName);
+      this.server
+        .to(payload.targetId)
+        .emit('ADD_FRIEND', payload.userId, payload.userName);
+    } catch (error) {
+      console.error('Error adding user as friend:', error);
+    }
+  }
 
-  //       // Envoyer le temps restant de mute au client
-  //       this.server.to(payload.mutedUser).emit('GET_MUTE_TIME', muteTimeLeft);
-  //     } else {
-  //       // Si non, envoyer 0 au client
-  //       this.server.to(payload.mutedUser).emit('GET_MUTE_TIME', 0);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error getting mute time:', error);
-  //   }
-  // }
+  @SubscribeMessage('REMOVE_FRIEND')
+  async handleRemoveFriend(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody()
+    payload: {
+      userId: string;
+      userName: string;
+      targetId: string;
+      targetName: string;
+      roomId: string;
+    },
+  ) {
+    try {
+      console.log('REMOVE_FRIEND:', payload);
+      this.server
+        .to(payload.userId)
+        .emit('REMOVE_FRIEND', payload.targetId, payload.roomId);
+      this.server
+        .to(payload.targetId)
+        .emit('REMOVE_FRIEND', payload.userId, payload.roomId);
+    } catch (error) {
+      console.error('Error removing user from friends:', error);
+    }
+  }
 }

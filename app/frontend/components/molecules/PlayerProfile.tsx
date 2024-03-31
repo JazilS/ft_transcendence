@@ -1,9 +1,9 @@
-import { press_Start_2P} from '@/models/FontModel'
+import { press_Start_2P} from '@/models/Font/FontModel'
 import { UserProfile } from '@/models/ProfilePageModel'
 import PlayerAvatar from '../atom/PlayerAvatar';
 
 interface PlayerProfileProps {
-	user: UserProfile;
+	user: UserProfile | undefined;
 	width: number;
 	height: number;
 	displayName: boolean;
@@ -13,6 +13,7 @@ interface PlayerProfileProps {
 
 const PlayerProfile: React.FC<PlayerProfileProps> =  ({ user, width, height, displayName}) =>{
 
+	if (!user) return null;
 	return(
 		<>
 			<PlayerAvatar src={user?.imageSrc} width={width} height={height}/>

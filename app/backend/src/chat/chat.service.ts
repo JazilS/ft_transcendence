@@ -3,6 +3,7 @@ import { Message, Prisma, RESTRICTION, ROLE, TYPE } from '@prisma/client';
 import Messages from 'src/gateway/types/Message.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class ChatService {
@@ -32,10 +33,12 @@ export class ChatService {
       )
         throw new Error('Password cannot be empty for protected chat room');
 
+      const hashedPassword = await bcrypt.hash(body.password, 10);
+      
       const chatroom = await this.prismaService.chatroom.create({
         data: {
           name: body.name,
-          password: body.password,
+          password: hashedPassword,
           chatroomType: body.type.toUpperCase() as TYPE,
           users: {
             create: {
@@ -56,7 +59,7 @@ export class ChatService {
         name: chatroom.name,
         roomType: chatroom.chatroomType,
         users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
-        messages: null,
+        messages: [],
       };
     } catch (error) {
       if (
@@ -86,7 +89,7 @@ export class ChatService {
       name: chatroom.name,
       roomType: chatroom.chatroomType,
       users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
-      messages: null,
+      messages: [],
     }));
   }
 
@@ -108,10 +111,9 @@ export class ChatService {
           },
         },
       });
-      const chatrooms = userWithChatrooms.chatRoomsIn.map(
-        (chatroomUser) => chatroomUser.chatroom,
-      );
-      console.log('Chatrooms:', chatrooms, 'messages:');
+      const chatrooms = userWithChatrooms.chatRoomsIn
+        .filter((chatroom) => chatroom.chatroom.chatroomType !== ('DM' as TYPE))
+        .map((chatroomUser) => chatroomUser.chatroom);
       return chatrooms.map((chatroom) => ({
         id: chatroom.id,
         name: chatroom.name,
@@ -144,7 +146,8 @@ export class ChatService {
         throw new Error('Chatroom not found');
       }
       if (chatroom.chatroomType === 'PROTECTED' && body.password !== null) {
-        if (chatroom.password !== body.password)
+        const verifyPassword = await bcrypt.compare(body.password, chatroom.password);
+        if (!verifyPassword)
           throw new Error('Invalid password');
         // check password for protected chatroom
       }
@@ -197,7 +200,7 @@ export class ChatService {
         name: chatroom.name,
         roomType: chatroom.chatroomType,
         users: chatroom.users.map((chatroomUser) => chatroomUser.userId),
-        messages: null,
+        messages: [],
       };
     } catch (error) {
       console.error('Error joining chatroom:', error);
@@ -324,7 +327,8 @@ export class ChatService {
             ),
           ),
           messages: messages,
-          password: chatroom.password,
+          password: undefined,
+          // password: chatroom.password,
 
           // chatroom: {
           //   id: chatroom.id,

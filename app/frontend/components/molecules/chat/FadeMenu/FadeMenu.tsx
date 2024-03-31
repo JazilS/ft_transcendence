@@ -12,13 +12,20 @@ import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { quantico } from "@/models/Font/FontModel";
 import PlayerProfile from "@/models/User/PlayerProfile/PlayerProfile";
 import {
+  setRoomOnId,
   updateRole,
   updateUsers,
 } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import Mute from "@/components/atom/chat/mute/mute";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
-import { useAddFriendMutation } from "@/app/store/features/User/user.api.slice";
+import {
+  useAddFriendMutation,
+  useRemoveFriendMutation,
+} from "@/app/store/features/User/user.api.slice";
 import { responsiveFontSizes } from "@mui/material";
+import { addFriend, removeFriend } from "@/app/store/features/User/UserSlice";
+import { userInfo } from "os";
+import ViewProfile from "@/components/atom/chat/ViewProfile";
 
 export default function FadeMenu({
   anchorEl,
@@ -37,11 +44,13 @@ export default function FadeMenu({
     (user: ChatMemberProfile) => user.userProfile.id === user.userProfile.id
   )?.role;
   const dispatch = useAppDispatch();
-  const [addFriend] = useAddFriendMutation();
+  const [addFriendApi] = useAddFriendMutation();
+  const [removeFriendApi] = useRemoveFriendMutation();
 
   const handleAddFriend = () => {
+    handleClose();
     if (user.playerProfile.id !== "") {
-      const response = addFriend({
+      const response = addFriendApi({
         friend: target?.userProfile.id as string,
       })
         .then((response) => {
@@ -50,10 +59,37 @@ export default function FadeMenu({
         .catch((error) => {
           console.log("error FROM ADDFRIEND", error);
         });
-      // mySocket.emit("ADD_FRIEND", {
-      //   userId: user.playerProfile.id,
-      //   friendId: target?.userProfile.id,
-      // });
+      mySocket.emit("ADD_FRIEND", {
+        userId: user.playerProfile.id,
+        userName: user.playerProfile.name,
+        targetId: target?.userProfile.id,
+        targetName: target?.userProfile.name,
+        dmRoom: "",
+      });
+    }
+  };
+
+  const handleRemoveFriend = () => {
+    handleClose();
+    if (user.playerProfile.id !== "") {
+      removeFriendApi({
+        friend: target?.userProfile.id as string,
+      })
+        .then((response) => {
+          if ("data" in response && "data" in response.data) {
+            console.log("response FROM REMOVEFRIEND", response);
+            mySocket.emit("REMOVE_FRIEND", {
+              userId: user.playerProfile.id,
+              userName: user.playerProfile.name,
+              targetId: target?.userProfile.id,
+              targetName: target?.userProfile.name,
+              roomId: response.data.data,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log("error FROM REMOVEFRIEND", error);
+        });
     }
   };
 
@@ -100,7 +136,6 @@ export default function FadeMenu({
       const updatedUsers: ChatMemberProfile[] = roomOn.users.map(
         (user: ChatMemberProfile) => {
           if (user.userProfile.id === target?.userProfile.id) {
-            console.log("PPPPPPPPPPPPPPPPPPPPPPPPP", newValue);
             return {
               ...user,
               fadeMenuInfos: {
@@ -140,6 +175,10 @@ export default function FadeMenu({
     handleClose();
   };
 
+  const handleOpenProfile = () => {
+    handleClose();
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -158,16 +197,31 @@ export default function FadeMenu({
         TransitionComponent={Fade}
         className={`optionmembres ml-4`}
       >
+        {/* VIEW PROFILE */}
+        <ViewProfile targetId={target?.userProfile.id} />
+
         {/* ADD FRIEND */}
-        <MenuItem
-          onClick={() => {
-            console.log("target = ", target);
-            handleAddFriend();
-          }}
-          className={`${quantico.className} w-full`}
-        >
-          Add Friend
-        </MenuItem>
+        {target?.fadeMenuInfos.isFriend === false ? (
+          <MenuItem
+            onClick={() => {
+              console.log("target = ", target);
+              handleAddFriend();
+            }}
+            className={`${quantico.className} w-full`}
+          >
+            Add Friend
+          </MenuItem>
+        ) : (
+          <MenuItem
+            onClick={() => {
+              console.log("target = ", target);
+              handleRemoveFriend();
+            }}
+            className={`${quantico.className} w-full`}
+          >
+            Remove Friend
+          </MenuItem>
+        )}
 
         {/* BLOCK */}
         <MenuItem
@@ -185,6 +239,7 @@ export default function FadeMenu({
 
         {/* PROMOTE IN CHANNEL */}
         {target?.role === "MEMBER" &&
+          roomOn.roomInfos.roomType !== "DM" &&
           (userRole === "CREATOR" || userRole === "ADMIN") && (
             <MenuItem
               onClick={() => {
@@ -198,89 +253,41 @@ export default function FadeMenu({
           )}
 
         {/* MUTE */}
-        {target?.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
-          <MenuItem
-            onClick={() => {
-              console.log("target = ", target);
-              if (target?.fadeMenuInfos.isMuted === false) handleMute();
-              else if (target?.fadeMenuInfos.isMuted === true) handleUnMute();
-              else console.log("PROBLEM WITH MUTE MENU ITEM ----------");
-            }}
-            className={`${quantico.className} w-full`}
-          >
-            {target?.fadeMenuInfos.isMuted ? "Unmute" : "Mute"}
-          </MenuItem>
-        )}
-
-        {/* KICK */}
-        {target?.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              handleKick();
-            }}
-            className={`${quantico.className} w-full`}
-          >
-            Kick
-          </MenuItem>
-        )}
-
-        {/* BAN */}
-        {target?.fadeMenuInfos.role !== "CREATOR" && userRole !== "MEMBER" && (
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              handleBan();
-            }}
-            className={`${quantico.className} w-full`}
-          >
-            Ban
-          </MenuItem>
-        )}
-
-        {/* // TODO MUTE :
-          // eslint-disable-next-line react/jsx-no-comment-textnodes
-        //! il reste des problemes, le timeout qui ne fonctionne pas et le
-        //! logo qui se met a jour que si on clique sur le fade menu de la personnne
-
-
-
-        // TODO : ADAPTER TOUT LE FADEMENU
-
-
-
-
-
-
-        // * la restriction de message est bien effectuee, le logo change bien mais pas au bon moment */}
-        {/* MUTE */}
-        {/* {targetProfile.fadeMenuInfos.role !== "CREATOR" &&
-          userRole !== "MEMBER" && ( */}
-        {/* {console.log("targetProfile BEFORE MUTE", targetProfile)} */}
-        {/* <Mute
-          userId={user.playerProfile.id}
-          targetProfile={targetProfile}
-          roomId={roomOn.id}
-        ></Mute> */}
-        {/* )} */}
-        {/* PROMOTE IN CHANNEL */}
-        {/* {targetProfile.role === "MEMBER" &&
-          (userRole === "CREATOR" || userRole === "ADMIN") && (
+        {target?.fadeMenuInfos.role !== "CREATOR" &&
+          roomOn.roomInfos.roomType !== "DM" &&
+          userRole !== "MEMBER" && (
             <MenuItem
               onClick={() => {
-                // console.log("userRole", userRole);
-                // console.log("targetRole", targetProfile.role);
-                handleClose();
-                handlePromote();
+                console.log("target = ", target);
+                if (target?.fadeMenuInfos.isMuted === false) handleMute();
+                else if (target?.fadeMenuInfos.isMuted === true) handleUnMute();
+                else console.log("PROBLEM WITH MUTE MENU ITEM ----------");
               }}
               className={`${quantico.className} w-full`}
             >
-              Promote in channel
+              {target?.fadeMenuInfos.isMuted ? "Unmute" : "Mute"}
             </MenuItem>
           )}
-        {/* BAN */}
-        {/* {targetProfile.fadeMenuInfos.role === "MEMBER" &&
+
+        {/* KICK */}
+        {target?.fadeMenuInfos.role !== "CREATOR" &&
+          roomOn.roomInfos.roomType !== "DM" &&
           userRole !== "MEMBER" && (
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                handleKick();
+              }}
+              className={`${quantico.className} w-full`}
+            >
+              Kick
+            </MenuItem>
+          )}
+
+        {/* BAN */}
+        {target?.fadeMenuInfos.role !== "CREATOR" &&
+          userRole !== "MEMBER" &&
+          roomOn.roomInfos.roomType !== "DM" && (
             <MenuItem
               onClick={() => {
                 handleClose();
@@ -290,7 +297,7 @@ export default function FadeMenu({
             >
               Ban
             </MenuItem>
-          )}*/}
+          )}
       </Menu>
     </div>
   );
