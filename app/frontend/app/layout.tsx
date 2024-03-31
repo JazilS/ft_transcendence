@@ -5,7 +5,7 @@ import Home from "./page.tsx";
 import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 export default function RootLayout({
