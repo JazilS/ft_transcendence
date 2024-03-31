@@ -64,11 +64,7 @@ export class AuthService {
     const payload = {
       sub: incomingUser.name,
       id: incomingUser.id,
-<<<<<<< HEAD
-      avatar: incomingUser.avatar,
-=======
       // avatar: incomingUser.avatar,
->>>>>>> origin/kenan_2
     };
     const jwt = this.jwtService.sign(payload);
     res.cookie('accessToken', jwt);

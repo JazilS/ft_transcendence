@@ -73,7 +73,6 @@ export class GatewayGateway {
     );
   }
   async handleConnection(client: SocketWithAuth) {
-    console.log('USER IN HANDLE CONNECT');
     // const { sockets } = this.server.sockets;
     // const { id } = client;
 
@@ -91,7 +90,6 @@ export class GatewayGateway {
       if (!decodedToken) throw 'Invalid token';
       const userId = decodedToken.id;
       client.userId = userId;
-      console.log('client.userId:', client.userId);
     } catch (error) {
       console.error('Invalid token in gateway', error);
     }
@@ -602,7 +600,6 @@ export class GatewayGateway {
 
   @Interval(FRAME_RATE)
   async updateGame() {
-    console.log(' FRAME_RATE: ', FRAME_RATE);
     this.gameService.gameUpdate(this.server);
   }
 
@@ -900,11 +897,6 @@ export class GatewayGateway {
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody() { gameId, keyPressed }: updatePlayerPositionDto,
   ) {
-    // console.log('gameId LALA:', gameId, 'keyPressed:', keyPressed);
-    // console.log('-------------------- LAUNCHING GAME ?? ------------------');
-    // if (FRAME_RATE === 1000 / 60) {
-    //   this.gameService.gameUpdate(this.server);
-    // }
     if (!gameId || !keyPressed) {
       return;
     }

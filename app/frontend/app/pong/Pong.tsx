@@ -141,6 +141,11 @@ export const Pong = () => {
       Player2.draw(player2);
     });
 
+    mySocket.on(PongEvent.END_GAME, (data) => {
+      dispatch(setGameData(undefined));
+      router.push("/game");
+    });
+
     mySocket.on(PongEvent.USER_NO_MORE_IN_GAME, (data) => {
       dispatch(setGameData(undefined));
       router.push("/game");
@@ -150,6 +155,7 @@ export const Pong = () => {
       document.removeEventListener("keydown", keyPress);
       document.removeEventListener("keyup", keyup);
       mySocket.off(PongEvent.UPDATE_GAME);
+      mySocket.off(PongEvent.END_GAME);
       mySocket.off(PongEvent.USER_NO_MORE_IN_GAME);
     };
   }, [
@@ -164,34 +170,34 @@ export const Pong = () => {
     router,
   ]);
   return (
+    <Stack
+      width={"100%"}
+      alignItems={"center"}
+      height={"100%"}
+      display={"flex"}
+      justifyContent={"center"}
+      position={"relative"}
+    >
       <Stack
-        width={"100%"}
-        alignItems={"center"}
-        height={"100%"}
-        display={"flex"}
-        justifyContent={"center"}
-        position={"relative"}
+        width={gameWidth}
+        top={"10%"}
+        position={"absolute"}
+        direction={"row"}
+        justifyContent={"space-around"}
       >
-        <Stack
-          width={gameWidth}
-          top={"10%"}
-          position={"absolute"}
-          direction={"row"}
-          justifyContent={"space-around"}
-        >
-          <Typography variant="h1">{score.player1}</Typography>
-          <Typography variant="h1">{score.player2}</Typography>
-        </Stack>
-        <canvas
-          style={{
-            width: gameWidth,
-            height: gameHeight,
-            border: "5px solid black",
-          }}
-          ref={canvasRef}
-          width={gameWidth}
-          height={gameHeight}
-        />
+        <Typography variant="h1">{score.player1}</Typography>
+        <Typography variant="h1">{score.player2}</Typography>
       </Stack>
+      <canvas
+        style={{
+          width: gameWidth,
+          height: gameHeight,
+          border: "5px solid black",
+        }}
+        ref={canvasRef}
+        width={gameWidth}
+        height={gameHeight}
+      />
+    </Stack>
   );
 };
