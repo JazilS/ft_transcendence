@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { SocketIOAdapter } from './socket-io-adapter';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,7 +18,7 @@ async function bootstrap() {
     credentials: true,
   });
   app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
-  // app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
+  app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix('api');
   app.use(cookieParser());
   // app.setGlobalPrefix('api');
