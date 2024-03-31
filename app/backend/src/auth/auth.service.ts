@@ -62,7 +62,6 @@ export class AuthService {
     const payload = { sub: incomingUser.name, id: incomingUser.id, avatar: incomingUser.avatar };
     const jwt = this.jwtService.sign(payload);
     res.cookie('accessToken', jwt);
-    // res.cookie('id', incomingUser.id);
     res.cookie('avatar', incomingUser.avatar);
     res.cookie('name', incomingUser.name);
     res.redirect('http://localhost:3000/home');
@@ -140,13 +139,3 @@ export class AuthService {
     return type === 'Bearer' ? token : undefined;
   }
 }
-
-// async register(body: { username: string; password: string }) {
-//   const user = await this.prismaService.user.create({
-//     data: {
-//       email: body.username,
-//     },
-//   });
-
-//   return { data: user, status: 201 };
-// }

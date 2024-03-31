@@ -10,7 +10,7 @@ import {
 import { ChatService } from './chat.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from 'src/auth/auth.guard';
-// import { AuthGuard } from 'src/auth/auth.guard';
+import { GetUser } from 'src/decorator/get.user.decorator';
 
 @Controller('chat')
 export class ChatController {
@@ -19,110 +19,61 @@ export class ChatController {
     private jwtService: JwtService,
   ) {}
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post('/createChatRoom')
-  async createChatRoom(
+  async createChatRoom(@GetUser('id') userId: string,
     @Body()
     body: {
       name: string;
       type: string;
       password?: string;
       creatorId: string;
-    },
-    @Headers('authorization') authorization: string,
-  ) {
-    const token = authorization.replace('Bearer ', '');
-
-    try {
-      const decodedToken = this.jwtService.decode(token);
-      const userId = decodedToken.id;
-
+    }) {
       body.creatorId = userId;
-      return this.chatService.createChatRoom(body);
-    } catch (error) {
-      console.error('Invalid token');
-      throw new BadRequestException('Invalid token');
-    }
+      return await this.chatService.createChatRoom(body);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post('/getPublicChatRooms')
   async getPublicChatRooms() {
-    return this.chatService.getPublicChatRooms();
+    return await this.chatService.getPublicChatRooms();
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post('/getChatRoomsIn')
-  async getChatRoomsIn(@Headers('authorization') authorization: string) {
-    // Remove 'Bearer ' from the start of the token
-    const token = authorization.replace('Bearer ', '');
-
-    try {
-      // Replace 'your_secret_key' with the secret key you used to sign the token
-      const decodedToken = this.jwtService.decode(token);
-      const userId = decodedToken.id;
-
-      return this.chatService.getChatRoomsIn(userId);
-    } catch (error) {
-      console.error('Invalid token');
-      throw new BadRequestException('Invalid token');
-    }
+  async getChatRoomsIn(@GetUser('id') userId, @Headers('authorization') authorization: string) {
+      return await this.chatService.getChatRoomsIn(userId);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post('/joinChatRoom')
   async joinChatRoom(
+    @GetUser('id') userId: string,
     @Body()
     body: {
       channelId: string;
       password?: string;
     },
-    @Headers('authorization') authorization: string,
   ) {
-    // Remove 'Bearer ' from the start of the token
-    const token = authorization.replace('Bearer ', '');
-
-    try {
-      // Replace 'your_secret_key' with the secret key you used to sign the token
-      const decodedToken = this.jwtService.decode(token);
-      const userId = decodedToken.id;
       if (!body.channelId) {
         throw new BadRequestException('channelId and userId are required');
       }
-      return this.chatService.joinChatRoom(body, userId);
-    } catch (error) {
-      console.error('Invalid token');
-      throw new BadRequestException('Invalid token');
-    }
+      else {
+        return await this.chatService.joinChatRoom(body, userId);
+      }
   }
 
-  @Post('/getChatRoomById')
   @UseGuards(AuthGuard)
-  async getChatRoomById(
-    @Body()
-    body: {
-      channelId: string;
-    },
-    @Headers('authorization') authorization: string,
-  ) {
-    try {
-      const token = authorization.replace('Bearer ', '');
-
+  @Post('/getChatRoomById')
+  async getChatRoomById(@GetUser('id') userId: string, @Body() body: { channelId: string}) {
       if (!body.channelId) {
         throw new BadRequestException('channelId is required');
       }
-      // Replace 'your_secret_key' with the secret key you used to sign the token
-      const decodedToken = this.jwtService.decode(token);
-      const userId = decodedToken.id;
-      return this.chatService.getChatRoomById(body.channelId, userId);
-    } catch (error) {
-      console.error('Invalid token');
-      throw new BadRequestException('Invalid token');
-    }
+      return await this.chatService.getChatRoomById(body.channelId, userId);
   }
 
+  @UseGuards(AuthGuard)
   @Post('/getUserNamesFromRoom')
-  // @UseGuards(AuthGuard)
   async getUserNamesFromRoom(
     @Body()
     body: {
@@ -132,11 +83,10 @@ export class ChatController {
     if (!body.channelId) {
       throw new BadRequestException('channelId is required');
     }
-    return this.chatService.getUserNamesFromRoom(body.channelId);
+    return await this.chatService.getUserNamesFromRoom(body.channelId);
   }
 
-  // not used
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post('/addMessage')
   async addMessage(
     @Body()
@@ -151,35 +101,26 @@ export class ChatController {
       };
     },
   ) {
-    return this.chatService.addMessage(body);
+    return await this.chatService.addMessage(body);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post('/getMessagesFromRoom')
   async getMessagesFromRoom(
+    @GetUser('id') userId: string,
     @Body()
     body: {
       roomId: string;
     },
-    @Headers('authorization') authorization: string,
   ) {
-    try {
-      const token = authorization.replace('Bearer ', '');
-
       if (!body.roomId) {
         throw new BadRequestException('channelId is required');
       }
-      const decodedToken = this.jwtService.decode(token);
-      const userId = decodedToken.id;
-      return this.chatService.getMessagesFromRoom(body.roomId, userId);
-    } catch (error) {
-      console.error('Invalid token');
-      throw new BadRequestException('Invalid token');
-    }
+      return await this.chatService.getMessagesFromRoom(body.roomId, userId);
   }
 
   // a revoir quand je vais faire chatmembers
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post('/getProfilesFromRoom')
   async getProfilesFromRoom(
     @Body()
@@ -188,6 +129,6 @@ export class ChatController {
       userId: string;
     },
   ) {
-    return this.chatService.getProfilesFromRoom(body.channelId, body.userId);
+    return await this.chatService.getProfilesFromRoom(body.channelId, body.userId);
   }
 }

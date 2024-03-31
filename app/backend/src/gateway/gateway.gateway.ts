@@ -41,6 +41,7 @@ import {
 import { LibService } from 'src/lib/lib.service';
 import { GAME_INVITATION_TIME_LIMIT } from 'src/game/class/GameInvitation';
 import { UserIdDto } from 'src/user/dto/dto';
+import * as bcrypt from "bcrypt";
 
 @WebSocketGateway()
 // implements OnGatewayConnection, OnGatewayDisconnect
@@ -943,19 +944,26 @@ export class GatewayGateway {
   ) {
     try {
       console.log('UPDATE_ROOM:', payload);
-      const nameExists = await this.prismaService.chatroom.findFirst({
-        where: { name: payload.newRoom.roomInfos.name },
-      });
-      if (nameExists) {
-        console.log('nameExists:', nameExists);
-        throw 'Room name already exists';
-      }
+      // const nameExists = await this.prismaService.chatroom.findFirst({
+      //   where: { name: payload.newRoom.roomInfos.name },
+      // });
+      // if (nameExists) {
+      //   console.log('nameExists:', nameExists);
+      //   throw 'Room name already exists';
+      // }
+
+      let hashedPassword;
+      if (!payload.newRoom.password)
+        hashedPassword = undefined;
+      else
+        hashedPassword = await bcrypt.hash(payload.newRoom.password, 10);
+
       await this.prismaService.chatroom.update({
         where: { id: payload.room.roomInfos.id },
         data: {
           name: payload.newRoom.roomInfos.name,
           chatroomType: payload.newRoom.roomInfos.roomType as TYPE,
-          password: payload.newRoom.password,
+          password: hashedPassword,
         },
       });
       this.server

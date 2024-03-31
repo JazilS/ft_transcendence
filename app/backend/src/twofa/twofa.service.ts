@@ -15,7 +15,6 @@ export class TwofaService {
     await this.prismaService.user.update({
       where: { id: UserId },
       data: { twoFaSecret: secret.base32.toString() },
-      // twoFa: true }
       // twoFa: true } faut pas le faire
     });
     return { secret: secret.base32, qrCode: qrCodeImage };
@@ -55,10 +54,8 @@ export class TwofaService {
         qrCheck: false,
       },
     });
-    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaa');
-    void user;
+    void user; //
   }
-
 
   async isActive(UserId: string) {
     const user = await this.prismaService.user.findUnique({
@@ -70,10 +67,4 @@ export class TwofaService {
       return false;
     return user.twoFa;
   }
-  // async turnOnTwoFactorAuthenticaton(userId: string) {
-  //     await this.prismaService.user.update({
-  //         where: { id: userId },
-  //         data: { twoFa: true }
-  //     })
-  // }
 }

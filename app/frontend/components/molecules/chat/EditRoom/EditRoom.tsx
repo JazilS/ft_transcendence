@@ -31,7 +31,7 @@ export default function EditRoom() {
 
   const [channelName, setChannelName] = React.useState(roomOn.roomInfos.name);
   const [access, setAccess] = React.useState(roomOn.roomInfos.roomType);
-  const [password, setPassword] = React.useState(roomOn.password);
+  const [password, setPassword] = React.useState<string | undefined>(undefined);
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
@@ -48,10 +48,20 @@ export default function EditRoom() {
       messages: roomOn.messages,
       password: password,
     };
-    if (mySocket) {
-      mySocket.emit("UPDATE_ROOM", { room: roomOn, newRoom: newRoom });
+    console.log(
+      "AAAAAAAAAAAAAAAAAAAAAACCCCCCCCCCCCCCCCCCCEEEESSSSSSSSSSSSSS = ",
+      access
+    );
+    if (access == "PROTECTED" && (password == undefined || password === "")) {
+      console.log("BBBBB return error catched ");
+      return;
     } else {
-      console.error("Socket is not connected.");
+      console.log("socket emit ---");
+      if (mySocket) {
+        mySocket.emit("UPDATE_ROOM", { room: roomOn, newRoom: newRoom });
+      } else {
+        console.error("Socket is not connected.");
+      }
     }
   };
   useEffect(() => {
