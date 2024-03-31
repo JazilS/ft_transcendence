@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -11,6 +10,7 @@ import { UserService } from './user.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { GetUser } from 'src/decorator/get.user.decorator';
+import { GetProfileByNameDto, UpdateUsernameDto } from './dto/dto';
 
 @Controller('user')
 export class UserController {
@@ -21,7 +21,7 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Post('updateUsername')
-  async updateUsername(@Body() body: { userId: string; newName: string }) {
+  async updateUsername(@Body() body: UpdateUsernameDto) {
     return await this.userService.updateUsername(body);
   }
 
@@ -51,7 +51,7 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Post('getProfileByName')
-  async getProfileByName(@Body() body: { userName: string }) {
+  async getProfileByName(@Body() body: GetProfileByNameDto) {
     return await this.userService.getProfileByName(body.userName);
   }
 

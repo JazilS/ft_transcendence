@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import "@/app/styles.css";
@@ -9,7 +9,6 @@ import { press_Start_2P, quantico } from "@/models/Font/FontModel";
 import {
   useGetPublicChatRoomsMutation,
   useJoinChatRoomMutation,
-  useSetRoomOnMutation,
 } from "@/app/store/features/ChatRoom/ChatRoom.api.slice";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import { joinChannel } from "@/app/store/features/User/UserSlice";
@@ -19,7 +18,6 @@ import {
   setRoomOnId,
 } from "@/app/store/features/ChatRoom/ChatRoomSlice";
 import { RootState } from "@/app/store/store";
-import Cookies from "js-cookie";
 
 export const style = {
   position: "absolute",

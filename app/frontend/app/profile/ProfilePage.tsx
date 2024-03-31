@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import PlayerProfile from "@/components/molecules/PlayerProfileDisplay";
 import EditAvatar from "./EditAvatar";
 import "../styles.css";
@@ -11,24 +11,14 @@ import { press_Start_2P, quantico } from "@/models/Font/FontModel";
 import { useGetConnectedUserQuery } from "../store/features/User/user.api.slice";
 import { ConnectSocket, mySocket } from "../utils/getSocket";
 import {
-  addFriend,
   getChatRoomsInLocal,
-  removeFriend,
   setAllData,
 } from "../store/features/User/UserSlice";
 import { useGetChatRoomsInMutation } from "../store/features/ChatRoom/ChatRoom.api.slice";
 import { RootState } from "../store/store";
 import ChatRoom from "@/models/ChatRoom/ChatRoomModel";
 import Button from "@/components/atom/Button";
-import PlayerAvatar from "@/components/atom/PlayerAvatar";
-import PublicProfile from "@/components/atom/PublicProfile";
-import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 import RoomData from "@/models/ChatRoom/RoomData";
-import {
-  setRoomOnId,
-  updateUsers,
-} from "../store/features/ChatRoom/ChatRoomSlice";
-import { View } from "lucide-react";
 import ViewProfileFromFriendList from "@/components/atom/ViewProfileFromFriendList";
 
 export default function ProfilePage() {
@@ -36,12 +26,12 @@ export default function ProfilePage() {
   const [targetName, setTargetName] = useState("");
   const dispatch = useAppDispatch();
   const [getChannels] = useGetChatRoomsInMutation();
-  const roomOn: RoomData = useAppSelector(
-    (state: RootState) => state.chatRooms.roomOn
-  );
-  const roomOnId: string = useAppSelector(
-    (state: RootState) => state.chatRooms.roomOnId
-  );
+  // const roomOn: RoomData = useAppSelector(
+  //   (state: RootState) => state.chatRooms.roomOn
+  // );
+  // const roomOnId: string = useAppSelector(
+  //   (state: RootState) => state.chatRooms.roomOnId
+  // );
   const [open, setOpen] = useState<boolean>(false);
   const user: User = useAppSelector((state: RootState) => state.user.user);
 

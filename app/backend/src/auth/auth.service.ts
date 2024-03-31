@@ -42,27 +42,33 @@ export class AuthService {
       });
       incomingUser = { ...newUser, id: newUser.id };
     } else {
-        if (registeredUser.twoFa && registeredUser.qrCheck)
-        {
-          const payload = { sub: registeredUser.name, id: registeredUser.id, avatar: registeredUser.avatar };
-          const jwt = this.jwtService.sign(payload);
-          res.cookie('2fa', jwt);
-          res.redirect('http://localhost:3000/twofa');
-          return (registeredUser.id);
-        }
-        else {
-          const tmp = await this.prismaService.user.update({
-            where: { email: incomingUser.email },
-            // where: { id: user.id },
-            data: { status: 'ONLINE' },
-          });
-          incomingUser = { ...tmp, id: tmp.id };
+      if (registeredUser.twoFa && registeredUser.qrCheck) {
+        const payload = {
+          sub: registeredUser.name,
+          id: registeredUser.id,
+          avatar: registeredUser.avatar,
+        };
+        const jwt = this.jwtService.sign(payload);
+        res.cookie('2fa', jwt);
+        res.redirect('http://localhost:3000/twofa');
+        return registeredUser.id;
+      } else {
+        const tmp = await this.prismaService.user.update({
+          where: { email: incomingUser.email },
+          // where: { id: user.id },
+          data: { status: 'ONLINE' },
+        });
+        incomingUser = { ...tmp, id: tmp.id };
       }
     }
-    const payload = { sub: incomingUser.name, id: incomingUser.id, avatar: incomingUser.avatar };
+    const payload = {
+      sub: incomingUser.name,
+      id: incomingUser.id,
+      // avatar: incomingUser.avatar,
+    };
     const jwt = this.jwtService.sign(payload);
     res.cookie('accessToken', jwt);
-    res.cookie('avatar', incomingUser.avatar);
+    // res.cookie('avatar', incomingUser.avatar);
     res.cookie('name', incomingUser.name);
     res.redirect('http://localhost:3000/home');
     return { access_token: jwt };
@@ -81,8 +87,7 @@ export class AuthService {
       });
       await this.prismaService.user.update({
         where: { id: decoded.id },
-        data: { status: 'OFFLINE',
-                qrCheck: user.twoFa ? true : false },
+        data: { status: 'OFFLINE', qrCheck: user.twoFa ? true : false },
       });
       return { data: 'logout successful' };
     } catch (error) {
@@ -124,7 +129,7 @@ export class AuthService {
       return {
         name: userInfo.data.login,
         email: userInfo.data.email,
-        avatar: userInfo.data.image.versions.medium, //check var names on /v2/me
+        avatar: userInfo.data.image.versions.small, //check var names on /v2/me
       };
     } catch (error) {
       throw new HttpException(

@@ -22,15 +22,19 @@ export default function CropImage({ src, user, onCLose }: CropDemoProps) {
   };
   const [updateAvatar] = useUpdateAvatarMutation();
 
-  const handleConfirmCrop = (event: any) => {
+  const handleConfirmCrop = async (event: any) => {
     if (croppedImage) {
-      const response = updateAvatar({userId: user.id, newAvatar: croppedImage});
+      console.log("croppedImage", croppedImage);
+      const response = await updateAvatar({
+        userId: user.id,
+        newAvatar: croppedImage,
+      });
       dispatch(setNewAvatarSrc(croppedImage));
       onCLose();
     }
   };
 
-  console.log(src);
+  //console.log(src);
   return (
     <div className="flex flex-col items-center space-y-5 mb-14">
       <div className=" w-fit max-w-[880px] h-[336px] flex flex-col md">

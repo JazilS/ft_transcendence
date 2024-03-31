@@ -10,7 +10,6 @@ import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { ChatMemberProfile } from "@/models/ChatRoom/ChatMemberProfile";
 import { MenuItem } from "@mui/material";
 import { quantico } from "@/models/Font/FontModel";
-import Image from "next/image";
 import PlayerProfile from "../../molecules/PlayerProfile";
 import {
   useAddFriendMutation,
@@ -125,10 +124,10 @@ export default function ViewProfile({
     fetchProfile();
   }, []);
 
-  const handleAddFriend = () => {
+  const handleAddFriend = async () => {
     handleClose();
     if (user.playerProfile.id !== "") {
-      addFriendApi({
+      await addFriendApi({
         friend: target?.id as string,
       })
         .then((response) => {
@@ -147,9 +146,9 @@ export default function ViewProfile({
     }
   };
 
-  const handleRemoveFriend = () => {
+  const handleRemoveFriend = async () => {
     if (user.playerProfile.id !== "") {
-      removeFriendApi({
+      await removeFriendApi({
         friend: target?.id as string,
       })
         .then((response) => {
