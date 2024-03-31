@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { IPongGame, PongTypeNormal } from './class/InterfaceGame';
+import { IPongGame } from './class/InterfaceGame';
 import {
   GAME_INVITATION_TIME_LIMIT,
   GameInvitation,
 } from './class/GameInvitation';
 import { PongGame } from './class/PongGame';
 import { UserNotFoundException } from '../exception/user_exception';
-import { keyPressedType, PongGameType } from '../../shared/constant';
+import {
+  keyPressedType,
+  PongGameType,
+  PongTypeNormal,
+} from '../../shared/constant';
 import { Server } from 'socket.io';
 import { LibService } from 'src/lib/lib.service';
 import { PlayerStartGameInfo, StartGameInfo } from '../../shared/types';

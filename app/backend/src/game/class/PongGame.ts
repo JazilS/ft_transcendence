@@ -1,10 +1,11 @@
-import { IPongGame, PongTypeNormal } from './InterfaceGame';
+import { IPongGame } from './InterfaceGame';
 import { Player } from '../../../shared/Player';
 import {
   defaultPlayer,
   defaultOpponentPlayer,
   defaultBall,
   FRAME_RATE,
+  PongTypeNormal,
 } from '../../../shared/constant';
 import { Ball } from '../../../shared/Ball';
 

@@ -1,5 +1,5 @@
+import { pongType, PongGameType } from 'shared/constant';
 import { PongEvent } from '../../../shared/socketEvent';
-import { pongType, PongGameType } from '../class/InterfaceGame';
 import { IsEnum, IsIn, IsNotEmpty, IsString } from 'class-validator';
 
 enum Position {

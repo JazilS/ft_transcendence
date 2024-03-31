@@ -16,7 +16,7 @@ import RoomData from './types/RoomData.types';
 import { UserService } from 'src/user/user.service';
 import { UserData } from '../types/userInfo';
 import { Interval } from '@nestjs/schedule';
-import { FRAME_RATE } from '../../shared/constant';
+import { FRAME_RATE, PongTypeNormal } from '../../shared/constant';
 import { GameService } from 'src/game/game.service';
 import {
   GeneralEvent,
@@ -24,7 +24,6 @@ import {
   PONG_ROOM_PREFIX,
 } from '../../shared/socketEvent';
 
-import { PongTypeNormal } from 'src/game/class/InterfaceGame';
 import {
   GameIdDto,
   GameInvitationDto,

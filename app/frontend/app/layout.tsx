@@ -1,7 +1,7 @@
 "use client";
 
 import MyHeader from "@/components/organism/Header";
-import Home from "./page.tsx";
+import Home from "./home/page";
 import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
