@@ -41,8 +41,16 @@ export default function Twofa() {
           setResponse(false);
         } else {
           Cookies.remove("2fa");
-          window.location.href =
-            "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f5c20fa75a6d24063ccbf4571c48ac0b0379caf31268a8018b0dc3a7076b9fac&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fapi%2Fauth%2Flogin&response_type=code";
+          const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
+          const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI;
+      
+          if (clientId && redirectUri) {
+            window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+              redirectUri
+            )}&response_type=code`;
+          } else {
+            console.error("Environment variables not properly set.");
+          }
         }
       })
       .catch((error: any) => {
