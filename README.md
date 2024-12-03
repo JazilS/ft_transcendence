@@ -32,16 +32,18 @@
 
 ---
 
-## 🛠️ Technologies utilisées
+### 🛠️ Technologies utilisées
 
-- **Backend** : [NestJS](https://nestjs.com/)
-- **Frontend** : [TypeScript](https://www.typescriptlang.org/) avec le framework de ton choix.
-- **Base de données** : PostgreSQL.
+- **Backend** : [NestJS](https://nestjs.com/) - Framework Node.js pour construire des API performantes et scalables.
+- **Frontend** : [Next.js](https://nextjs.org/) avec [React](https://reactjs.org/) - Framework et librairie pour construire des interfaces modernes et interactives.
+- **CSS** : [Tailwind CSS](https://tailwindcss.com/) - Framework utilitaire pour un design rapide et personnalisable.
+- **Base de données** : PostgreSQL - Base de données relationnelle robuste.
 - **Docker** : déploiement avec une commande unique (`docker-compose up --build`).
-- Sécurité :
+- **Sécurité** :
   - Mots de passe hashés avec un algorithme robuste.
   - Protection contre les injections SQL.
   - Validation des données côté serveur.
+
 
 ---
 
