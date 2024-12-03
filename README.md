@@ -53,11 +53,3 @@
 - Expérience utilisateur optimisée : aucun bug ou avertissement non géré.
 
 ---
-
-## 💡 Comment démarrer ?
-
-1. Clonez ce dépôt.
-2. Configurez vos variables d'environnement dans un fichier `.env` (non inclus dans le dépôt pour des raisons de sécurité).
-3. Lancez le projet avec la commande :
-   ```bash
-   docker-compose up --build
