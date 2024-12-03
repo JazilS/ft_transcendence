@@ -1,4 +1,4 @@
-# 🏓 Transcendence - The Ultimate Pong Contest Platform
+# 🏓 ft_transcendence - 42cursus Project
 
 **Transcendence** est une plateforme web complète qui permet aux utilisateurs de jouer à **Pong**, le jeu classique des années 70, en ligne et en temps réel. Ce projet propose une expérience utilisateur moderne avec des fonctionnalités avancées telles que la personnalisation, un chat intégré, et un système de matchmaking pour des parties compétitives. Voici une vue d’ensemble des fonctionnalités et technologies clés.
 
