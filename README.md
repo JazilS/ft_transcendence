@@ -48,7 +48,7 @@
 ---
 
 ## 🎨 Design et accessibilité
-- Application **Single Page Application (SPA)**, compatible avec les dernières versions de **Google Chrome** et un autre navigateur moderne.
+- Application **Single Page Application (SPA)**, compatible avec les dernières versions de **Google Chrome** et autre navigateur moderne.
 - Navigation fluide avec prise en charge des boutons *Précédent* et *Suivant* du navigateur.
 - Expérience utilisateur optimisée : aucun bug ou avertissement non géré.
 
